@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+mkdir -p "$HOME/.personal/first"
+mkdir -p "$HOME/.personal/configs"
+ln -sf "$PWD/dotfiles/private/versions" "$HOME/.personal/first/versions"
+ln -sf "$PWD/dotfiles/configs/postgres" "$HOME/.personal/configs/postgres"
+
+cat "./shell_hook" >> "$HOME/.bash_profile"
+

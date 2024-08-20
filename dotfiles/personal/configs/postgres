@@ -2,3 +2,29 @@ export PATH="/opt/homebrew/opt/$pg_version/bin:$PATH"
 export LDFLAGS="-L/opt/homebrew/opt/$pg_version/lib"
 export CPPFLAGS="-I/opt/homebrew/opt/$pg_version/include"
 export PKG_CONFIG_PATH="/opt/homebrew/opt/$pg_version/lib/pkgconfig"
+
+# Post installation info when installing via homebrew:
+
+# This formula has created a default database cluster with:
+#  initdb --locale=C -E UTF-8 /opt/homebrew/var/postgresql@13
+# For more details, read:
+#   https://www.postgresql.org/docs/13/app-initdb.html
+#
+# postgresql@13 is keg-only, which means it was not symlinked into /opt/homebrew,
+# because this is an alternate version of another formula.
+#
+# If you need to have postgresql@13 first in your PATH, run:
+#   echo 'export PATH="/opt/homebrew/opt/postgresql@13/bin:$PATH"' >> /Users/paschelino/.bash_profile
+#
+# For compilers to find postgresql@13 you may need to set:
+#  export LDFLAGS="-L/opt/homebrew/opt/postgresql@13/lib"
+#  export CPPFLAGS="-I/opt/homebrew/opt/postgresql@13/include"
+#
+# For pkg-config to find postgresql@13 you may need to set:
+#  export PKG_CONFIG_PATH="/opt/homebrew/opt/postgresql@13/lib/pkgconfig"
+#
+# To start postgresql@13 now and restart at login:
+#   brew services start postgresql@13
+# Or, if you don't want/need a background service you can just run:
+#   /opt/homebrew/opt/postgresql@13/bin/postgres -D /opt/homebrew/var/postgresql@13
+

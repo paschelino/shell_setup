@@ -11,5 +11,8 @@ for shellfile in $shellfiles; do
 done
 unset shellfiles
 unset shellfile
+
+[ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
+
 # end paschelino's custom stuff
 

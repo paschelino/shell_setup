@@ -13,7 +13,15 @@ mkdir -p "$HOME/.personal/first"
 mkdir -p "$HOME/.personal/configs"
 ln -sf "$PWD/dotfiles/config/nvim" "$HOME/.config/nvim"
 ln -sf "$PWD/dotfiles/private/versions" "$HOME/.personal/first/versions"
-ln -sf "$PWD/dotfiles/personal/configs/postgres" "$HOME/.personal/configs/postgres"
+
+remember="$PWD"
+cd "$PWD/dotfiles/personal/configs/"
+for shellfile in *; do
+  ln -sf "$remember/dotfiles/personal/configs/$shellfile" "$HOME/.personal/configs/$shellfile"
+done
+cd "$remember"
+unset remember
+
 ln -sf "$PWD/.tmux.conf" "$HOME/.tmux.conf"
 
 echo "Appending the shell_hook to $HOME/.bash_profile..."

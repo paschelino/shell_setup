@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if ! git st &> /dev/null; then
+if ! git config get alias.st | grep 'status' > /dev/null; then
   echo "Configuring git aliases..."
   git config --global alias.co checkout
   git config --global alias.br branch

@@ -9,4 +9,8 @@ if ! git config get alias.st | grep 'status' > /dev/null; then
   git config --global alias.unstage 'reset HEAD --'
   git config --global alias.last 'log -1 HEAD'
 fi
+if ! git config get init.defaultBranch | grep 'main' > /dev/null; then
+  echo "Setting defaultBranch to 'main'"
+  git config --global init.defaultBranch main
+fi
 

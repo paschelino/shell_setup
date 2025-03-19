@@ -30,4 +30,5 @@ brew "rustup"
 cask "iterm2"
 cask "amethyst"
 cask "font-meslo-lg-nerd-font"
+cask "ghostty"
 

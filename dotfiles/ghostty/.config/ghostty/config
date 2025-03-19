@@ -1,0 +1,4 @@
+theme = catppuccin-mocha
+font-family = Meslo LGS Nerd Font Mono
+gtk-titlebar = true
+mouse-shift-capture = true

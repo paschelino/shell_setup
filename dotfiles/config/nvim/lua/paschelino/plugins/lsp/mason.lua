@@ -27,7 +27,6 @@ return {
 		mason_lspconfig.setup({
 			-- list of servers for mason to install
 			ensure_installed = {
-				"tsserver",
 				"html",
 				"cssls",
 				"tailwindcss",
@@ -38,6 +37,7 @@ return {
 				"prismals",
 				"pyright",
 			},
+			automatic_installation = true,
 		})
 
 		mason_tool_installer.setup({

@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+if ! command -v brew &> /dev/null; then
+  echo "installing Homebrew..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+echo "Running brew bundle..."
+brew bundle
+
+echo "Creating symlinks..."
+mkdir -p "$HOME/.personal/first"
+mkdir -p "$HOME/.personal/configs"
+ln -sf "$PWD/dotfiles/config/nvim" "$HOME/.config/nvim"
+ln -sf "$PWD/dotfiles/private/versions" "$HOME/.personal/first/versions"
+
+remember="$PWD"
+cd "$PWD/dotfiles/personal/configs/"
+for shellfile in *; do
+  ln -sf "$remember/dotfiles/personal/configs/$shellfile" "$HOME/.personal/configs/$shellfile"
+done
+cd "$remember"
+unset remember
+
+ln -sf "$PWD/.tmux.conf" "$HOME/.tmux.conf"
+
+echo "Appending the shell_hook to $HOME/.bash_profile..."
+cat "./shell_hook" >> "$HOME/.bash_profile"
+
+echo "Installation complete. Please remember to configure the font 'MesloLGS Nerd Font Mono' in your terminal profile."
+

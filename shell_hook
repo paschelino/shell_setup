@@ -1,0 +1,18 @@
+# paschelino's custom stuff:
+shellfiles="$HOME/.personal/first/*"
+
+for shellfile in $shellfiles; do
+  [ -r "$shellfile" ] && source "$shellfile"
+done
+
+shellfiles="$HOME/.personal/configs/*"
+for shellfile in $shellfiles; do
+  [ -r "$shellfile" ] && source "$shellfile"
+done
+unset shellfiles
+unset shellfile
+
+[ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
+
+# end paschelino's custom stuff
+

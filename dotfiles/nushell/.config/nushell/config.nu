@@ -28,3 +28,6 @@ $env.path ++= [ $"($env.home)/.cargo/bin" ]
   nu_plugin_query
 ] | each { plugin add $"($env.home)/.cargo/bin/($in)" } | ignore
 
+mkdir ($nu.data-dir | path join "vendor/autoload")
+starship init nu | save -f ($nu.data-dir | path join "vendor/autoload/starship.nu")
+

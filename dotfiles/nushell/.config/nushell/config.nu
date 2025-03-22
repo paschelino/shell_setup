@@ -16,7 +16,3 @@
 #
 # You can remove these comments if you want or leave
 # them for future reference.
-
-# add brew bin path:
-$env.path ++= ['/opt/homebrew/bin']
-$env.config.buffer_editor = "nvim"

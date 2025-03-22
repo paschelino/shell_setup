@@ -16,3 +16,6 @@
 #
 # You can remove these comments if you want or leave
 # them for future reference.
+
+$env.config.show_banner = false
+$env.xdg_config_home = $"($env.home)/.config"

@@ -2,3 +2,5 @@ theme = catppuccin-mocha
 font-family = Meslo LGS Nerd Font Mono
 gtk-titlebar = true
 mouse-shift-capture = true
+command = env XDG_CONFIG_HOME="$HOME/.config" PATH="/opt/homebrew/bin:$PATH" EDITOR="nvim" VISUAL="nvim" /opt/homebrew/bin/nu -l
+

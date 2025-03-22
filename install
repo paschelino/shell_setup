@@ -9,23 +9,22 @@ echo "Running brew bundle..."
 brew bundle
 
 echo "Creating symlinks..."
-mkdir -p "$HOME/.personal/first"
-mkdir -p "$HOME/.personal/configs"
-ln -sf "$PWD/dotfiles/config/nvim" "$HOME/.config/nvim"
-ln -sf "$PWD/dotfiles/private/versions" "$HOME/.personal/first/versions"
+cd ./dotfiles/
+stow --target="$HOME" *
+cd -
 
-remember="$PWD"
-cd "$PWD/dotfiles/personal/configs/"
-for shellfile in *; do
-  ln -sf "$remember/dotfiles/personal/configs/$shellfile" "$HOME/.personal/configs/$shellfile"
-done
-cd "$remember"
-unset remember
+if ! command -v rustup &> /dev/null; then
+  echo "Installing Rust..."
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+else
+  echo "Updating Rust..."
+  rustup update
+fi
 
-ln -sf "$PWD/.tmux.conf" "$HOME/.tmux.conf"
-
-echo "Appending the shell_hook to $HOME/.bash_profile..."
-cat "./shell_hook" >> "$HOME/.bash_profile"
+if ! command -v nu &> /dev/null; then
+  echo "Installing Cargo binaries..."
+  bash ./cargo_installs.sh
+fi
 
 echo "Installation complete. Please remember to configure the font 'MesloLGS Nerd Font Mono' in your terminal profile."
 

@@ -19,3 +19,5 @@
 
 $env.config.show_banner = false
 $env.xdg_config_home = $"($env.home)/.config"
+$env.path ++= [ $"($env.home)/.cargo/bin" ]
+

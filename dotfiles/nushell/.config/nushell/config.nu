@@ -31,3 +31,6 @@ $env.path ++= [ $"($env.home)/.cargo/bin" ]
 mkdir ($nu.data-dir | path join "vendor/autoload")
 starship init nu | save -f ($nu.data-dir | path join "vendor/autoload/starship.nu")
 
+#~/.config/nushell/config.nu
+source ~/.cache/carapace/init.nu
+

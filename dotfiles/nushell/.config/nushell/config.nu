@@ -21,3 +21,10 @@ $env.config.show_banner = false
 $env.xdg_config_home = $"($env.home)/.config"
 $env.path ++= [ $"($env.home)/.cargo/bin" ]
 
+[ nu_plugin_inc
+  nu_plugin_polars
+  nu_plugin_gstat
+  nu_plugin_formats
+  nu_plugin_query
+] | each { plugin add $"($env.home)/.cargo/bin/($in)" } | ignore
+

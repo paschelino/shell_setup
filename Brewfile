@@ -1,6 +1,7 @@
 tap "hashicorp/tap"
 tap "jesseduffield/lazygit"
 
+brew "carapace"
 brew "hashicorp/tap/terraform"
 brew "trash"
 brew "neovim"
@@ -26,6 +27,7 @@ brew "rake-completion"
 brew "ruby-completion"
 brew "rustc-completion"
 brew "rustup"
+brew "starship"
 brew "tmuxinator"
 brew "tmuxinator-completion"
 

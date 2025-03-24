@@ -99,4 +99,8 @@ commands. But after short time, it opens a pop up with the available keymappings
 2. When you are in edit mode in a buffer and want to get back to normal mode, instead of hitting ESC, you can type short after another `jk`.
 This will enter your muscle memory very quickly and you will never want to miss it again.
 3. When you want to know all capabilities available, it is best to look into the `~/.config/nvim` folder and to browse the plugin configs.
-Each of the plugin configs relates to a GitHub project where you can find more details on how to use those.
+Each of the plugin configs relates to a GitHub project where you can find more details on how to use those. Tools you might love the most:
+3.1. LazyGit (hit SPACE+lg)
+3.2. Toggle file explorer (hit SPACE+ee to open or SPACE+et to close it.)
+3.3. Opening or closing folders in the file explorer: Hit enter to open, hit backspace to close. Or use double clicks with the mouse :-D
+3.4. Open the key bindings for the file explorer: When in the file explorer hit `g?`

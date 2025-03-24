@@ -88,3 +88,16 @@ ls -la ~/.config
 # ╰────┴─────────────────────────────────────────┴─────────┴────────────────────────────────────────────────────────────┴─...
 ```
 
+## tmux
+For full developer productivity, I advise you to remap your CAPS_LOCK key to CTRL, short C. Then it is super simple to use 
+the according key mappings and for example to press C+a,w to open the window selector. It feels a little bit like 
+emacs, as every command you will be using will be preceded with C+a.
+
+## NeoVim
+It will take you some time to become familiar with nvim. Two things to ease things for you:
+1. When you are inside a buffer in normal mode, you can hit the SPACE bar. It then expects to type in shortcuts to execute the needed
+commands. But after short time, it opens a pop up with the available keymappings, so that you can learn them slowly.
+2. When you are in edit mode in a buffer and want to get back to normal mode, instead of hitting ESC, you can type short after another `jk`.
+This will enter your muscle memory very quickly and you will never want to miss it again.
+3. When you want to know all capabilities available, it is best to look into the `~/.config/nvim` folder and to browse the plugin configs.
+Each of the plugin configs relates to a GitHub project where you can find more details on how to use those.

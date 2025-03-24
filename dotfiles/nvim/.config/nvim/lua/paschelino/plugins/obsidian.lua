@@ -15,7 +15,6 @@ return {
 		-- Required.
 		"nvim-lua/plenary.nvim",
 		"hrsh7th/nvim-cmp",
-		"nvim-telescope/telescope.nvim",
 		-- see below for full list of optional dependencies 👇
 	},
 	opts = {
@@ -330,7 +329,7 @@ return {
 		},
 	},
 	templates = {
-		folder = "~/.config/obsidian/templates",
+		folder = "templates",
 		date_format = "%Y-%m-%d-%a",
 		time_format = "%H:%M",
 	},

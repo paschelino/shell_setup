@@ -84,7 +84,6 @@ ls -la ~/.config
 # │  5 │ /Users/paschelino/.config/nushell       │ symlink │ ../dev/shell_setup/dotfiles/nushell/.config/nushell        │
 # │  6 │ /Users/paschelino/.config/nvim          │ symlink │ ../dev/shell_setup/dotfiles/nvim/.config/nvim              │
 # │  7 │ /Users/paschelino/.config/starship.toml │ symlink │ ../dev/shell_setup/dotfiles/starship/.config/starship.toml │
-# │  8 │ /Users/paschelino/.config/yaari         │ dir     │                                                            │
 # ╰────┴─────────────────────────────────────────┴─────────┴────────────────────────────────────────────────────────────┴─...
 ```
 

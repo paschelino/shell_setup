@@ -6,7 +6,6 @@ this was like a change from horse riding to spaceship flying. 😌 I hope this i
 The fact this setup works for me does not mean it works for you, too. Dotfiles are highly individual.
 Yet, I have tried to optimize the combination of tools and configs and have been soaking in knowledge from multiple awesome
 YouTube videos. Here are some to name a few:
--  
 
 ## preconditions:
 ### Mac Package Manager

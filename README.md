@@ -53,35 +53,38 @@ So let's assume, you have cloned the repository into a folder like `~/projects/s
 cd ~/projects/shell_setup
 ls
 # output:
-╭───┬──────────┬──────┬──────┬──────────────╮
-│ # │   name   │ type │ size │   modified   │
-├───┼──────────┼──────┼──────┼──────────────┤
-│ 0 │ ghostty  │ dir  │ 96 B │ 6 hours ago  │
-│ 1 │ nushell  │ dir  │ 96 B │ 6 hours ago  │
-│ 2 │ nvim     │ dir  │ 96 B │ 6 hours ago  │
-│ 3 │ personal │ dir  │ 96 B │ 7 months ago │
-│ 4 │ starship │ dir  │ 96 B │ 6 hours ago  │
-│ 5 │ tmux     │ dir  │ 96 B │ 6 hours ago  │
-╰───┴──────────┴──────┴──────┴──────────────╯
+# ╭───┬──────────┬──────┬──────┬──────────────╮
+# │ # │   name   │ type │ size │   modified   │
+# ├───┼──────────┼──────┼──────┼──────────────┤
+# │ 0 │ ghostty  │ dir  │ 96 B │ 6 hours ago  │
+# │ 1 │ nushell  │ dir  │ 96 B │ 6 hours ago  │
+# │ 2 │ nvim     │ dir  │ 96 B │ 6 hours ago  │
+# │ 3 │ personal │ dir  │ 96 B │ 7 months ago │
+# │ 4 │ starship │ dir  │ 96 B │ 6 hours ago  │
+# │ 5 │ tmux     │ dir  │ 96 B │ 6 hours ago  │
+# ╰───┴──────────┴──────┴──────┴──────────────╯
 
 # now run:
 stow --target="$HOME" ghostty
+```
 
-# this will create a symlink looking like this:
+### this will create a symlink looking like this:
+
+```shell
 ls -la ~/.config
 # output:
-╭────┬─────────────────────────────────────────┬─────────┬────────────────────────────────────────────────────────────┬─...
-│  # │                  name                   │  type   │                           target                           │
-├────┼─────────────────────────────────────────┼─────────┼────────────────────────────────────────────────────────────┼─...
-│  0 │ /Users/paschelino/.config/carapace      │ dir     │                                                            │
-│  1 │ /Users/paschelino/.config/gem           │ dir     │                                                            │
-│  2 │ /Users/paschelino/.config/gh            │ dir     │                                                            │
-│  3 │ /Users/paschelino/.config/ghostty       │ symlink │ ../dev/shell_setup/dotfiles/ghostty/.config/ghostty        │
-│  4 │ /Users/paschelino/.config/iterm2        │ dir     │                                                            │
-│  5 │ /Users/paschelino/.config/nushell       │ symlink │ ../dev/shell_setup/dotfiles/nushell/.config/nushell        │
-│  6 │ /Users/paschelino/.config/nvim          │ symlink │ ../dev/shell_setup/dotfiles/nvim/.config/nvim              │
-│  7 │ /Users/paschelino/.config/starship.toml │ symlink │ ../dev/shell_setup/dotfiles/starship/.config/starship.toml │
-│  8 │ /Users/paschelino/.config/yaari         │ dir     │                                                            │
-╰────┴─────────────────────────────────────────┴─────────┴────────────────────────────────────────────────────────────┴─...
+# ╭────┬─────────────────────────────────────────┬─────────┬────────────────────────────────────────────────────────────┬─...
+# │  # │                  name                   │  type   │                           target                           │
+# ├────┼─────────────────────────────────────────┼─────────┼────────────────────────────────────────────────────────────┼─...
+# │  0 │ /Users/paschelino/.config/carapace      │ dir     │                                                            │
+# │  1 │ /Users/paschelino/.config/gem           │ dir     │                                                            │
+# │  2 │ /Users/paschelino/.config/gh            │ dir     │                                                            │
+# │  3 │ /Users/paschelino/.config/ghostty       │ symlink │ ../dev/shell_setup/dotfiles/ghostty/.config/ghostty        │
+# │  4 │ /Users/paschelino/.config/iterm2        │ dir     │                                                            │
+# │  5 │ /Users/paschelino/.config/nushell       │ symlink │ ../dev/shell_setup/dotfiles/nushell/.config/nushell        │
+# │  6 │ /Users/paschelino/.config/nvim          │ symlink │ ../dev/shell_setup/dotfiles/nvim/.config/nvim              │
+# │  7 │ /Users/paschelino/.config/starship.toml │ symlink │ ../dev/shell_setup/dotfiles/starship/.config/starship.toml │
+# │  8 │ /Users/paschelino/.config/yaari         │ dir     │                                                            │
+# ╰────┴─────────────────────────────────────────┴─────────┴────────────────────────────────────────────────────────────┴─...
 ```
 

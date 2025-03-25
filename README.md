@@ -45,7 +45,12 @@ The install script also installs the tool `stow`. It is used for symlinking the 
 into your homefolder. In case you need to run the command once manually, do it as follows:
 ```shell
 cd <some_parent_folder>/shell_setup/dotfiles
+
+# when in bash or a similar shell:
 stow --target="$HOME" <package>
+
+# when already in nushell:
+stow --target=$"($env.home)" <package>
 ```
 
 So let's assume, you have cloned the repository into a folder like `~/projects/shell_setup` and you wish to symlink the package ghostty:
@@ -65,7 +70,12 @@ ls
 # ╰───┴──────────┴──────┴──────┴──────────────╯
 
 # now run:
+
+# when in bash or a similar shell:
 stow --target="$HOME" ghostty
+
+# when already in nushell:
+stow --target=$"($env.home)" ghostty
 ```
 
 ### this will create a symlink looking like this:

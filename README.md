@@ -14,6 +14,7 @@ The fact this setup works for me does not mean it works for you, too. Dotfiles a
 Yet, I have tried to optimize the combination of tools and configs and have been soaking in knowledge from multiple awesome
 YouTube videos. Here are some to name a few:
 - [Neovim Lua Plugin From Scratch](https://www.youtube.com/watch?v=n4Lp4cV8YR0)
+- [LazyVim From Scratch To BEAST MODE](https://www.youtube.com/watch?v=evCmP4hH7ZU)
 
 ## preconditions:
 ### Mac Package Manager

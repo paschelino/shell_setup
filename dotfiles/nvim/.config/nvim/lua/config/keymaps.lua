@@ -5,3 +5,4 @@
 local k = vim.keymap
 
 k.set("i", "jj", "<Esc>", { noremap = false })
+k.set("i", "jk", "<Esc>", { noremap = false })

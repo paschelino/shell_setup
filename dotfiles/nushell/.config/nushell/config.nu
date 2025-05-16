@@ -20,6 +20,7 @@
 $env.config.show_banner = false
 $env.xdg_config_home = $"($env.home)/.config"
 $env.path ++= [ $"($env.home)/.cargo/bin" ]
+$env.ERL_AFLAGS = "-kernel shell_history enabled"
 
 [ nu_plugin_inc
   nu_plugin_polars

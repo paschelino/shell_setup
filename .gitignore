@@ -2,6 +2,4 @@ private
 Brewfile.lock.json
 history.txt
 plugin.msgpackz 
-dotfiles/asdf/.config/asdf/plugins/*
-dotfiles/asdf/.config/asdf/installs/*
-dotfiles/asdf/.config/asdf/shims/*
+

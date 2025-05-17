@@ -37,8 +37,17 @@ source ~/.cache/carapace/init.nu
 # asdf
 $env.ASDF_DATA_DIR = $"($env.XDG_CONFIG_HOME)/asdf"
 source "~/.config/asdf/completions/nushell.nu"
-$env.PATH = [ $"($env.ASDF_DATA_DIR)/shims"] ++ $env.PATH
+$env.PATH = [ $"($env.ASDF_DATA_DIR)/shims" ] ++ $env.PATH
 
 # erlang / elixir
 $env.KERL_CONFIGURE_OPTIONS = "--disable-debug --without-javac"
 $env.ERL_AFLAGS = "-kernel shell_history enabled"
+
+# psql:
+$env.PATH = [ "/opt/homebrew/opt/libpq/bin" ] ++ $env.PATH
+
+$env.LDFLAGS = "-L/opt/homebrew/opt/libpq/lib"
+$env.CPPFLAGS = "-I/opt/homebrew/opt/libpq/include"
+
+$env.PKG_CONFIG_PATH = "/opt/homebrew/opt/libpq/lib/pkgconfig"
+

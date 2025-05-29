@@ -1,4 +1,5 @@
 installs
 plugins
 plugin-index
+plugin-index/*
 shims

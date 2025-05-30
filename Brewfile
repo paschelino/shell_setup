@@ -40,8 +40,8 @@ brew "tmuxinator-completion"
 brew "trash"
 brew "wxwidgets"
 
-cask "iterm2"
 cask "amethyst"
 cask "font-meslo-lg-nerd-font"
 cask "ghostty"
+cask "iterm2"
 

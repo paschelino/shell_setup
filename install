@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if ! command -v brew &> /dev/null; then
+if ! command -v brew &>/dev/null; then
   echo "installing Homebrew..."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
@@ -13,7 +13,7 @@ cd ./dotfiles/
 stow --target="$HOME" *
 cd -
 
-if ! command -v rustup &> /dev/null; then
+if ! command -v rustup &>/dev/null; then
   echo "Installing Rust..."
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
   source "$HOME/.cargo/env"
@@ -22,10 +22,19 @@ else
   rustup update
 fi
 
-if ! command -v nu &> /dev/null; then
+if ! command -v nu &>/dev/null; then
   echo "Installing Cargo binaries..."
   bash ./cargo_installs.sh
 fi
 
-echo "Installation complete. Please remember to configure the font 'MesloLGS Nerd Font Mono' in your terminal profile."
+if ! command -v run_erl &>/dev/null; then
+  echo "Installing erlang asdf plugin..."
+  asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git
+fi
 
+if ! command -v mix &>/dev/null; then
+  echo "Installing elixir asdf plugin..."
+  asdf plugin add elixir https://github.com/asdf-vm/asdf-elixir.git
+fi
+
+echo "Installation complete. Please remember to configure the font 'MesloLGS Nerd Font Mono' in your terminal profile."

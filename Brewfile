@@ -44,4 +44,5 @@ cask "amethyst"
 cask "font-meslo-lg-nerd-font"
 cask "ghostty"
 cask "iterm2"
+cask "ollama"
 

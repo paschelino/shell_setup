@@ -1,5 +1,10 @@
 {
   "extras": [
+<<<<<<< Updated upstream
+=======
+    "lazyvim.plugins.extras.ai.copilot",
+    "lazyvim.plugins.extras.coding.yanky",
+>>>>>>> Stashed changes
     "lazyvim.plugins.extras.lang.ansible",
     "lazyvim.plugins.extras.lang.docker",
     "lazyvim.plugins.extras.lang.elixir",

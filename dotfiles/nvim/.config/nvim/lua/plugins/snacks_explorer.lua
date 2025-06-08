@@ -1,9 +1,16 @@
 return {
   "folke/snacks.nvim",
   opts = {
+    explorer = {
+      win = {
+        wo = {
+          relativenumber = true,
+        },
+      },
+      hidden = true,
+    },
     picker = {
       sources = {
-        explorer = { win = { list = { wo = { relativenumber = true } } }, hidden = true },
         files = { hidden = true },
         grep = { hidden = true },
       },

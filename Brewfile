@@ -1,6 +1,7 @@
 tap "hashicorp/tap"
 tap "jesseduffield/lazygit"
 
+brew "aider"
 brew "asdf"
 brew "autoconf"
 brew "bundler-completion" 

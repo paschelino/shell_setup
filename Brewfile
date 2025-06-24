@@ -57,8 +57,10 @@ brew "yazi"
 brew "zoxide"
 
 cask "amethyst"
+cask "firefox"
 cask "font-meslo-lg-nerd-font"
 cask "ghostty"
 cask "iterm2"
-cask "ollama"
+cask "ollama-app"
+cask "pgadmin4"
 

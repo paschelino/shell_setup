@@ -21,4 +21,12 @@ $env.CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense' # optional
 mkdir ~/.cache/carapace
 carapace _carapace nushell | save --force ~/.cache/carapace/init.nu
 
+# ~/.config/nushell/env.nu
+
+# 1) Ensure rbenv/bin + shims are always on PATH
+$env.PATH = [
+  $"($env.HOME)/.rbenv/bin"
+  $"($env.HOME)/.rbenv/shims"
+] ++ $env.PATH
+$env.RBENV_SHELL = "nu"
 

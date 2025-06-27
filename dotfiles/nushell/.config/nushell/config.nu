@@ -52,16 +52,6 @@ $env.CPPFLAGS = "-I/opt/homebrew/opt/libpq/include"
 
 $env.PKG_CONFIG_PATH = "/opt/homebrew/opt/libpq/lib/pkgconfig"
 
-# Ruby
-export-env { 
-    load-env {
-        PATH: ($env.PATH | split row (char esep) | prepend [$"($env.HOME)/.rbenv/bin" $"($env.HOME)/.rbenv/shims"])
-        RBENV_VERSION: ""
-        RBENV_VERSION_OLD: ""
-        RBENV_SHELL: "nu"
-    }
-}
-
 # direnv
 $env.config = {
   hooks: {

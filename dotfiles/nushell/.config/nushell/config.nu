@@ -52,6 +52,9 @@ $env.CPPFLAGS = "-I/opt/homebrew/opt/libpq/include"
 
 $env.PKG_CONFIG_PATH = "/opt/homebrew/opt/libpq/lib/pkgconfig"
 
+# saml2aws
+$env.SAML2AWS_SESSION_DURATION=43200
+
 # direnv
 $env.config = {
   hooks: {

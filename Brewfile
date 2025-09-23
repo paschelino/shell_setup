@@ -53,7 +53,6 @@ brew "thefuck"
 brew "tmuxinator"
 brew "tmuxinator-completion"
 brew "trash"
-brew "wxwidgets"
 brew "yazi"
 brew "zoxide"
 

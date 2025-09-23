@@ -1,4 +1,4 @@
-theme = catppuccin-mocha
+theme = Catppuccin Mocha
 font-family = Meslo LGS Nerd Font Mono
 gtk-titlebar = true
 mouse-shift-capture = true

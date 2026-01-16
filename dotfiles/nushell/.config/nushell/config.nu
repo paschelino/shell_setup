@@ -35,6 +35,9 @@ starship init nu | save -f ($nu.data-dir | path join "vendor/autoload/starship.n
 #~/.config/nushell/config.nu
 source ~/.cache/carapace/init.nu
 
+# homebrew:
+$env.PATH = [ "/opt/homebrew/sbin" ] ++ $env.PATH
+
 # asdf
 $env.ASDF_DATA_DIR = $"($env.XDG_CONFIG_HOME)/asdf"
 source "~/.config/asdf/completions/nushell.nu"

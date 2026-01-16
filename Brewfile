@@ -2,6 +2,7 @@ tap "hashicorp/tap"
 tap "jesseduffield/lazygit"
 
 brew "7-Zip"
+brew "adr-tools"
 brew "aider"
 brew "asdf"
 brew "autoconf"

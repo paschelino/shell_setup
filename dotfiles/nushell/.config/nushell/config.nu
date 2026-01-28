@@ -38,6 +38,9 @@ source ~/.cache/carapace/init.nu
 # homebrew:
 $env.PATH = [ "/opt/homebrew/sbin" ] ++ $env.PATH
 
+# pipx:
+$env.PATH = [ "/Users/paschelino/.local/bin" ] ++ ( $env.PATH | uniq )
+
 # asdf
 $env.ASDF_DATA_DIR = $"($env.XDG_CONFIG_HOME)/asdf"
 source "~/.config/asdf/completions/nushell.nu"

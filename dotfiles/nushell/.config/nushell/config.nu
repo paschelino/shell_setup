@@ -53,6 +53,9 @@ $env.ERL_AFLAGS = "-kernel shell_history enabled"
 # psql:
 $env.PATH = [ "/opt/homebrew/opt/libpq/bin" ] ++ $env.PATH
 
+# go:
+$env.PATH = [ $"($env.HOME)/go/bin" ] ++ $env.PATH
+
 $env.LDFLAGS = "-L/opt/homebrew/opt/libpq/lib"
 $env.CPPFLAGS = "-I/opt/homebrew/opt/libpq/include"
 

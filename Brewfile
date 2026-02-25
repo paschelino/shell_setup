@@ -72,5 +72,6 @@ cask "firefox"
 cask "font-meslo-lg-nerd-font"
 cask "ghostty"
 cask "iterm2"
+cask "keycastr"
 cask "pgadmin4"
 

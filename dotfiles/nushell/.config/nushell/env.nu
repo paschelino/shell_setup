@@ -30,3 +30,8 @@ $env.PATH = [
 ] ++ $env.PATH
 $env.RBENV_SHELL = "nu"
 
+
+# pnpm
+$env.PNPM_HOME = "/Users/paschelino/Library/pnpm"
+$env.PATH = ($env.PATH | split row (char esep) | prepend $env.PNPM_HOME )
+# pnpm end

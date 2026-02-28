@@ -1,13 +1,14 @@
-# paschelino's shell setup
+# paschelino's shell setup for MacOS
 
 Hi, great you're here. If you like, make use of what I have put together here. For me, coming from pure bash and vim,
 this was like a change from horse riding to spaceship flying. 😌 I hope this is also helpful for your daily work and
 passion.
 
-To get you started easily with nvim, make use of two awesome features provided by the LazyVim distribution used here:
+To get you started easily with nvim, here in particular with LazyVim, make use of two awesome features provided by the LazyVim distribution used here:
 
 - `<leader>`: Open a pop up to see the next best key to press.
 - `<leader>sk`: Open a search for keymappings.
+- C+s for saving changes in a buffer. Yes, you did not expect that in a Vim-style editor ;-)
 
 What does `<leader>` mean? This is the key to start a command. It is configured here to be the `<space>` key. Thus to
 search for keymappings, type `<space>sk`.

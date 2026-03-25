@@ -95,12 +95,12 @@ module asdf {
         let template = '(?P<name>.+)' + (
                             $params |
                             where enabled |
-                            get --optional template |
+                            get template |
                             str join '' |
                             str trim
                         )
 
-        let flags = ($params | where enabled | get --optional flag | default '' )
+        let flags = ($params | where enabled | get flag | default '' )
 
         ^asdf plugin list ...$flags | lines | parse -r $template | str trim
     }

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 tap 'hashicorp/tap'
 tap 'jesseduffield/lazygit'
 tap 'sst/tap'

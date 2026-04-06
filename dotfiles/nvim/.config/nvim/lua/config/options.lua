@@ -17,3 +17,7 @@ vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHo
     end
   end,
 })
+
+-- Spelling configuration:
+vim.opt.spelllang = { "de", "en" }
+vim.opt.spellfile = vim.fn.stdpath("config") .. "/spell/custom.utf-8.add"

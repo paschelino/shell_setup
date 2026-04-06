@@ -80,3 +80,7 @@ $env.config = {
   }
 }
 
+# zk
+$env.ZK_NOTEBOOK_DIR = $"($env.HOME)/z"
+$env.ZK_SHELL = "/bin/bash"
+

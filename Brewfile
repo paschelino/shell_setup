@@ -68,6 +68,7 @@ brew 'trivy'
 brew 'utftex'
 brew 'xan'
 brew 'yazi'
+brew 'zk'
 brew 'zoxide'
 
 cask 'amethyst'

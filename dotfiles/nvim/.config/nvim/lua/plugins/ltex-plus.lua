@@ -8,7 +8,7 @@ return {
         settings = {
           ltex = {
             language = "auto", -- detect per-document; change to "de-DE" if too noisy
-            checkFrequency = "save",
+            checkFrequency = "save", -- "always" to check as you type, "save" to check on save
             markdown = {
               -- Tell ltex-ls-plus to skip YAML frontmatter nodes
               nodes = { FrontMatter = "ignore" },

@@ -23,3 +23,22 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     end
   end,
 })
+
+vim.api.nvim_create_autocmd("BufReadPost", {
+  group = vim.api.nvim_create_augroup("journal_nospell", { clear = true }),
+  pattern = "*.md",
+  callback = function(args)
+    local path = args.file
+    -- Detect journal notes by path: inside <notebook>/journal/
+    local zk_dir = vim.fs.find(".zk", {
+      upward = true,
+      path = vim.fn.fnamemodify(path, ":h"),
+    })[1]
+    if zk_dir then
+      local notebook_root = vim.fn.fnamemodify(zk_dir, ":h")
+      if path:find(notebook_root .. "/journal/", 1, true) then
+        vim.opt_local.spell = false
+      end
+    end
+  end,
+})

@@ -41,7 +41,7 @@ author = "Paschelino"
 
 # GROUP OVERRIDES
 [group.journal]
-paths = ["journal/weekly", "journal/daily"]
+paths = ["journal/**"]
 
 [group.journal.note]
 filename = "{{format-date now '%Y-%m-%d'}}"

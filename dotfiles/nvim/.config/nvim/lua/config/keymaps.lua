@@ -10,10 +10,14 @@ k.set("i", "jk", "<Esc>", { noremap = false })
 -- In insert mode, make <M-u> act as a dead key for umlauts (mirrors macOS Option+u behaviour)
 local umlauts = { a = "ä", o = "ö", u = "ü", A = "Ä", O = "Ö", U = "Ü" }
 for key, char in pairs(umlauts) do
-  vim.keymap.set("i", "<M-u>" .. key, char, { desc = "umlaut: " .. char })
+  k.set("i", "<M-u>" .. key, char, { desc = "umlaut: " .. char })
 end
+
 -- <M-u> alone (not followed by a vowel): no-op, as before
 vim.keymap.set({ "n", "v", "x" }, "<M-u>", "<Nop>", { desc = "disabled (umlaut dead key)" })
+
+-- In insert mode, make <M-s> produce ß (mirrors macOS Option+s behaviour).
+k.set("i", "<M-s>", "ß", { desc = "umlaut: ß" })
 
 -- Zettelkasten keymaps:
 local opts = { noremap = true, silent = false }

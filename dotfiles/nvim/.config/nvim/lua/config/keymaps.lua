@@ -24,7 +24,10 @@ end
 vim.keymap.set({ "n", "v", "x" }, "<M-u>", "<Nop>", { desc = "disabled (umlaut dead key)" })
 
 -- In insert mode, make <M-s> produce ß (mirrors macOS Option+s behaviour).
-k.set("i", "<M-s>", "ß", { desc = "umlaut: ß" })
+k.set("i", "<M-s>", "ß", { desc = "German sharp S: ß" })
+
+-- In insert mode, make <M--> produce – (mirrors macOS Option+- behaviour).
+k.set("i", "<M-->", "–", { desc = "Em dash: –" })
 
 -- Zettelkasten keymaps:
 local opts = { noremap = true, silent = false }

@@ -7,6 +7,13 @@ local k = vim.keymap
 k.set("i", "jj", "<Esc>", { noremap = false })
 k.set("i", "jk", "<Esc>", { noremap = false })
 
+-- Remove any existing insert-mode mapping for bare Meta+u
+pcall(vim.keymap.del, "i", "<M-u>")
+pcall(vim.keymap.del, "i", "<Esc>u") -- useful if terminal sends Meta as Esc-prefix
+
+-- Bare <M-u> in insert mode should do nothing if typed alone / timeout occurs
+k.set("i", "<M-u>", "<Nop>", { desc = "dead key for umlauts" })
+
 -- In insert mode, make <M-u> act as a dead key for umlauts (mirrors macOS Option+u behaviour)
 local umlauts = { a = "ä", o = "ö", u = "ü", A = "Ä", O = "Ö", U = "Ü" }
 for key, char in pairs(umlauts) do

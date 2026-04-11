@@ -13,7 +13,7 @@ language = "de-DE"
 default-title = "Untitled"
 
 # Template used to generate a note's filename, without extension.
-filename = "{{id}}-{{slug title}}"
+filename = "{{slug title}}-{{id}}"
 
 # The file extension used for the notes.
 extension = "md"

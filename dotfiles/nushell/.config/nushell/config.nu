@@ -39,7 +39,7 @@ source ~/.cache/carapace/init.nu
 $env.PATH = [ "/opt/homebrew/sbin" ] ++ $env.PATH
 
 # pipx:
-$env.PATH = [ "/Users/paschelino/.local/bin" ] ++ ( $env.PATH | uniq )
+$env.PATH = [ $"($env.HOME)/.local/bin" ] ++ ( $env.PATH | uniq )
 
 # asdf
 $env.ASDF_DATA_DIR = $"($env.XDG_CONFIG_HOME)/asdf"

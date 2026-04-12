@@ -2,6 +2,19 @@ return {
   "olimorris/codecompanion.nvim",
   version = "^19.0.0",
   opts = {
+    -- interactions = {
+    --   cli = {
+    --     agent = "opencode",
+    --     agents = {
+    --       opencode = {
+    --         cmd = "opencode",
+    --         args = {},
+    --         description = "OpenCode CLI",
+    --         provider = "terminal",
+    --       },
+    --     },
+    --   },
+    -- },
     extensions = {
       mcphub = {
         callback = "mcphub.extensions.codecompanion",

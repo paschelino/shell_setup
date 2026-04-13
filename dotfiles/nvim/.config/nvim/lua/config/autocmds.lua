@@ -36,7 +36,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     })[1]
     if zk_dir then
       local notebook_root = vim.fn.fnamemodify(zk_dir, ":h")
-      if path:find(notebook_root .. "/journal/", 1, true) then
+      if path:find(notebook_root .. "/journals/", 1, true) then
         vim.opt_local.spell = false
       end
     end

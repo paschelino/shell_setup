@@ -6,5 +6,4 @@ keywords: [daily]
 id: {{ id }}
 ---
 ## {{format-date now '%H:%M'}}
-
 {{content}}

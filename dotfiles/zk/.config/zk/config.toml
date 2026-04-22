@@ -38,15 +38,24 @@ id-case = "lower"
 [extra]
 author = "Paschelino"
 
-
 # GROUP OVERRIDES
-[group.journal]
-paths = ["journals/**"]
+#
+# You can override global settings from [note] and [extra] for a particular
+# group of notes by declaring a [group."<name>"] section.
+#
+# Specify the list of directories which will automatically belong to the group
+# with the optional `paths` property.
+#
+# Omitting `paths` is equivalent to providing a single path equal to the name of
+# the group. This can be useful to quickly declare a group by the name of the
+# directory it applies to.
 
-[group.journal.note]
-filename = "{{format-date now '%Y-%m-%d'}}"
-extension = "md"
-template = "daily.md"
+#[group."<NAME>"]
+#paths = ["<DIR1>", "<DIR2>"]
+#[group."<NAME>".note]
+#filename = "{{format-date now}}"
+#[group."<NAME>".extra]
+#key = "value"
 
 # MARKDOWN SETTINGS
 [format.markdown]
@@ -88,7 +97,7 @@ recent = "zk edit --sort created- --created-after 'last two weeks' --interactive
 lucky = "zk list --quiet --format full --sort random --limit 1"
 
 # Daily journal
-daily = 'zk new --no-input "$ZK_NOTEBOOK_DIR/journals/daily"'
+daily = 'zk new --no-input "$ZK_NOTEBOOK_DIR/0-journals/daily"'
 
 # LSP (EDITOR INTEGRATION)
 [lsp]

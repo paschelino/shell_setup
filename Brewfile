@@ -72,6 +72,7 @@ brew 'zk'
 brew 'zoxide'
 
 cask 'amethyst'
+cask 'claude-code'
 cask 'firefox'
 cask 'font-meslo-lg-nerd-font'
 cask 'ghostty'

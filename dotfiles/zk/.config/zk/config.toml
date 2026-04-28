@@ -108,4 +108,4 @@ wiki-title = "hint"
 # Warn for dead links between notes.
 dead-link = "error"
 # Warn when notes link here without backlinks.
-missing-backlink = { level = "warning", position = "bottom" }
+missing-backlink = { level = "hint", position = "top" }

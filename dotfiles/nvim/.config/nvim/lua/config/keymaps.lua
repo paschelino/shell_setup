@@ -11,6 +11,9 @@ k.set("i", "jk", "<Esc>", { noremap = false })
 pcall(vim.keymap.del, "i", "<M-u>")
 pcall(vim.keymap.del, "i", "<Esc>u") -- useful if terminal sends Meta as Esc-prefix
 
+-- Also ensure not to undo the last edit by accidentially hitting strg+u in insert mode.
+k.set("i", "<C-u>", "<Nop>", { desc = "Disable accidental line-kill" })
+
 -- Bare <M-u> in insert mode should do nothing if typed alone / timeout occurs
 k.set("i", "<M-u>", "<Nop>", { desc = "dead key for umlauts" })
 

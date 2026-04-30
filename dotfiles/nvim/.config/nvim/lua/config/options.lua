@@ -2,9 +2,6 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 
-vim.opt_local.textwidth = 80
-vim.opt_local.colorcolumn = "80"
-
 -- Automatically reload buffers when files change on the filesystem.
 -- `autoread` alone only triggers in limited scenarios, so the autocmd below
 -- calls `checktime` on focus/buffer events to actively detect changes.

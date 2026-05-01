@@ -50,20 +50,27 @@ local function frontmatter_range(bufnr)
   local range = false  -- sentinel: no frontmatter found
 
   -- YAML frontmatter must start on the very first line with "---".
-  if lines[1] == "---" then
+  -- Use vim.trim() so that trailing whitespace/CR on any delimiter line does
+  -- not cause the scan to skip past the real closing "---" and land on a
+  -- later "---" horizontal rule inside the document body.
+  if vim.trim(lines[1]) == "---" then
     -- Scan forward for the closing delimiter ("---" or YAML's "...").
+    -- Stop at the FIRST match; do not continue into the document body.
     for i = 2, #lines do
-      if lines[i] == "---" or lines[i] == "..." then
+      if vim.trim(lines[i]) == "---" or vim.trim(lines[i]) == "..." then
         range = { 1, i }  -- both line numbers are 1-indexed and inclusive
         break
       end
     end
   end
 
-  -- Store in cache and register a cleanup callback for when the buffer is
-  -- unloaded so we don't leak memory across a long editing session.
+  -- Store in cache and register callbacks:
+  --   on_lines   — invalidate whenever the buffer content changes so the next
+  --                foldexpr evaluation re-scans (handles adding/removing "---")
+  --   on_detach  — free the cache entry when the buffer is unloaded
   _G._md_fm_cache[bufnr] = range
   vim.api.nvim_buf_attach(bufnr, false, {
+    on_lines  = function() _G._md_fm_cache[bufnr] = nil end,
     on_detach = function() _G._md_fm_cache[bufnr] = nil end,
   })
 

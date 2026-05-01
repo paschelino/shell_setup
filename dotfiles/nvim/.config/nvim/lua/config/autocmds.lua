@@ -36,9 +36,27 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     })[1]
     if zk_dir then
       local notebook_root = vim.fn.fnamemodify(zk_dir, ":h")
-      if path:find(notebook_root .. "/journals/", 1, true) then
+      if path:find(notebook_root .. "/0-journals/", 1, true) then
         vim.opt_local.spell = false
+        vim.diagnostic.enable(false, { bufnr = 0 })
+        vim.fn.system({ "tmux", "set", "status", "off" })
+        vim.schedule(function()
+          vim.cmd("$")
+          vim.cmd("startinsert")
+          require("lualine").hide({})
+        end)
       end
     end
   end,
 })
+
+vim.api.nvim_create_autocmd("BufLeave", {
+  group = vim.api.nvim_create_augroup("journal_restore", { clear = true }),
+  pattern = "*/0-journals/*.md",
+  callback = function()
+    vim.fn.system({ "tmux", "set", "status", "on" })
+    require("lualine").hide({ unhide = true })
+  end,
+})
+
+

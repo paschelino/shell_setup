@@ -17,7 +17,7 @@ return {
             local buf = vim.api.nvim_get_current_buf()
             local path = vim.api.nvim_buf_get_name(buf)
             -- Detect journal notes by path: inside <notebook>/journal/
-            local journal_dir = vim.fs.find("journals/daily", {
+            local journal_dir = vim.fs.find("0-journals/daily", {
               upward = true,
               path = vim.fn.fnamemodify(path, ":h"),
             })[1]

@@ -53,6 +53,5 @@ vim.api.nvim_set_keymap(
 -- Search for the notes matching the current visual selection.
 vim.api.nvim_set_keymap("v", "<leader>zf", ":'<,'>ZkMatch<CR>", opts)
 
--- Enable sophisticated speech processing for dictation and TTS.
+-- Enable sophisticated speech to text processing for dictation in insert mode.
 require("config.dictation")
-require("config.tts")

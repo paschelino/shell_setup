@@ -134,6 +134,57 @@ local state = {
 local function notify(msg, level)
   vim.notify(msg, level or vim.log.levels.INFO, { title = "Dictation" })
 end
+function M.transcribe()
+  if vim.fn.filereadable(state.rec_file) == 0 then
+    notify("No recording found at " .. state.rec_file, vim.log.levels.ERROR)
+    return
+  end
+
+  local model_path = available_models[state.current_model]
+  if vim.fn.filereadable(model_path) == 0 then
+    notify("Model not found: " .. model_path, vim.log.levels.ERROR)
+    return
+  end
+
+  notify("Transcribing with " .. state.current_model .. "...")
+
+  vim.fn.jobstart({
+    "whisper-cli",
+    "-m",
+    model_path,
+    "-l",
+    state.language,
+    "-f",
+    state.rec_file,
+    "--no-timestamps",
+    "-otxt",
+    "-of",
+    state.rec_file,
+  }, {
+    on_exit = function(_, code)
+      if code ~= 0 then
+        vim.schedule(function()
+          notify("Transcription failed (exit " .. code .. ")", vim.log.levels.ERROR)
+        end)
+        return
+      end
+      local out = state.rec_file .. ".txt"
+      if vim.fn.filereadable(out) == 1 then
+        local text = vim.fn.readfile(out)
+        while #text > 0 and text[1] == "" do
+          table.remove(text, 1)
+        end
+        while #text > 0 and text[#text] == "" do
+          table.remove(text)
+        end
+        vim.schedule(function()
+          vim.api.nvim_put(text, "c", true, true)
+          notify("✓ Inserted (" .. #text .. " line" .. (#text == 1 and "" or "s") .. ")")
+        end)
+      end
+    end,
+  })
+end
 
 function M.toggle()
   if not state.recording then
@@ -240,7 +291,7 @@ vim.keymap.set({ "n", "i" }, "<leader>Rr", function()
   end
   M.toggle()
 end, { desc = "Dictation: toggle recording" })
-
+vim.keymap.set("n", "<leader>RR", M.transcribe, { desc = "Dictation: re-transcribe last recording" })
 vim.keymap.set("n", "<leader>Rm", M.pick_model, { desc = "Dictation: pick model" })
 vim.keymap.set("n", "<leader>Rl", M.pick_language, { desc = "Dictation: pick language" })
 vim.keymap.set("n", "<leader>Rs", M.status, { desc = "Dictation: show status" })

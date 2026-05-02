@@ -7,21 +7,18 @@ local k = vim.keymap
 k.set("i", "jj", "<Esc>", { noremap = false })
 k.set("i", "jk", "<Esc>", { noremap = false })
 
--- Remove any existing insert-mode mapping for bare Meta+u
-pcall(vim.keymap.del, "i", "<M-u>")
-pcall(vim.keymap.del, "i", "<Esc>u") -- useful if terminal sends Meta as Esc-prefix
-
 -- Also ensure not to undo the last edit by accidentially hitting strg+u in insert mode.
 k.set("i", "<C-u>", "<Nop>", { desc = "Disable accidental line-kill" })
 
--- Bare <M-u> in insert mode should do nothing if typed alone / timeout occurs
-k.set("i", "<M-u>", "<Nop>", { desc = "dead key for umlauts" })
-
--- In insert mode, make <M-u> act as a dead key for umlauts (mirrors macOS Option+u behaviour)
-local umlauts = { a = "ä", o = "ö", u = "ü", A = "Ä", O = "Ö", U = "Ü" }
-for key, char in pairs(umlauts) do
-  k.set("i", "<M-u>" .. key, char, { desc = "umlaut: " .. char })
-end
+-- <M-u> in insert mode: dead key for umlauts. Uses getcharstr() to wait
+-- indefinitely for the next keystroke, so this is not subject to timeoutlen
+-- (which only applies to statically-defined multi-key mappings). Typing any
+-- non-vowel key after <M-u> inserts that key unchanged.
+k.set("i", "<M-u>", function()
+  local umlauts = { a = "ä", o = "ö", u = "ü", A = "Ä", O = "Ö", U = "Ü" }
+  local ch = vim.fn.getcharstr()
+  vim.api.nvim_put({ umlauts[ch] or ch }, "c", true, true)
+end, { desc = "dead key: umlaut" })
 
 -- <M-u> alone (not followed by a vowel): no-op, as before
 vim.keymap.set({ "n", "v", "x" }, "<M-u>", "<Nop>", { desc = "disabled (umlaut dead key)" })

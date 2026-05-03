@@ -17,7 +17,11 @@ k.set("i", "<C-u>", "<Nop>", { desc = "Disable accidental line-kill" })
 k.set("i", "<M-u>", function()
   local umlauts = { a = "ä", o = "ö", u = "ü", A = "Ä", O = "Ö", U = "Ü" }
   local ch = vim.fn.getcharstr()
-  vim.api.nvim_put({ umlauts[ch] or ch }, "c", true, true)
+  -- Use feedkeys with "n" (no-remap) + "t" (as typed) so the insert happens
+  -- exactly at the cursor — this respects autopairs and any other insert-mode
+  -- logic. nvim_put would use normal-mode "put-after" semantics and land
+  -- outside of auto-closed quote/bracket pairs.
+  vim.api.nvim_feedkeys(umlauts[ch] or ch, "nt", true)
 end, { desc = "dead key: umlaut" })
 
 -- <M-u> alone (not followed by a vowel): no-op, as before

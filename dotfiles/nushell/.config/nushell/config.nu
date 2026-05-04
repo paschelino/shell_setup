@@ -46,6 +46,10 @@ $env.ASDF_DATA_DIR = $"($env.XDG_CONFIG_HOME)/asdf"
 source "~/.config/asdf/completions/nushell.nu"
 $env.PATH = [ $"($env.ASDF_DATA_DIR)/shims" ] ++ $env.PATH
 
+# node version manager n:
+$env.N_PREFIX = $"($env.HOME)"
+$env.PATH = [ $"($env.HOME)/bin" ] ++ $env.PATH
+
 # erlang / elixir
 $env.KERL_CONFIGURE_OPTIONS = "--disable-debug --without-javac"
 $env.ERL_AFLAGS = "-kernel shell_history enabled"
@@ -84,3 +88,4 @@ $env.config = {
 $env.ZK_NOTEBOOK_DIR = $"($env.HOME)/z"
 $env.ZK_SHELL = "/bin/bash"
 
+$env.PATH = $env.PATH | uniq

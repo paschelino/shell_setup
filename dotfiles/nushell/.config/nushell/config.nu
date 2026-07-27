@@ -88,4 +88,8 @@ $env.config = {
 $env.ZK_NOTEBOOK_DIR = $"($env.HOME)/z"
 $env.ZK_SHELL = "/bin/bash"
 
+# openjdk / java
+$env.PATH = [ "/opt/homebrew/opt/openjdk@25/bin" ] ++ $env.PATH
+
 $env.PATH = $env.PATH | uniq
+

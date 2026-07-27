@@ -2,7 +2,7 @@
 
 tap 'hashicorp/tap'
 tap 'jesseduffield/lazygit'
-tap 'sst/tap'
+tap 'sst/tap/sst'
 
 brew '7-Zip'
 brew 'adr-tools'
@@ -53,7 +53,7 @@ brew 'ripgrep'
 brew 'ruby-build'
 brew 'ruby-completion'
 brew 'saml2aws'
-brew 'sst/tap/sst'
+brew 'sst'
 brew 'starship'
 brew 'stow'
 brew 'terraform-docs'

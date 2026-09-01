@@ -45,6 +45,7 @@ For a detailed look on what you will install, please have a look into
 - the script `./install`
 - the `Brewfile`
 - the `cargo_installs.sh`
+- the `js-ts-global-install.sh`
 
 On a high level after the install you will have
 
@@ -150,3 +151,53 @@ It will take you some time to become familiar with nvim. Two things to ease thin
 - Opening or closing folders in the file explorer: Hit enter to open, hit backspace to close. Or use double clicks with
   the mouse :-D
 - Open the key bindings for the file explorer: When in the file explorer hit `g?`
+
+## JS/TS Global Packages
+
+Global Node.js packages are managed declaratively via pnpm, similar to how Homebrew packages are managed via the Brewfile.
+
+### Package list location
+
+The package list lives in:
+- `dotfiles/js-ts-global/.config/pnpm/global-package.json`
+
+This file is symlinked to your home directory via `stow`, just like other dotfiles.
+
+### Installing or updating packages
+
+To install or update all global packages manually:
+
+```bash
+bash ./js-ts-global-install.sh
+```
+
+This script will:
+- Clean up old npm-installed versions (if any)
+- Install/update all packages listed in `global-package.json`
+- Show you what's installed
+
+### Adding a new global package
+
+1. Edit `dotfiles/js-ts-global/.config/pnpm/global-package.json`
+2. Add your package to the `dependencies` section:
+   ```json
+   "dependencies": {
+     "opencode-ai": "latest",
+     "your-new-package": "latest"
+   }
+   ```
+3. Run: `bash ./js-ts-global-install.sh`
+
+### Version pinning
+
+You can pin specific versions or use `latest`:
+
+```json
+{
+  "dependencies": {
+    "opencode-ai": "latest",           // Always use latest version
+    "typescript": "^5.0.0",            // Allow minor/patch updates (5.x.x)
+    "some-tool": "1.2.3"               // Pin exact version
+  }
+}
+```

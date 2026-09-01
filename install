@@ -27,6 +27,12 @@ if ! command -v nu &>/dev/null; then
   bash ./cargo_installs.sh
 fi
 
+# Install global JS/TS packages
+if [ -f "$HOME/.config/pnpm/global-package.json" ]; then
+  echo "Installing global JS/TS packages..."
+  bash ./js-ts-global-install.sh
+fi
+
 if ! command -v run_erl &>/dev/null; then
   echo "Installing erlang asdf plugin..."
   asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git

@@ -1,0 +1,15 @@
+{
+  "name": "paschelino-global-js-ts-packages",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Global JavaScript/TypeScript packages managed declaratively",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "opencode-ai": "latest",
+    "markdownlint-cli2": "latest",
+    "@fsouza/prettierd": "latest"
+  },
+  "scripts": {
+    "cleanup-npm-prettierd": "npm uninstall -g @fsouza/prettierd || true"
+  }
+}

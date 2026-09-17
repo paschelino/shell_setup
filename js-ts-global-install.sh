@@ -33,7 +33,16 @@ for (const [name, version] of Object.entries(deps)) {
 " | while read -r package; do
   if [ -n "$package" ]; then
     echo "  Installing: $package"
-    pnpm add -g "$package" --ignore-scripts=false
+    # Some packages (like opencode-ai) need postinstall scripts to run.
+    # pnpm blocks these by default for security, so we allow builds for known packages.
+    ALLOW_BUILD_FLAG=""
+    case "$package" in
+      opencode-ai*|@opencode-ai*)
+        ALLOW_BUILD_FLAG="--allow-build=opencode-ai"
+        ;;
+      # Add other packages that need postinstall scripts here
+    esac
+    pnpm add -g "$package" $ALLOW_BUILD_FLAG
   fi
 done
 

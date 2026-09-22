@@ -3,7 +3,7 @@ return {
   opts = {
     picker = {
       sources = {
-        explorer = { win = { list = { wo = { relativenumber = true } } }, hidden = true },
+        explorer = { win = { list = { wo = { relativenumber = true } } }, hidden = true, ignored = true },
         files = { hidden = true },
         grep = { hidden = true },
       },

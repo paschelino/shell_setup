@@ -13,6 +13,9 @@ return {
         bottom_pad = 0,
       },
       html = {
+        comment = {
+          conceal = false,
+        },
         tag = {
           u = { scope_highlight = "@markup.underline" },
           ins = { scope_highlight = "@markup.underline" },

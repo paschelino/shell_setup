@@ -1,14 +1,18 @@
 -- Source: https://nickjanetakis.com/blog/modify-lualine-in-neovim-to-show-word-count-and-reading-time
+-- wordcount() scans the whole buffer and lualine redraws on every cursor move,
+-- so the buffer's word count is cached until the buffer changes.
 local function get_wordcount()
-  local word_count = 0
-
-  if vim.fn.mode():find("[vV]") then
-    word_count = vim.fn.wordcount().visual_words
-  else
-    word_count = vim.fn.wordcount().words
+  if vim.fn.mode():find("[vV\22]") then
+    return vim.fn.wordcount().visual_words or 0
   end
 
-  return word_count
+  local cache = vim.b.wordcount_cache
+  if not cache or cache.tick ~= vim.b.changedtick then
+    cache = { tick = vim.b.changedtick, words = vim.fn.wordcount().words }
+    vim.b.wordcount_cache = cache
+  end
+
+  return cache.words
 end
 
 local function wordcount()

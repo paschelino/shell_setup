@@ -8,6 +8,13 @@
 -- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
 local zk = require("util.zk")
 
+-- Show or hide the tmux status bar without blocking the editor.
+local function tmux_status(visible)
+  if vim.env.TMUX then
+    vim.system({ "tmux", "set", "status", visible and "on" or "off" })
+  end
+end
+
 vim.api.nvim_create_autocmd("BufReadPost", {
   group = vim.api.nvim_create_augroup("zk_spellfile", { clear = true }),
   pattern = "*.md",
@@ -30,7 +37,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     if zk.is_journal(args.buf) then
       vim.opt_local.spell = false
       vim.diagnostic.enable(false, { bufnr = args.buf })
-      vim.fn.system({ "tmux", "set", "status", "off" })
+      tmux_status(false)
       vim.schedule(function()
         vim.cmd("$")
         vim.cmd("startinsert")
@@ -45,7 +52,7 @@ vim.api.nvim_create_autocmd("BufLeave", {
   pattern = "*.md",
   callback = function(args)
     if zk.is_journal(args.buf) then
-      vim.fn.system({ "tmux", "set", "status", "on" })
+      tmux_status(true)
       require("lualine").hide({ unhide = true })
     end
   end,

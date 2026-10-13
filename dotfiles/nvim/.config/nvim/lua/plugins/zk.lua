@@ -14,19 +14,9 @@ return {
         filetypes = { "markdown" },
         on_attach = function(_, bufnr)
           vim.schedule(function()
-            local buf = vim.api.nvim_get_current_buf()
-            local path = vim.api.nvim_buf_get_name(buf)
-            -- Detect journal notes by path: inside <notebook>/journal/
-            local journal_dir = vim.fs.find("0-journals/daily", {
-              upward = true,
-              path = vim.fn.fnamemodify(path, ":h"),
-            })[1]
-            if not (journal_dir and path:find(journal_dir, 1, true)) then
-              return
-            end
             -- Guard: don't trigger zen for notes opened in the background
             -- (e.g. picker preloads or link prefetches)
-            if vim.api.nvim_get_current_buf() ~= bufnr then
+            if vim.api.nvim_get_current_buf() ~= bufnr or not require("util.zk").is_journal(bufnr) then
               return
             end
             -- Guard: if zen is already open, leave it — the zen window

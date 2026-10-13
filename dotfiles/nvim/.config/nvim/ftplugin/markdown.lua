@@ -13,7 +13,7 @@ vim.opt_local.colorcolumn = "80"
 -- These buffer-local mappings are only registered when the current file lives
 -- inside a zk notebook (identified by an ancestor .zk directory).
 
-if require("zk.util").notebook_root(vim.fn.expand("%:p")) ~= nil then
+if require("util.zk").notebook_root(0) ~= nil then
   local function map(...)
     vim.api.nvim_buf_set_keymap(0, ...)
   end

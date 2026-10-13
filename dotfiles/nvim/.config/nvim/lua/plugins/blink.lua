@@ -1,6 +1,4 @@
--- Disable the completion menu auto-show for markdown files.
--- Copilot suggestions (via blink-copilot) are also suppressed as a result,
--- since they surface through the same blink.cmp menu.
+-- Disable the completion menu auto-show and ghost text for markdown files.
 -- Manual trigger still works if needed.
 return {
   "saghen/blink.cmp",

@@ -4,9 +4,9 @@
 
 local k = vim.keymap
 
-k.set("i", "jj", "<Esc>", { noremap = false })
-k.set("i", "jk", "<Esc>", { noremap = false })
-k.set("i", "kk", "<Esc>", { noremap = false })
+-- jj / jk to leave insert mode are provided by better-escape.nvim (see
+-- lua/plugins/better-escape.lua). Plain mappings would delay every typed
+-- j and k by timeoutlen.
 
 -- Also ensure not to undo the last edit by accidentially hitting strg+u in insert mode.
 k.set("i", "<C-u>", "<Nop>", { desc = "Disable accidental line-kill" })

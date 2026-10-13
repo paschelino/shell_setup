@@ -5,9 +5,13 @@ return {
       ltex_plus = {
         -- Restrict to markdown only (don't check code, HTML, etc.)
         filetypes = { "markdown" },
+        -- No grammar checks in journal notes. Detach only this buffer: stopping
+        -- the client would end grammar checks in all other open notes, too.
         on_attach = function(client, bufnr)
           if require("util.zk").is_journal(bufnr) then
-            client:stop()
+            vim.schedule(function()
+              vim.lsp.buf_detach_client(bufnr, client.id)
+            end)
           end
         end,
         settings = {

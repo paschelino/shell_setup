@@ -70,6 +70,8 @@ brew 'xan'
 brew 'yazi'
 brew 'zk'
 brew 'zoxide'
+brew 'zsh-autosuggestions'
+brew 'zsh-syntax-highlighting'
 
 cask 'amethyst'
 cask 'claude-code'

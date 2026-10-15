@@ -10,7 +10,6 @@ typeset -U path
 # Highest priority first.
 path=(
   "$HOME/.local/bin" # local binaries (git-wt, pipx, ...)
-  /opt/homebrew/opt/openjdk@25/bin
   "$HOME/go/bin"
   /opt/homebrew/opt/libpq/bin # psql
   "$HOME/bin"                 # personal scripts

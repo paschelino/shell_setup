@@ -11,7 +11,6 @@ export ZK_NOTEBOOK_DIR="$HOME/z"
 export ZK_SHELL=/bin/bash
 
 # version managers
-export RBENV_SHELL=zsh
 export PNPM_HOME="$HOME/Library/pnpm"
 
 # erlang / elixir

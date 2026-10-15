@@ -15,8 +15,6 @@ path=(
   /opt/homebrew/opt/libpq/bin # psql
   "$HOME/bin"                 # personal scripts
   "$PNPM_HOME"
-  "$HOME/.rbenv/bin"
-  "$HOME/.rbenv/shims"
   "$HOME/.local/share/mise/shims" # non-interactive use; .zshrc activates mise
   $path
   "$HOME/.cargo/bin"

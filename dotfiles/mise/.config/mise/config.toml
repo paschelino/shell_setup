@@ -5,6 +5,7 @@
 erlang = "27.3.4"
 elixir = "1.18"
 node = "26"
+ruby = "3.4"
 
 [settings]
 # Honour .ruby-version, .nvmrc, ... in projects that don't use mise yet.

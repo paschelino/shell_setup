@@ -2,5 +2,8 @@ theme = Catppuccin Mocha
 font-family = Meslo LGS Nerd Font Mono
 gtk-titlebar = true
 mouse-shift-capture = true
-command = env XDG_CONFIG_HOME="$HOME/.config" PATH="/opt/homebrew/bin:$PATH" EDITOR="nvim" VISUAL="nvim" "$HOME/.cargo/bin/nu" -l
+# No `command`: Ghostty starts the login shell (zsh, see `chsh`).
+# The zsh vi mode sets the cursor shape itself (bar/block per mode), so keep
+# Ghostty's shell integration from forcing a bar cursor at every prompt.
+shell-integration-features = no-cursor
 

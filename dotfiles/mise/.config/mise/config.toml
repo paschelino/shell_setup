@@ -22,7 +22,8 @@ cargo-binstall = "latest"
 
 # JS/TS CLIs
 pnpm = "latest"
-"npm:opencode-ai" = "latest"
+# opencode downloads its platform binary in a postinstall script.
+"npm:opencode-ai" = { version = "latest", allow_builds = ["opencode-ai"] }
 "npm:@fsouza/prettierd" = "latest"
 
 [settings]

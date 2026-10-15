@@ -2,3 +2,4 @@ private
 Brewfile.lock.json
 history.txt
 plugin.msgpackz
+dotfiles/carapace/.config/carapace/bridge/

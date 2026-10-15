@@ -2,6 +2,7 @@
 
 tap 'hashicorp/tap'
 tap 'jesseduffield/lazygit'
+tap 'k1LoW/tap'
 
 brew '7-Zip'
 brew 'adr-tools'

@@ -61,6 +61,7 @@ source "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 source <(fzf --zsh) # Ctrl-r: history search, Ctrl-t: files, Alt-c: cd
 eval "$(starship init zsh)"
 eval "$(direnv hook zsh)"
+eval "$(mise activate zsh)"
 
 # --- Git worktree helper (git-wt) --------------------------------------------
 # Requires: git-wt (Brewfile: k1LoW/tap/git-wt) and jq

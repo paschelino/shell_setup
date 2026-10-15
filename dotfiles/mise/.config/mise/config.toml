@@ -1,0 +1,8 @@
+# Global tools, installed with `mise install`. Project-specific versions go
+# into a mise.toml (or .tool-versions) inside the project.
+
+[tools]
+
+[settings]
+# Honour .ruby-version, .nvmrc, ... in projects that don't use mise yet.
+idiomatic_version_file_enable_tools = ["node", "ruby"]

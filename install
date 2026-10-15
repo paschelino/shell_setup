@@ -49,4 +49,7 @@ if ! command -v mix &>/dev/null; then
   asdf plugin add elixir https://github.com/asdf-vm/asdf-elixir.git
 fi
 
+echo "Installing tools via mise..."
+mise install
+
 echo "Installation complete. Please remember to configure the font 'MesloLGS Nerd Font Mono' in your terminal profile."

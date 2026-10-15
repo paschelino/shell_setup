@@ -36,7 +36,8 @@ Don't install `rustup` via Homebrew. It will be installed via the contained inst
 ### Conflicts with existing dotfiles or dotfile folders
 
 You might run into problems with `stow`, in case some dotfiles already exist in your home directory. Best is to move
-them into some backup place, before you run `./install`.
+them into some backup place, before you run `./install`. A typical example is a `~/.zprofile` or `~/.zshenv` created
+by the Homebrew or Rust installers: their content is already part of the `zsh` package.
 
 ## what you will install
 
@@ -51,7 +52,8 @@ On a high level after the install you will have
 
 - NeoVim, highly configured to be a fully fledged IDE
 - Ghostty, a highly modern TTY
-- Nushell, a (non POSIX compliant) modern extreme awesome DevUX shell
+- zsh as login shell, with vi mode, autosuggestions, syntax highlighting and carapace completions
+- Nushell, a modern shell for structured data, for occasional use: run `nu` from zsh
 - Starship, a shell prompt on steorids
 - tmux, a massive productivity booster when you are working on multiple projects
 - Rustup and Rust, to inspire you to code in Rust, but also to install awesome Rust software like nushell ;-)
@@ -73,59 +75,38 @@ your homefolder. In case you need to run the command once manually, do it as fol
 
 ```shell
 cd <some_parent_folder>/shell_setup/dotfiles
-
-# when in bash or a similar shell:
 stow --target="$HOME" <package>
-
-# when already in nushell:
-stow --target=$"($env.home)" <package>
 ```
 
 So let's assume, you have cloned the repository into a folder like `~/projects/shell_setup` and you wish to symlink the
 package ghostty:
 
 ```shell
-cd ~/projects/shell_setup
+cd ~/projects/shell_setup/dotfiles
 ls
 # output:
-# ╭───┬──────────┬──────┬──────┬──────────────╮
-# │ # │   name   │ type │ size │   modified   │
-# ├───┼──────────┼──────┼──────┼──────────────┤
-# │ 0 │ ghostty  │ dir  │ 96 B │ 6 hours ago  │
-# │ 1 │ nushell  │ dir  │ 96 B │ 6 hours ago  │
-# │ 2 │ nvim     │ dir  │ 96 B │ 6 hours ago  │
-# │ 3 │ personal │ dir  │ 96 B │ 7 months ago │
-# │ 4 │ starship │ dir  │ 96 B │ 6 hours ago  │
-# │ 5 │ tmux     │ dir  │ 96 B │ 6 hours ago  │
-# ╰───┴──────────┴──────┴──────┴──────────────╯
+# asdf  carapace  colima  ghostty  js-ts-global  lazygit  nushell  nvim  starship  tmux  tool-versions  zk  zsh
 
 # now run:
-
-# when in bash or a similar shell:
 stow --target="$HOME" ghostty
-
-# when already in nushell:
-stow --target=$"($env.home)" ghostty
 ```
 
 ### this will create a symlink looking like this
 
 ```shell
-ls -la ~/.config
+ls -la ~/.config/ghostty
 # output:
-# ╭────┬─────────────────────────────────────────┬─────────┬────────────────────────────────────────────────────────────┬─...
-# │  # │                  name                   │  type   │                           target                           │
-# ├────┼─────────────────────────────────────────┼─────────┼────────────────────────────────────────────────────────────┼─...
-# │  0 │ /Users/paschelino/.config/carapace      │ dir     │                                                            │
-# │  1 │ /Users/paschelino/.config/gem           │ dir     │                                                            │
-# │  2 │ /Users/paschelino/.config/gh            │ dir     │                                                            │
-# │  3 │ /Users/paschelino/.config/ghostty       │ symlink │ ../dev/shell_setup/dotfiles/ghostty/.config/ghostty        │
-# │  4 │ /Users/paschelino/.config/iterm2        │ dir     │                                                            │
-# │  5 │ /Users/paschelino/.config/nushell       │ symlink │ ../dev/shell_setup/dotfiles/nushell/.config/nushell        │
-# │  6 │ /Users/paschelino/.config/nvim          │ symlink │ ../dev/shell_setup/dotfiles/nvim/.config/nvim              │
-# │  7 │ /Users/paschelino/.config/starship.toml │ symlink │ ../dev/shell_setup/dotfiles/starship/.config/starship.toml │
-# ╰────┴─────────────────────────────────────────┴─────────┴────────────────────────────────────────────────────────────┴─...
+# lrwxr-xr-x  1 paschelino  staff  50 Mar 22 10:00 /Users/paschelino/.config/ghostty -> ../projects/shell_setup/dotfiles/ghostty/.config/ghostty
 ```
+
+## zsh
+
+The interactive shell is zsh in vi mode: `Esc` switches to normal mode (block cursor), `v` in normal mode opens the
+command line in nvim. Further helpers:
+
+- `Ctrl-r`: fuzzy history search, `Ctrl-t`: insert a file path, `Alt-c`: cd into a subdirectory (all via fzf)
+- `→`: accept the grey autosuggestion from your history
+- `wt <branch>`: create a git worktree and open it in a new tmux window; `wt` alone selects an existing one
 
 ## tmux
 

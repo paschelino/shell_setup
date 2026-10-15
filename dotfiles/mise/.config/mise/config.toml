@@ -8,6 +8,15 @@ node = "26"
 ruby = "3.4"
 java = "temurin-25"
 
+# Rust CLIs. cargo-binstall fetches prebuilt binaries instead of compiling.
+cargo-binstall = "latest"
+"cargo:nu" = "latest"
+"cargo:nu_plugin_inc" = "latest"
+"cargo:nu_plugin_polars" = "latest"
+"cargo:nu_plugin_gstat" = "latest"
+"cargo:nu_plugin_formats" = "latest"
+"cargo:nu_plugin_query" = "latest"
+
 [settings]
 # Honour .ruby-version, .nvmrc, ... in projects that don't use mise yet.
 idiomatic_version_file_enable_tools = ["node", "ruby"]

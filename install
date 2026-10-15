@@ -28,11 +28,6 @@ else
   rustup update
 fi
 
-if ! command -v nu &>/dev/null; then
-  echo "Installing Cargo binaries..."
-  bash ./cargo_installs.sh
-fi
-
 # Install global JS/TS packages
 if [ -f "$HOME/.config/pnpm/global-package.json" ]; then
   echo "Installing global JS/TS packages..."

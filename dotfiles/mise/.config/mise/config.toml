@@ -2,6 +2,8 @@
 # into a mise.toml (or .tool-versions) inside the project.
 
 [tools]
+erlang = "27.3.4"
+elixir = "1.18"
 
 [settings]
 # Honour .ruby-version, .nvmrc, ... in projects that don't use mise yet.

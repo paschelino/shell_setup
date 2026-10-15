@@ -11,7 +11,6 @@ export ZK_NOTEBOOK_DIR="$HOME/z"
 export ZK_SHELL=/bin/bash
 
 # version managers
-export ASDF_DATA_DIR="$XDG_CONFIG_HOME/asdf"
 export RBENV_SHELL=zsh
 export PNPM_HOME="$HOME/Library/pnpm"
 export N_PREFIX="$HOME"

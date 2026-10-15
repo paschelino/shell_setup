@@ -6,7 +6,6 @@ tap 'k1LoW/tap'
 
 brew '7-Zip'
 brew 'adr-tools'
-brew 'asdf'
 brew 'autoconf'
 brew 'b2sum'
 brew 'bat'

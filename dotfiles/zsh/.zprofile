@@ -14,7 +14,6 @@ path=(
   "$HOME/go/bin"
   /opt/homebrew/opt/libpq/bin # psql
   "$HOME/bin"                 # node version manager n
-  "$ASDF_DATA_DIR/shims"
   "$PNPM_HOME"
   "$HOME/.rbenv/bin"
   "$HOME/.rbenv/shims"

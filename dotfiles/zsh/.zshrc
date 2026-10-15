@@ -62,8 +62,7 @@ eval "$(starship init zsh)"
 eval "$(direnv hook zsh)"
 
 # --- Git worktree helper (git-wt) --------------------------------------------
-# Requires: git-wt binary in ~/.local/bin (or PATH)
-# Install:  https://github.com/k1LoW/git-wt/releases
+# Requires: git-wt (Brewfile: k1LoW/tap/git-wt) and jq
 # Config:   git config --global wt.basedir "../{gitroot}-worktrees"
 #           git config --global wt.copyignored true
 

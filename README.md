@@ -45,8 +45,7 @@ For a detailed look on what you will install, please have a look into
 
 - the script `./install`
 - the `Brewfile`
-- the `cargo_installs.sh`
-- the `js-ts-global-install.sh`
+- the mise config `dotfiles/mise/.config/mise/config.toml`
 
 On a high level after the install you will have
 
@@ -56,6 +55,7 @@ On a high level after the install you will have
 - Nushell, a modern shell for structured data, for occasional use: run `nu` from zsh
 - Starship, a shell prompt on steorids
 - tmux, a massive productivity booster when you are working on multiple projects
+- mise, managing language runtimes (Node, Ruby, Java, Erlang, Elixir) and global CLIs from npm, cargo and PyPI
 - Rustup and Rust, to inspire you to code in Rust, but also to install awesome Rust software like nushell ;-)
 - and more basic stuff that you need
 
@@ -85,7 +85,7 @@ package ghostty:
 cd ~/projects/shell_setup/dotfiles
 ls
 # output:
-# asdf  carapace  colima  ghostty  js-ts-global  lazygit  nushell  nvim  starship  tmux  tool-versions  zk  zsh
+# carapace  colima  ghostty  lazygit  mise  nushell  nvim  starship  tmux  zk  zsh
 
 # now run:
 stow --target="$HOME" ghostty
@@ -133,52 +133,15 @@ It will take you some time to become familiar with nvim. Two things to ease thin
   the mouse :-D
 - Open the key bindings for the file explorer: When in the file explorer hit `g?`
 
-## JS/TS Global Packages
+## Runtimes and global CLIs (mise)
 
-Global Node.js packages are managed declaratively via pnpm, similar to how Homebrew packages are managed via the Brewfile.
+Homebrew installs system tools, libraries and apps. Everything language-specific is managed by
+[mise](https://mise.jdx.dev) in `dotfiles/mise/.config/mise/config.toml`:
 
-### Package list location
+- runtimes: `node = "26"`, `ruby = "3.4"`, ...
+- CLIs from package registries: `"npm:<package>"`, `"cargo:<crate>"`, `"pipx:<package>"`
 
-The package list lives in:
-- `dotfiles/js-ts-global/.config/pnpm/global-package.json`
+After editing the file, run `mise install`. `mise upgrade` updates tools pinned to `latest` or a version prefix.
 
-This file is symlinked to your home directory via `stow`, just like other dotfiles.
-
-### Installing or updating packages
-
-To install or update all global packages manually:
-
-```bash
-bash ./js-ts-global-install.sh
-```
-
-This script will:
-- Clean up old npm-installed versions (if any)
-- Install/update all packages listed in `global-package.json`
-- Show you what's installed
-
-### Adding a new global package
-
-1. Edit `dotfiles/js-ts-global/.config/pnpm/global-package.json`
-2. Add your package to the `dependencies` section:
-   ```json
-   "dependencies": {
-     "opencode-ai": "latest",
-     "your-new-package": "latest"
-   }
-   ```
-3. Run: `bash ./js-ts-global-install.sh`
-
-### Version pinning
-
-You can pin specific versions or use `latest`:
-
-```json
-{
-  "dependencies": {
-    "opencode-ai": "latest",           // Always use latest version
-    "typescript": "^5.0.0",            // Allow minor/patch updates (5.x.x)
-    "some-tool": "1.2.3"               // Pin exact version
-  }
-}
-```
+Projects pin their own versions in a `mise.toml` or `.tool-versions`; `.nvmrc` and `.ruby-version` files are honoured
+as well.

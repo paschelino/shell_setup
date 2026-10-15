@@ -13,7 +13,7 @@ path=(
   /opt/homebrew/opt/openjdk@25/bin
   "$HOME/go/bin"
   /opt/homebrew/opt/libpq/bin # psql
-  "$HOME/bin"                 # node version manager n
+  "$HOME/bin"                 # personal scripts
   "$PNPM_HOME"
   "$HOME/.rbenv/bin"
   "$HOME/.rbenv/shims"

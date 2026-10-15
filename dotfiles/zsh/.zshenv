@@ -13,7 +13,6 @@ export ZK_SHELL=/bin/bash
 # version managers
 export RBENV_SHELL=zsh
 export PNPM_HOME="$HOME/Library/pnpm"
-export N_PREFIX="$HOME"
 
 # erlang / elixir
 export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac"

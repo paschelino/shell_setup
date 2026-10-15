@@ -13,7 +13,6 @@ path=(
   "$HOME/go/bin"
   /opt/homebrew/opt/libpq/bin # psql
   "$HOME/bin"                 # personal scripts
-  "$PNPM_HOME"
   "$HOME/.local/share/mise/shims" # non-interactive use; .zshrc activates mise
   $path
   "$HOME/.cargo/bin"

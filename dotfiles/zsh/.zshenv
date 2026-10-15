@@ -10,9 +10,6 @@ export VISUAL=nvim
 export ZK_NOTEBOOK_DIR="$HOME/z"
 export ZK_SHELL=/bin/bash
 
-# version managers
-export PNPM_HOME="$HOME/Library/pnpm"
-
 # erlang / elixir
 export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac"
 export ERL_AFLAGS="-kernel shell_history enabled"

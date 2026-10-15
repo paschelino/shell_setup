@@ -28,12 +28,6 @@ else
   rustup update
 fi
 
-# Install global JS/TS packages
-if [ -f "$HOME/.config/pnpm/global-package.json" ]; then
-  echo "Installing global JS/TS packages..."
-  bash ./js-ts-global-install.sh
-fi
-
 echo "Installing tools via mise..."
 mise install
 

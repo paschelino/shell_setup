@@ -8,6 +8,9 @@ node = "26"
 ruby = "3.4"
 java = "temurin-25"
 
+# Python CLIs: add them as "pipx:<package>", installed via uv.
+uv = "latest"
+
 # Rust CLIs. cargo-binstall fetches prebuilt binaries instead of compiling.
 cargo-binstall = "latest"
 "cargo:nu" = "latest"

@@ -2,6 +2,8 @@ theme = Catppuccin Mocha
 font-family = Meslo LGS Nerd Font Mono
 gtk-titlebar = true
 mouse-shift-capture = true
+# Hide the pointer while typing; it reappears on the next mouse move.
+mouse-hide-while-typing = true
 # No `command`: Ghostty starts the login shell (zsh, see `chsh`).
 # The zsh vi mode sets the cursor shape itself (bar/block per mode), so keep
 # Ghostty's shell integration from forcing a bar cursor at every prompt.

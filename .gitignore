@@ -1,6 +1,4 @@
 private
 Brewfile.lock.json
 history.txt
-plugin.msgpackz 
-
-.aider*
+plugin.msgpackz

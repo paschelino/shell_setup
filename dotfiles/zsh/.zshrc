@@ -51,8 +51,9 @@ zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}' # case-insensitive
 zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
 
-# carapace: completions for hundreds of CLIs, falling back to other shells'
-export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense'
+# carapace: completions for hundreds of CLIs, falling back to bash's. No zsh
+# bridge: zsh already completes those commands natively.
+export CARAPACE_BRIDGES='bash'
 source <(carapace _carapace zsh)
 
 # --- Integrations ------------------------------------------------------------

@@ -1,34 +1,94 @@
 #!/usr/bin/env bash
+set -euo pipefail
+
+# Resolve the real account instead of trusting a possibly stale $USER.
+TARGET_USER="${SHUP_USER:-$(id -un)}"
+TARGET_HOME="${SHUP_HOME:-$(eval echo "~$TARGET_USER")}"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+
+SKIP_RUST="${SHUP_SKIP_RUST:-0}"
+for arg in "$@"; do
+  case "$arg" in
+    --skip-rust) SKIP_RUST=1 ;;
+    -h|--help)
+      echo "Usage: $0 [--skip-rust]"
+      echo "  --skip-rust  skip rustup and the cargo: tools from mise (nushell & plugins)"
+      exit 0 ;;
+    *) echo "Unknown option: $arg" >&2; exit 1 ;;
+  esac
+done
+
+step() { echo; echo "==> [$(date +%H:%M:%S)] $*"; }
+trap 'echo "!! install failed at line $LINENO" >&2' ERR
+
+step "Installing for user '$TARGET_USER' (home: $TARGET_HOME)"
 
 if ! command -v brew &>/dev/null; then
-  echo "installing Homebrew..."
+  step "Installing Homebrew..."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /usr/local/bin/brew shellenv)"
 fi
 
-echo "Running brew bundle..."
-brew bundle
+BREW_PREFIX="$(brew --prefix)"
+if [ ! -w "$BREW_PREFIX" ]; then
+  echo "!! $BREW_PREFIX is owned by '$(stat -f %Su "$BREW_PREFIX" 2>/dev/null || stat -c %U "$BREW_PREFIX")', not '$TARGET_USER'." >&2
+  echo "   Fix with: sudo chown -R $TARGET_USER $BREW_PREFIX" >&2
+  exit 1
+fi
 
-echo "Creating symlinks..."
-cd ./dotfiles/
-stow --target="$HOME" *
-cd -
+step "Running brew bundle..."
+brew bundle --file="$REPO_DIR/Brewfile" --verbose
+
+step "Creating symlinks..."
+# Stow aborts on regular files in the way (e.g. a ~/.zshenv written by rustup), so back them up first.
+while IFS= read -r -d '' src; do
+  src="${src#./}"
+  target="$TARGET_HOME/${src#*/}"
+  # Skip files reached through an already stowed directory link (they live in the repo).
+  target_dir="$(cd "$(dirname "$target")" 2>/dev/null && pwd -P)" || continue
+  case "$target_dir" in "$REPO_DIR"/*) continue ;; esac
+  if [ -e "$target" ] && [ ! -L "$target" ] && [ ! -d "$target" ]; then
+    echo "   backing up $target -> $target.bak"
+    mv "$target" "$target.bak"
+  fi
+done < <(cd "$REPO_DIR/dotfiles" && find . -mindepth 2 -type f -print0)
+(cd "$REPO_DIR/dotfiles" && stow --verbose=1 --target="$TARGET_HOME" */)
 
 # Ghostty and tmux start the login shell, which the zsh config expects to be zsh.
-if [ "$(dscl . -read "/Users/$USER" UserShell | awk '{print $2}')" != "/bin/zsh" ]; then
-  echo "Setting zsh as login shell..."
-  chsh -s /bin/zsh
+if [ "$(dscl . -read "/Users/$TARGET_USER" UserShell | awk '{print $2}')" != "/bin/zsh" ]; then
+  step "Setting zsh as login shell..."
+  if ! chsh -s /bin/zsh "$TARGET_USER"; then
+    echo "!! Could not change the login shell. Set it manually, e.g. via" >&2
+    echo "   System Settings > Users & Groups > right-click user > Advanced Options > Login shell" >&2
+  fi
 fi
 
-if ! command -v rustup &>/dev/null; then
-  echo "Installing Rust..."
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-  source "$HOME/.cargo/env"
+if [ "$SKIP_RUST" = 1 ]; then
+  step "Skipping Rust (--skip-rust)"
+elif ! command -v rustup &>/dev/null; then
+  step "Installing Rust..."
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
 else
-  echo "Updating Rust..."
+  step "Updating Rust..."
   rustup update
 fi
 
-echo "Installing tools via mise..."
-mise install
+if [ "$SKIP_RUST" = 1 ]; then
+  step "Installing tools via mise (without cargo: tools)..."
+  # Read the tool names before installing; mise prints "name version ..." per line.
+  tools=()
+  while read -r name _; do
+    case "$name" in cargo:*|cargo-binstall|mise) ;; *) tools+=("$name") ;; esac
+  done < <(cd "$TARGET_HOME" && mise ls --current --no-header)
+  (cd "$TARGET_HOME" && mise install --verbose "${tools[@]}")
+else
+  # shellcheck source=/dev/null
+  source "$TARGET_HOME/.cargo/env"
+  cargo --version
 
-echo "Installation complete. Please remember to configure the font 'MesloLGS Nerd Font Mono' in your terminal profile."
+  step "Installing tools via mise (Rust crates may compile for several minutes)..."
+  mise install cargo-binstall --verbose
+  mise install --verbose --jobs 1
+fi
+
+step "Installation complete. Please remember to configure the font 'MesloLGS Nerd Font Mono' in your terminal profile."

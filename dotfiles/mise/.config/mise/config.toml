@@ -1,5 +1,6 @@
-# Global tools, installed with `mise install`. Project-specific versions go
-# into a mise.toml (or .tool-versions) inside the project.
+# Language runtimes, installed with `mise install`. CLIs come from Homebrew.
+# Project-specific versions go into a mise.toml (or .tool-versions) inside the project.
+# Versions and checksums are pinned in mise.lock; refresh it with `mise lock --global --bump`.
 
 [tools]
 erlang = "27.3.4"
@@ -11,3 +12,9 @@ java = "temurin-25"
 [settings]
 # Honour .ruby-version, .nvmrc, ... in projects that don't use mise yet.
 idiomatic_version_file_enable_tools = ["node", "ruby"]
+
+# Require `mise trust` for project config and env files (again after every change),
+# refuse unregistered plugins and re-verify provenance on every install.
+paranoid = true
+# Backends that run plugin shell scripts from community repositories.
+disable_backends = ["asdf", "vfox"]

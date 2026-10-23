@@ -12,7 +12,7 @@ for arg in "$@"; do
     --skip-rust) SKIP_RUST=1 ;;
     -h|--help)
       echo "Usage: $0 [--skip-rust]"
-      echo "  --skip-rust  skip rustup and the cargo: tools from mise (nushell & plugins)"
+      echo "  --skip-rust  skip installing or updating rustup and the Rust toolchain"
       exit 0 ;;
     *) echo "Unknown option: $arg" >&2; exit 1 ;;
   esac
@@ -73,22 +73,7 @@ else
   rustup update
 fi
 
-if [ "$SKIP_RUST" = 1 ]; then
-  step "Installing tools via mise (without cargo: tools)..."
-  # Read the tool names before installing; mise prints "name version ..." per line.
-  tools=()
-  while read -r name _; do
-    case "$name" in cargo:*|cargo-binstall|mise) ;; *) tools+=("$name") ;; esac
-  done < <(cd "$TARGET_HOME" && mise ls --current --no-header)
-  (cd "$TARGET_HOME" && mise install --verbose "${tools[@]}")
-else
-  # shellcheck source=/dev/null
-  source "$TARGET_HOME/.cargo/env"
-  cargo --version
-
-  step "Installing tools via mise (Rust crates may compile for several minutes)..."
-  mise install cargo-binstall --verbose
-  mise install --verbose --jobs 1
-fi
+step "Installing runtimes via mise..."
+(cd "$TARGET_HOME" && mise install --verbose)
 
 step "Installation complete. Please remember to configure the font 'MesloLGS Nerd Font Mono' in your terminal profile."

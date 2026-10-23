@@ -45,6 +45,7 @@ brew 'luarocks'                 # Package manager for the Lua programming langua
 brew 'markdownlint-cli2'        # Fast, flexible, config-based cli for linting Markdown/CommonMark files - https://github.com/DavidAnson/markdownlint-cli2
 brew 'mise'                     # Polyglot runtime manager (asdf rust clone) - https://mise.jdx.dev/
 brew 'neovim'                   # Ambitious Vim-fork focused on extensibility and agility - https://neovim.io/
+brew 'nushell'                  # Modern shell for the GitHub era, including its official plugins - https://www.nushell.sh
 brew 'anomalyco/tap/opencode-v2' # OpenCode V2 - the AI coding agent for the terminal - https://github.com/anomalyco/opencode
 brew 'openssl'                  # Cryptography and SSL/TLS Toolkit - https://openssl-library.org
 brew 'opentofu'                 # Drop-in replacement for Terraform. Infrastructure as Code Tool - https://opentofu.org/

@@ -24,18 +24,6 @@ cargo-binstall = "latest"
 pnpm = "latest"
 "npm:@fsouza/prettierd" = "latest"
 
-[tools."http:opencode"]
-# OpenCode v2 is not on npm or GitHub releases; it is only published as
-# binaries on opencode.ai (same source as `brew install anomalyco/tap/opencode-v2`).
-# There is no version list, so bump the version here to upgrade.
-version = "2.1.0"
-
-[tools."http:opencode".platforms]
-macos-arm64 = { url = "https://opencode.ai/files/bin/{{ version }}/opencode-darwin-arm64.zip" }
-macos-x64 = { url = "https://opencode.ai/files/bin/{{ version }}/opencode-darwin-x64-baseline.zip" }
-linux-arm64 = { url = "https://opencode.ai/files/bin/{{ version }}/opencode-linux-arm64.tar.gz" }
-linux-x64 = { url = "https://opencode.ai/files/bin/{{ version }}/opencode-linux-x64-baseline.tar.gz" }
-
 [settings]
 # Honour .ruby-version, .nvmrc, ... in projects that don't use mise yet.
 idiomatic_version_file_enable_tools = ["node", "ruby"]

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+tap 'anomalyco/tap'             # OpenCode's official tap, providing opencode-v2 - https://github.com/anomalyco/homebrew-tap
 tap 'k1LoW/tap'                 # Tap providing git-wt - https://github.com/k1LoW/homebrew-tap
 
 brew 'adr-tools'                # CLI tool for working with Architecture Decision Records - https://github.com/npryce/adr-tools
@@ -44,6 +45,7 @@ brew 'luarocks'                 # Package manager for the Lua programming langua
 brew 'markdownlint-cli2'        # Fast, flexible, config-based cli for linting Markdown/CommonMark files - https://github.com/DavidAnson/markdownlint-cli2
 brew 'mise'                     # Polyglot runtime manager (asdf rust clone) - https://mise.jdx.dev/
 brew 'neovim'                   # Ambitious Vim-fork focused on extensibility and agility - https://neovim.io/
+brew 'anomalyco/tap/opencode-v2' # OpenCode V2 - the AI coding agent for the terminal - https://github.com/anomalyco/opencode
 brew 'openssl'                  # Cryptography and SSL/TLS Toolkit - https://openssl-library.org
 brew 'opentofu'                 # Drop-in replacement for Terraform. Infrastructure as Code Tool - https://opentofu.org/
 brew 'ossp-uuid'                # ISO-C API and CLI for generating UUIDs - http://www.ossp.org/pkg/lib/uuid/

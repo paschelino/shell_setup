@@ -2,7 +2,6 @@
 
 tap 'k1LoW/tap'                 # Tap providing git-wt - https://github.com/k1LoW/homebrew-tap
 
-brew '7-Zip'                    # 7-Zip is a file archiver with a high compression ratio - https://7-zip.org
 brew 'adr-tools'                # CLI tool for working with Architecture Decision Records - https://github.com/npryce/adr-tools
 brew 'autoconf'                 # Automatic configure script builder - https://www.gnu.org/software/autoconf/
 brew 'b2sum'                    # BLAKE2 b2sum reference binary - https://github.com/BLAKE2/BLAKE2
@@ -38,7 +37,7 @@ brew 'openssl'                  # Cryptography and SSL/TLS Toolkit - https://ope
 brew 'opentofu'                 # Drop-in replacement for Terraform. Infrastructure as Code Tool - https://opentofu.org/
 brew 'ossp-uuid'                # ISO-C API and CLI for generating UUIDs - http://www.ossp.org/pkg/lib/uuid/
 brew 'pip-completion'           # Bash completion for Pip - https://github.com/ekalinin/pip-bash-completion
-brew 'pkg-config'               # Package compiler and linker metadata toolkit - https://github.com/pkgconf/pkgconf
+brew 'pkgconf'                  # Package compiler and linker metadata toolkit - https://github.com/pkgconf/pkgconf
 brew 'pngpaste'                 # Paste PNG into files - https://github.com/jcsalterego/pngpaste
 brew 'poppler'                  # PDF rendering library (based on the xpdf-3.0 code base) - https://poppler.freedesktop.org/
 brew 'pre-commit'               # Framework for managing multi-language pre-commit hooks - https://pre-commit.com/
@@ -51,6 +50,7 @@ brew 'resvg'                    # SVG rendering tool and library - https://githu
 brew 'ripgrep'                  # Search tool like grep and The Silver Searcher - https://github.com/BurntSushi/ripgrep
 brew 'ruby-completion'          # Bash completion for Ruby - https://github.com/mernen/completion-ruby
 brew 'saml2aws'                 # Login and retrieve AWS temporary credentials using a SAML IDP - https://github.com/Versent/saml2aws
+brew 'sevenzip'                 # 7-Zip is a file archiver with a high compression ratio - https://7-zip.org
 brew 'starship'                 # Cross-shell prompt for astronauts - https://starship.rs/
 brew 'stow'                     # Organize software neatly under a single directory tree (e.g. /usr/local) - https://www.gnu.org/software/stow/
 brew 'terraform-docs'           # Tool to generate documentation from Terraform modules - https://terraform-docs.io/

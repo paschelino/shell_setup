@@ -11,7 +11,7 @@ brew 'carapace'                 # Multi-shell multi-command argument completer -
 brew 'cmake'                    # Cross-platform make - https://www.cmake.org/
 brew 'curl'                     # Get a file from an HTTP, HTTPS or FTP server - https://curl.se
 brew 'direnv'                   # Load/unload environment variables based on $PWD - https://direnv.net/
-brew 'docker-completion'        # Bash, Zsh and Fish completion for Docker - https://www.docker.com/
+brew 'docker'                   # Pack, ship and run any application as a lightweight container - https://www.docker.com/
 brew 'docker-buildx'            # Docker CLI plugin for extended build capabilities with BuildKit - https://docs.docker.com/buildx/working-with-buildx/
 brew 'fd'                       # Simple, fast and user-friendly alternative to find - https://github.com/sharkdp/fd
 brew 'ffmpeg'                   # Play, record, convert, and stream select audio and video codecs - https://ffmpeg.org/

@@ -181,12 +181,16 @@ things for you:
 Both agents share one set of global instructions, which apply in every project
 next to the project's own `AGENTS.md` or `CLAUDE.md`:
 
-- `dotfiles/opencode/.config/opencode/AGENTS.md` holds the instructions and is
-  read by opencode.
-- `dotfiles/claude/.claude/CLAUDE.md` only imports that file
-  (`@~/.config/opencode/AGENTS.md`), as Claude Code doesn't read `AGENTS.md`.
+- `dotfiles/opencode/.config/opencode/AGENTS.md` holds the general instructions
+  and is read by opencode.
+- `dotfiles/opencode/.config/opencode/instructions/*.md` hold instructions about
+  this very setup, e.g. how to use the `wt` worktree helper. opencode loads them
+  via `instructions` in `opencode.jsonc`.
+- `dotfiles/claude/.claude/CLAUDE.md` only imports those files with `@~/...`
+  lines, as Claude Code doesn't read `AGENTS.md`. Unlike opencode it can't
+  import a glob, so add a line there for each new file in `instructions/`.
 
-Edit `AGENTS.md` to change the instructions for both.
+Edit those files to change the instructions for both.
 
 `~/.claude` and `~/.config/opencode` also hold the tools' runtime data
 (sessions, history, plugins, `node_modules`). So `./install` stows these two

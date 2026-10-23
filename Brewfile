@@ -42,7 +42,6 @@ brew 'pngpaste'                 # Paste PNG into files - https://github.com/jcsa
 brew 'poppler'                  # PDF rendering library (based on the xpdf-3.0 code base) - https://poppler.freedesktop.org/
 brew 'pre-commit'               # Framework for managing multi-language pre-commit hooks - https://pre-commit.com/
 brew 'prettier'                 # Code formatter for JavaScript, CSS, JSON, GraphQL, Markdown, YAML - https://prettier.io/
-brew 'python'                   # Interpreted, interactive, object-oriented programming language - https://www.python.org/
 brew 'rails-completion'         # Bash completion for Rails - https://github.com/mernen/completion-ruby
 brew 'rake-completion'          # Bash completion for Rake - https://github.com/mernen/completion-ruby
 brew 'readline'                 # Library for command-line editing - https://tiswww.case.edu/php/chet/readline/rltop.html

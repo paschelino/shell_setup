@@ -55,8 +55,8 @@ On a high level after the install you will have
 - Nushell, a modern shell for structured data, for occasional use: run `nu` from zsh
 - Starship, a shell prompt on steorids
 - tmux, a massive productivity booster when you are working on multiple projects
-- mise, managing language runtimes (Node, Ruby, Java, Erlang, Elixir) and global CLIs from npm, cargo and PyPI
-- Rustup and Rust, to inspire you to code in Rust, but also to install awesome Rust software like nushell ;-)
+- mise, managing language runtimes (Node, Ruby, Java, Erlang, Elixir)
+- Rustup and Rust, to inspire you to code in Rust ;-)
 - and more basic stuff that you need
 
 ## How to change things
@@ -133,15 +133,24 @@ It will take you some time to become familiar with nvim. Two things to ease thin
   the mouse :-D
 - Open the key bindings for the file explorer: When in the file explorer hit `g?`
 
-## Runtimes and global CLIs (mise)
+## Package management (Homebrew and mise)
 
-Homebrew installs system tools, libraries and apps. Everything language-specific is managed by
-[mise](https://mise.jdx.dev) in `dotfiles/mise/.config/mise/config.toml`:
+Two package managers, with a clear split:
 
-- runtimes: `node = "26"`, `ruby = "3.4"`, ...
-- CLIs from package registries: `"npm:<package>"`, `"cargo:<crate>"`, `"pipx:<package>"`
+- **Homebrew** (`Brewfile`) installs everything global: CLIs, libraries, apps
+  and fonts. Prefer a homebrew-core formula, even for npm or PyPI tools: every
+  release is reviewed, its sources are pinned by checksum and its bottles carry
+  build provenance attestations, which `.zprofile` verifies
+  (`HOMEBREW_VERIFY_ATTESTATIONS`). Add a third-party tap only when it is the
+  vendor's own.
+- **mise** (`dotfiles/mise/.config/mise/config.toml`) installs language
+  runtimes only (`node = "26"`, `ruby = "3.4"`, ...) and the per-project
+  versions in a project's `mise.toml` or `.tool-versions`; `.nvmrc` and
+  `.ruby-version` files are honoured as well. Stick to the `core` and `aqua`
+  backends: the npm, pipx, cargo and http backends install unreviewed releases,
+  and asdf/vfox plugins (disabled) run community shell scripts.
 
-After editing the file, run `mise install`. `mise upgrade` updates tools pinned to `latest` or a version prefix.
-
-Projects pin their own versions in a `mise.toml` or `.tool-versions`; `.nvmrc` and `.ruby-version` files are honoured
-as well.
+mise runs in paranoid mode, so run `mise trust` in a project before mise uses
+its config, and again after the config changes. Versions and checksums of the
+global runtimes are pinned in `mise.lock`: after editing the config, run
+`mise lock --global --bump` and `mise install`, and commit both files.

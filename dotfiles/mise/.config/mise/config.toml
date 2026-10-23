@@ -8,13 +8,6 @@ node = "26"
 ruby = "3.4"
 java = "temurin-25"
 
-# Python CLIs: add them as "pipx:<package>", installed via uv.
-uv = "latest"
-
-# JS/TS CLIs
-pnpm = "latest"
-"npm:@fsouza/prettierd" = "latest"
-
 [settings]
 # Honour .ruby-version, .nvmrc, ... in projects that don't use mise yet.
 idiomatic_version_file_enable_tools = ["node", "ruby"]

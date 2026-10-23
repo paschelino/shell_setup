@@ -53,9 +53,11 @@ brew 'ossp-uuid'                # ISO-C API and CLI for generating UUIDs - http:
 brew 'pip-completion'           # Bash completion for Pip - https://github.com/ekalinin/pip-bash-completion
 brew 'pkgconf'                  # Package compiler and linker metadata toolkit - https://github.com/pkgconf/pkgconf
 brew 'pngpaste'                 # Paste PNG into files - https://github.com/jcsalterego/pngpaste
+brew 'pnpm'                     # Fast, disk space efficient package manager - https://pnpm.io/
 brew 'poppler'                  # PDF rendering library (based on the xpdf-3.0 code base) - https://poppler.freedesktop.org/
 brew 'pre-commit'               # Framework for managing multi-language pre-commit hooks - https://pre-commit.com/
 brew 'prettier'                 # Code formatter for JavaScript, CSS, JSON, GraphQL, Markdown, YAML - https://prettier.io/
+brew 'prettierd'                # Prettier daemon - https://github.com/fsouza/prettierd
 brew 'pwgen'                    # Password generator - https://pwgen.sourceforge.net/
 brew 'qemu'                     # Generic machine emulator and virtualizer - https://www.qemu.org/
 brew 'rails-completion'         # Bash completion for Rails - https://github.com/mernen/completion-ruby
@@ -82,6 +84,7 @@ brew 'tree'                     # Display directories as trees (with optional co
 brew 'trivy'                    # Vulnerability scanner for container images, file systems, and Git repos - https://trivy.dev/
 brew 'typst'                    # Markup-based typesetting system - https://typst.app/
 brew 'utftex'                   # Pretty print math in monospace fonts, using a TeX-like syntax - https://github.com/bartp5/libtexprintf
+brew 'uv'                       # Extremely fast Python package installer and resolver, written in Rust - https://docs.astral.sh/uv/
 brew 'wget'                     # Internet file retriever - https://www.gnu.org/software/wget/
 brew 'xan'                      # CSV CLI magician written in Rust - https://github.com/medialab/xan
 brew 'yazi'                     # Blazing fast terminal file manager written in Rust, based on async I/O - https://yazi-rs.github.io

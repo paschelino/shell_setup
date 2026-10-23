@@ -1,0 +1,5 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  // Personal instructions on top of AGENTS.md; ~/ is expanded, globs are allowed.
+  "instructions": ["~/.config/opencode/instructions/*.md"],
+}

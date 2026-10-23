@@ -1,4 +1,4 @@
-# paschelino's shell setup for MacOS
+# paschelino's shell setup for macOS
 
 Hi, great you're here. If you like, make use of what I have put together here.
 For me, coming from pure bash and vim, this was like a change from horse riding
@@ -19,19 +19,14 @@ here to be the `<space>` key. Thus to search for keymappings, type `<space>sk`.
 ## 🧐 Please note
 
 The fact this setup works for me does not mean it works for you, too. Dotfiles
-are highly individual. Yet, I have tried to optimize the combination of tools
-and configs and have been soaking in knowledge from multiple awesome YouTube
-videos. Here are some to name a few:
-
-- [Neovim Lua Plugin From Scratch](https://www.youtube.com/watch?v=n4Lp4cV8YR0)
-- [LazyVim From Scratch To BEAST MODE](https://www.youtube.com/watch?v=evCmP4hH7ZU)
+are highly individual.
 
 ## preconditions
 
 ### Mac Package Manager
 
-If you use MacPorts, this here won't work. Sorry. It is based on Homebrew (which
-will be installed in case you haven't before).
+If you use MacPorts, this here won't work. Sorry. It uses Homebrew (which will
+be installed in case you haven't before).
 
 ### Rustup & Rust
 

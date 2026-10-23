@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-tap 'hashicorp/tap'             # HashiCorp's official Homebrew tap - https://github.com/hashicorp/homebrew-tap
-tap 'jesseduffield/lazygit'     # Tap providing lazygit - https://github.com/jesseduffield/homebrew-lazygit
 tap 'k1LoW/tap'                 # Tap providing git-wt - https://github.com/k1LoW/homebrew-tap
 
 brew '7-Zip'                    # 7-Zip is a file archiver with a high compression ratio - https://7-zip.org

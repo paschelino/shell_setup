@@ -3,6 +3,8 @@
 
 # Homebrew: PATH, MANPATH, INFOPATH, fpath and HOMEBREW_PREFIX
 eval "$(/opt/homebrew/bin/brew shellenv)"
+# Verify the build provenance of bottles with `gh attestation verify` before pouring them.
+export HOMEBREW_VERIFY_ATTESTATIONS=1
 
 # Keep only the first occurrence of each entry.
 typeset -U path

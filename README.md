@@ -31,7 +31,9 @@ before).
 
 ### Rustup & Rust
 
-Don't install `rustup` via Homebrew. It will be installed via the contained install script, to have proper use of Cargo.
+Don't install `rustup` via Homebrew. It will be installed via the contained
+install script, to have proper use of Cargo. This is the one deliberate exception
+to installing global tools with Homebrew. Run `./install --skip-rust` to skip it.
 
 ### Conflicts with existing dotfiles or dotfile folders
 
@@ -141,8 +143,10 @@ Two package managers, with a clear split:
   and fonts. Prefer a homebrew-core formula, even for npm or PyPI tools: every
   release is reviewed, its sources are pinned by checksum and its bottles carry
   build provenance attestations, which `.zprofile` verifies
-  (`HOMEBREW_VERIFY_ATTESTATIONS`). Add a third-party tap only when it is the
-  vendor's own.
+  (`HOMEBREW_VERIFY_ATTESTATIONS`; needs `gh` to be logged in, see `gh auth login`).
+  Add a third-party tap only when it is the vendor's own, and trust its formula
+  in the `brew trust --formula` line of `./install`: Homebrew refuses to load
+  formulae from untrusted taps.
 - **mise** (`dotfiles/mise/.config/mise/config.toml`) installs language
   runtimes only (`node = "26"`, `ruby = "3.4"`, ...) and the per-project
   versions in a project's `mise.toml` or `.tool-versions`; `.nvmrc` and

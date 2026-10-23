@@ -115,7 +115,34 @@ cursor), `v` in normal mode opens the command line in nvim. Further helpers:
   a subdirectory (all via fzf)
 - `→`: accept the grey autosuggestion from your history
 - `wt <branch>`: create a git worktree and open it in a new tmux window; `wt`
-  alone selects an existing one
+  alone selects an existing one (see [Git worktrees](#git-worktrees-wt))
+
+## Git worktrees (`wt`)
+
+`wt` is a zsh function (in `.zshrc`) on top of
+[git-wt](https://github.com/k1LoW/git-wt), which makes it easy to work on
+several branches of one repository side by side, each in its own directory and
+tmux window.
+
+| Command            | What it does                                                                                                                         |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `wt <branch>`      | Create the worktree (and the branch, if needed) and open it in a new tmux window named `<repo>/<branch>`; outside tmux, `cd` into it |
+| `wt`               | Pick one of the other worktrees with fzf and `cd` into it                                                                            |
+| `wt -d [<branch>]` | Delete the worktree; an unmerged branch is kept. Without a branch, the current one is deleted                                        |
+| `wt -D [<branch>]` | Force delete: also removes the branch, even if unmerged                                                                              |
+| `wt-rm`, `wt-rm!`  | Aliases for `wt --delete` and `wt --force`                                                                                           |
+
+Tab completion offers your local branches as well as the flags.
+
+`git-wt`, `fzf` and `jq` come with the `Brewfile`. `./install` does not set the
+git config `wt` relies on, so run this once:
+
+```shell
+# put worktrees next to the repository, e.g. ~/projects/shup-worktrees/<branch>
+git config --global wt.basedir "../{gitroot}-worktrees"
+# copy ignored files such as .env or mise.local.toml into new worktrees
+git config --global wt.copyignored true
+```
 
 ## tmux
 

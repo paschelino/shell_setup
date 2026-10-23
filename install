@@ -37,6 +37,8 @@ if [ ! -w "$BREW_PREFIX" ]; then
 fi
 
 step "Running brew bundle..."
+# Homebrew only loads formulae from third-party taps that were trusted explicitly.
+brew trust --formula k1low/tap/git-wt anomalyco/tap/opencode-v2
 brew bundle --file="$REPO_DIR/Brewfile" --verbose
 
 step "Creating symlinks..."

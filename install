@@ -54,7 +54,18 @@ while IFS= read -r -d '' src; do
     mv "$target" "$target.bak"
   fi
 done < <(cd "$REPO_DIR/dotfiles" && find . -mindepth 2 -type f -print0)
-(cd "$REPO_DIR/dotfiles" && stow --verbose=1 --target="$TARGET_HOME" */)
+# These targets also hold the tools' runtime data: link single files, never fold the directory into the repo.
+NO_FOLDING=(opencode)
+(
+  cd "$REPO_DIR/dotfiles"
+  folding=()
+  for pkg in */; do
+    pkg="${pkg%/}"
+    case " ${NO_FOLDING[*]} " in *" $pkg "*) ;; *) folding+=("$pkg") ;; esac
+  done
+  stow --verbose=1 --target="$TARGET_HOME" "${folding[@]}"
+  stow --verbose=1 --no-folding --target="$TARGET_HOME" "${NO_FOLDING[@]}"
+)
 
 # Ghostty and tmux start the login shell, which the zsh config expects to be zsh.
 if [ "$(dscl . -read "/Users/$TARGET_USER" UserShell | awk '{print $2}')" != "/bin/zsh" ]; then

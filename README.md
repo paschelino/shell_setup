@@ -176,6 +176,28 @@ things for you:
 - Open the key bindings for the file explorer: When in the file explorer hit
   `g?`
 
+## AI coding agents (Claude Code and opencode)
+
+Both agents share one set of global instructions, which apply in every project
+next to the project's own `AGENTS.md` or `CLAUDE.md`:
+
+- `dotfiles/opencode/.config/opencode/AGENTS.md` holds the instructions and is
+  read by opencode.
+- `dotfiles/claude/.claude/CLAUDE.md` only imports that file
+  (`@~/.config/opencode/AGENTS.md`), as Claude Code doesn't read `AGENTS.md`.
+
+Edit `AGENTS.md` to change the instructions for both.
+
+`~/.claude` and `~/.config/opencode` also hold the tools' runtime data
+(sessions, history, plugins, `node_modules`). So `./install` stows these two
+packages with `--no-folding`: stow then links single files and never symlinks
+the whole directory into this repository. When stowing them manually, pass the
+flag as well:
+
+```shell
+stow --no-folding --target="$HOME" claude opencode
+```
+
 ## Package management (Homebrew and mise)
 
 Two package managers, with a clear split:

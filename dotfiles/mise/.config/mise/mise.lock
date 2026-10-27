@@ -40,33 +40,6 @@ version = "27.3.4"
 backend = "core:erlang"
 specifiers = ["27.3.4"]
 
-[tools.erlang."platforms.linux-arm64-musl"]
-url = "https://github.com/erlang/otp/releases/download/OTP-27.3.4/otp_src_27.3.4.tar.gz"
-url_api = "https://api.github.com/repos/erlang/otp/releases/assets/252915898"
-install = "source"
-
-[tools.erlang."platforms.linux-x64-musl"]
-url = "https://github.com/erlang/otp/releases/download/OTP-27.3.4/otp_src_27.3.4.tar.gz"
-url_api = "https://api.github.com/repos/erlang/otp/releases/assets/252915898"
-install = "source"
-
-[tools.erlang."platforms.macos-arm64"]
-url = "https://github.com/erlef/otp_builds/releases/download/OTP-27.3.4/otp-aarch64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/erlef/otp_builds/releases/assets/252914544"
-
-[tools.erlang."platforms.macos-x64"]
-url = "https://github.com/erlef/otp_builds/releases/download/OTP-27.3.4/otp-x86_64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/erlef/otp_builds/releases/assets/252916776"
-
-[tools.erlang."platforms.windows-x64"]
-url = "https://github.com/erlang/otp/releases/download/OTP-27.3.4/otp_win64_27.3.4.zip"
-url_api = "https://api.github.com/repos/erlang/otp/releases/assets/252933624"
-
-[[tools.erlang]]
-version = "27.3.4"
-backend = "core:erlang"
-specifiers = ["27.3.4"]
-
 [tools.erlang.options]
 precompiled_os = "ubuntu-24.04"
 
@@ -77,6 +50,38 @@ url = "https://builds.hex.pm/builds/otp/arm64/ubuntu-24.04/OTP-27.3.4.tar.gz"
 [tools.erlang."platforms.linux-x64"]
 checksum = "sha256:dfdcfc20c36dd049ae89f77d55c36a5b0630018f09c7142c073c366a5cf55e66"
 url = "https://builds.hex.pm/builds/otp/amd64/ubuntu-24.04/OTP-27.3.4.tar.gz"
+
+[[tools.erlang]]
+version = "27.3.4"
+backend = "core:erlang"
+specifiers = ["27.3.4"]
+
+[tools.erlang."platforms.linux-arm64-musl"]
+checksum = "sha256:c3a0a0b51df08f877eed88378f3d2da7026a75b8559803bd78071bb47cd4783b"
+url = "https://github.com/erlang/otp/releases/download/OTP-27.3.4/otp_src_27.3.4.tar.gz"
+url_api = "https://api.github.com/repos/erlang/otp/releases/assets/252915898"
+install = "source"
+
+[tools.erlang."platforms.linux-x64-musl"]
+checksum = "sha256:c3a0a0b51df08f877eed88378f3d2da7026a75b8559803bd78071bb47cd4783b"
+url = "https://github.com/erlang/otp/releases/download/OTP-27.3.4/otp_src_27.3.4.tar.gz"
+url_api = "https://api.github.com/repos/erlang/otp/releases/assets/252915898"
+install = "source"
+
+[tools.erlang."platforms.macos-arm64"]
+checksum = "sha256:c6ed988d1c32baef98e77a18131b5fe380c2ddb98792cefec0683778797989fa"
+url = "https://github.com/erlef/otp_builds/releases/download/OTP-27.3.4/otp-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/erlef/otp_builds/releases/assets/252914544"
+
+[tools.erlang."platforms.macos-x64"]
+checksum = "sha256:2d63ddb0d51d2964e9d5f01bb2a54c43ec4840cffb243f6a70d300628e891b99"
+url = "https://github.com/erlef/otp_builds/releases/download/OTP-27.3.4/otp-x86_64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/erlef/otp_builds/releases/assets/252916776"
+
+[tools.erlang."platforms.windows-x64"]
+checksum = "sha256:0a564e77b3b22f0d03ce86b3a22f1ff6e2d844a43fa7a9f0630e073700d13430"
+url = "https://github.com/erlang/otp/releases/download/OTP-27.3.4/otp_win64_27.3.4.zip"
+url_api = "https://api.github.com/repos/erlang/otp/releases/assets/252933624"
 
 [[tools.java]]
 version = "temurin-25.0.4+101.0.LTS"
@@ -145,13 +150,95 @@ checksum = "sha256:50efaf01a08c520b4bbe499c09a8c5a5c370002c419c0d9da2c6815d3066a
 url = "https://nodejs.org/dist/v26.12.0/node-v26.12.0-win-x64.zip"
 
 [[tools.ruby]]
-version = "3.4.11"
+version = "3.1.4"
 backend = "core:ruby"
-specifiers = ["3.4"]
+specifiers = ["3.1.4"]
+
+[tools.ruby.options]
+compile = "false"
+precompiled_url = "jdx/ruby"
+ruby_build_repo = "https://github.com/rbenv/ruby-build.git"
+ruby_install = "false"
+
+[tools.ruby."platforms.linux-arm64"]
+checksum = "sha256:a3d55879a0dfab1d7141fdf10d22a07dbf8e5cdc4415da1bde06127d5cc3c7b6"
+url = "https://cache.ruby-lang.org/pub/ruby/3.1/ruby-3.1.4.tar.gz"
+
+[tools.ruby."platforms.linux-arm64-musl"]
+checksum = "sha256:a3d55879a0dfab1d7141fdf10d22a07dbf8e5cdc4415da1bde06127d5cc3c7b6"
+url = "https://cache.ruby-lang.org/pub/ruby/3.1/ruby-3.1.4.tar.gz"
+
+[tools.ruby."platforms.linux-x64"]
+checksum = "sha256:a3d55879a0dfab1d7141fdf10d22a07dbf8e5cdc4415da1bde06127d5cc3c7b6"
+url = "https://cache.ruby-lang.org/pub/ruby/3.1/ruby-3.1.4.tar.gz"
+
+[tools.ruby."platforms.linux-x64-musl"]
+checksum = "sha256:a3d55879a0dfab1d7141fdf10d22a07dbf8e5cdc4415da1bde06127d5cc3c7b6"
+url = "https://cache.ruby-lang.org/pub/ruby/3.1/ruby-3.1.4.tar.gz"
+
+[tools.ruby."platforms.macos-arm64"]
+checksum = "sha256:a3d55879a0dfab1d7141fdf10d22a07dbf8e5cdc4415da1bde06127d5cc3c7b6"
+url = "https://cache.ruby-lang.org/pub/ruby/3.1/ruby-3.1.4.tar.gz"
+
+[tools.ruby."platforms.macos-x64"]
+checksum = "sha256:a3d55879a0dfab1d7141fdf10d22a07dbf8e5cdc4415da1bde06127d5cc3c7b6"
+url = "https://cache.ruby-lang.org/pub/ruby/3.1/ruby-3.1.4.tar.gz"
+
+[[tools.ruby]]
+version = "3.1.4"
+backend = "core:ruby"
+specifiers = ["3.1.4"]
 
 [tools.ruby."platforms.windows-x64"]
-checksum = "sha256:0e301317ee6498bdb7e9db2cbcbc7b512e41802b89b495ea6a1c525b89271b38"
-url = "https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.4.11-2/rubyinstaller-3.4.11-2-x64.7z"
+checksum = "sha256:6701088607ea4b587a31af76d75cb3fe9f7bcd75fc175cffcca22369ebb6331d"
+url = "https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.1.4-1/rubyinstaller-3.1.4-1-x64.7z"
+
+[[tools.ruby]]
+version = "3.2.8"
+backend = "core:ruby"
+specifiers = ["3.2.8"]
+
+[tools.ruby.options]
+compile = "false"
+precompiled_url = "jdx/ruby"
+ruby_build_repo = "https://github.com/rbenv/ruby-build.git"
+ruby_install = "false"
+
+[tools.ruby."platforms.linux-arm64"]
+checksum = "sha256:51c7540506ba89b016768ad6b0c29263fa52507d73ef9837c22b70dce614eafc"
+url = "https://github.com/jdx/ruby/releases/download/3.2.8-6/ruby-3.2.8.arm64_linux.tar.gz"
+provenance = "github-attestations"
+
+[tools.ruby."platforms.linux-arm64-musl"]
+checksum = "sha256:77acdd8cfbbe1f8e573b5e6536e03c5103df989dc05fa68c70f011833c356075"
+url = "https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.8.tar.gz"
+
+[tools.ruby."platforms.linux-x64"]
+checksum = "sha256:89043ddee6742f5260f0cc48ad15b855ab95508a962fe87288ed5a27b7a1a456"
+url = "https://github.com/jdx/ruby/releases/download/3.2.8-6/ruby-3.2.8.x86_64_linux.tar.gz"
+provenance = "github-attestations"
+
+[tools.ruby."platforms.linux-x64-musl"]
+checksum = "sha256:77acdd8cfbbe1f8e573b5e6536e03c5103df989dc05fa68c70f011833c356075"
+url = "https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.8.tar.gz"
+
+[tools.ruby."platforms.macos-arm64"]
+checksum = "sha256:8aeac2b5d1b47e41368043bd65119e0ab2554f2b3e7532e83143110261dd7d08"
+url = "https://github.com/jdx/ruby/releases/download/3.2.8-6/ruby-3.2.8.macos.tar.gz"
+provenance = "github-attestations"
+
+[tools.ruby."platforms.macos-x64"]
+checksum = "sha256:77acdd8cfbbe1f8e573b5e6536e03c5103df989dc05fa68c70f011833c356075"
+url = "https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.8.tar.gz"
+
+[[tools.ruby]]
+version = "3.2.8"
+backend = "core:ruby"
+specifiers = ["3.2.8"]
+
+[tools.ruby."platforms.windows-x64"]
+checksum = "sha256:e37172bc960a22b1fda9603bea617625b5a1af48d009844818e85eaa00684962"
+url = "https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.2.8-1/rubyinstaller-3.2.8-1-x64.7z"
 
 [[tools.ruby]]
 version = "3.4.11"
@@ -190,3 +277,12 @@ provenance = "github-attestations"
 [tools.ruby."platforms.macos-x64"]
 checksum = "sha256:5c22be44524312b3d433d68739bcc530633b1da5ef8ba0afa0a37680da17d3de"
 url = "https://cache.ruby-lang.org/pub/ruby/3.4/ruby-3.4.11.tar.gz"
+
+[[tools.ruby]]
+version = "3.4.11"
+backend = "core:ruby"
+specifiers = ["3.4"]
+
+[tools.ruby."platforms.windows-x64"]
+checksum = "sha256:0e301317ee6498bdb7e9db2cbcbc7b512e41802b89b495ea6a1c525b89271b38"
+url = "https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.4.11-2/rubyinstaller-3.4.11-2-x64.7z"

@@ -14,7 +14,7 @@ brew 'cmake'                    # Cross-platform make - https://www.cmake.org/
 brew 'colima'                   # Container runtimes on MacOS (and Linux) with minimal setup - https://colima.run
 brew 'curl'                     # Get a file from an HTTP, HTTPS or FTP server - https://curl.se
 brew 'direnv'                   # Load/unload environment variables based on $PWD - https://direnv.net/
-brew 'docker'                   # Pack, ship and run any application as a lightweight container - https://www.docker.com/
+# brew 'docker'                   # Pack, ship and run any application as a lightweight container - https://www.docker.com/
 brew 'docker-buildx'            # Docker CLI plugin for extended build capabilities with BuildKit - https://docs.docker.com/buildx/working-with-buildx/
 brew 'docker-compose'           # Isolated development environments using Docker - https://docs.docker.com/compose/
 brew 'fd'                       # Simple, fast and user-friendly alternative to find - https://github.com/sharkdp/fd

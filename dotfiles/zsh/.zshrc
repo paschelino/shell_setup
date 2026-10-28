@@ -172,10 +172,16 @@ _zp_run() {
 # zp [project]   open the project's Zellij session (nvim, agent and shell
 #                tabs), creating it if needed; without a name, pick via fzf.
 #                Works from inside Zellij as well, by switching sessions.
+# zp -a|--all    start the sessions of all projects in the background (e.g.
+#                after a reboot), then attach to the first one.
 zp() {
   if [[ ! -r $ZP_DIR/projects ]]; then
     print -u2 "zp: no project list, create $ZP_DIR/projects with lines like: <name> <path> [<agent>]"
     return 1
+  fi
+  if [[ $1 == (-a|--all) ]]; then
+    _zp_all
+    return
   fi
   local name=$1
   if [[ -z $name ]]; then
@@ -187,8 +193,7 @@ zp() {
     return 1
   fi
   local dir=${${entry#*$'\t'}%$'\t'*}
-  local layout=project
-  [[ -r $ZP_DIR/$name.kdl ]] && layout=$ZP_DIR/$name.kdl
+  local layout=$(_zp_layout "$name")
 
   if zellij list-sessions --short --no-formatting 2>/dev/null | grep -qxF -- "$name"; then
     if [[ -n $ZELLIJ ]]; then
@@ -203,8 +208,39 @@ zp() {
   fi
 }
 
+# The project's private layout if there is one, else the generic one
+_zp_layout() {
+  if [[ -r $ZP_DIR/$1.kdl ]]; then
+    print -r -- "$ZP_DIR/$1.kdl"
+  else
+    print project
+  fi
+}
+
+# Start every project's session in the background; running ones are left
+# alone, exited ones (e.g. after a reboot) are resurrected.
+_zp_all() {
+  local running=$(zellij list-sessions --no-formatting 2>/dev/null | grep -v EXITED | cut -d' ' -f1)
+  local name dir agent first
+  while IFS=$'\t' read -r name dir agent; do
+    : ${first:=$name}
+    if print -r -- "$running" | grep -qxF -- "$name"; then
+      print "zp: $name is already running"
+      continue
+    fi
+    print "zp: starting $name"
+    (cd "$dir" && zellij attach --create-background "$name" options --default-layout "$(_zp_layout "$name")")
+  done < <(_zp_projects)
+  [[ -z $ZELLIJ && -n $first ]] && zellij attach "$first"
+}
+
 _zp() {
-  compadd -- ${(f)"$(_zp_projects | cut -f1)"}
+  _arguments \
+    '(-a --all 1)'{-a,--all}'[start all projects in the background]' \
+    '1:project:->project'
+  if [[ $state == project ]]; then
+    compadd -- ${(f)"$(_zp_projects | cut -f1)"}
+  fi
 }
 compdef _zp zp
 

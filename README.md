@@ -179,7 +179,9 @@ Selecting text with the mouse copies it. The config reloads on save.
 `zp <project>` opens one Zellij session per project with three tabs: nvim, a
 coding agent and a shell (the layout in `layouts/project.kdl`). If the session
 exists, it attaches to it; inside Zellij it switches to it. `zp` alone picks a
-project with fzf.
+project with fzf. `zp -a` (`--all`) starts the sessions of all projects in the
+background, e.g. after a reboot, and then attaches to the first one. Sessions
+that are already running are left alone.
 
 The projects differ from machine to machine and stay private, so they're not
 part of this repository. List them in `~/.config/zp/projects`, one per line:

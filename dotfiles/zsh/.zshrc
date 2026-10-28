@@ -159,6 +159,16 @@ _zp_agent() {
   ${agent:-opencode}
 }
 
+# _zp_run <command...>   for Zellij layouts: run a command in the pane's
+# directory with its direnv and mise environment, then stay in a shell.
+# Needed because those hooks only run on a prompt, which `zsh -ic` never shows.
+_zp_run() {
+  eval "$(direnv export zsh 2>/dev/null)"
+  eval "$(mise hook-env -s zsh 2>/dev/null)"
+  "$@"
+  exec zsh
+}
+
 # zp [project]   open the project's Zellij session (nvim, agent and shell
 #                tabs), creating it if needed; without a name, pick via fzf.
 #                Works from inside Zellij as well, by switching sessions.

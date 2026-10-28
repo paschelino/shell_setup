@@ -11,6 +11,7 @@ brew 'bat'                      # Clone of cat(1) with syntax highlighting and G
 brew 'bundler-completion'       # Bash completion for Bundler - https://github.com/mernen/completion-ruby
 brew 'carapace'                 # Multi-shell multi-command argument completer - https://carapace.sh
 brew 'cmake'                    # Cross-platform make - https://www.cmake.org/
+brew 'cmark-gfm'                # C implementation of GitHub Flavored Markdown - https://github.com/github/cmark-gfm
 brew 'colima'                   # Container runtimes on MacOS (and Linux) with minimal setup - https://colima.run
 brew 'curl'                     # Get a file from an HTTP, HTTPS or FTP server - https://curl.se
 brew 'direnv'                   # Load/unload environment variables based on $PWD - https://direnv.net/

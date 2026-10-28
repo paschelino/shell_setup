@@ -174,6 +174,10 @@ Everything starts with the prefix `Ctrl-a`:
 
 Selecting text with the mouse copies it. The config reloads on save.
 
+The full cheat sheet lives in `dotfiles/zellij/.config/zellij/cheatsheet.md`:
+`zp -c` (`--cheat`) opens it in nvim, `zp -cb` (`--cheat --browser`) renders it
+in the browser.
+
 ### Projects (`zp`)
 
 `zp <project>` opens one Zellij session per project with three tabs: nvim, a

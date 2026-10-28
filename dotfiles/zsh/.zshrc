@@ -174,12 +174,32 @@ _zp_run() {
 #                Works from inside Zellij as well, by switching sessions.
 # zp -a|--all    start the sessions of all projects in the background (e.g.
 #                after a reboot), then attach to the first one.
+# zp -c|--cheat  open the Zellij cheat sheet in nvim; with -b|--browser (or
+#                -cb) in the browser instead.
 zp() {
+  local all= cheat= browser=
+  while [[ $1 == -* ]]; do
+    case $1 in
+      -a | --all) all=1 ;;
+      -c | --cheat) cheat=1 ;;
+      -b | --browser) browser=1 ;;
+      -cb | -bc) cheat=1 browser=1 ;;
+      *)
+        print -u2 "zp: unknown option $1"
+        return 1
+        ;;
+    esac
+    shift
+  done
+  if [[ -n $cheat ]]; then
+    _zp_cheat $browser
+    return
+  fi
   if [[ ! -r $ZP_DIR/projects ]]; then
     print -u2 "zp: no project list, create $ZP_DIR/projects with lines like: <name> <path> [<agent>]"
     return 1
   fi
-  if [[ $1 == (-a|--all) ]]; then
+  if [[ -n $all ]]; then
     _zp_all
     return
   fi
@@ -234,9 +254,34 @@ _zp_all() {
   [[ -z $ZELLIJ && -n $first ]] && zellij attach "$first"
 }
 
+# _zp_cheat [browser]   open the Zellij cheat sheet in nvim, or rendered as
+# HTML in the default browser when an argument is given
+_zp_cheat() {
+  local sheet=${XDG_CONFIG_HOME:-$HOME/.config}/zellij/cheatsheet.md
+  if [[ -z $1 ]]; then
+    nvim "$sheet"
+    return
+  fi
+  local html=${TMPDIR:-/tmp}/zellij-cheatsheet.html
+  {
+    print -r -- '<!doctype html><html><head><meta charset="utf-8"><title>Zellij cheat sheet</title><style>
+body { font: 16px/1.5 -apple-system, sans-serif; max-width: 52rem; margin: 2rem auto; padding: 0 1rem; color: #cdd6f4; background: #1e1e2e; }
+h1, h2 { color: #89b4fa; } a { color: #89b4fa; }
+code { font-family: "Meslo LGS Nerd Font Mono", monospace; background: #313244; padding: 0 .3em; border-radius: 4px; }
+table { border-collapse: collapse; margin: 1rem 0; } th, td { border: 1px solid #45475a; padding: .3rem .7rem; text-align: left; }
+th { background: #313244; }
+</style></head><body>'
+    cmark-gfm --extension table "$sheet"
+    print -r -- '</body></html>'
+  } > "$html"
+  open "$html"
+}
+
 _zp() {
   _arguments \
-    '(-a --all 1)'{-a,--all}'[start all projects in the background]' \
+    '(-a --all -c --cheat 1)'{-a,--all}'[start all projects in the background]' \
+    '(-a --all -c --cheat 1)'{-c,--cheat}'[open the Zellij cheat sheet in nvim]' \
+    '(-a --all -b --browser 1)'{-b,--browser}'[with --cheat: open it in the browser]' \
     '1:project:->project'
   if [[ $state == project ]]; then
     compadd -- ${(f)"$(_zp_projects | cut -f1)"}

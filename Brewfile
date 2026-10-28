@@ -90,6 +90,7 @@ brew 'uv'                       # Extremely fast Python package installer and re
 brew 'wget'                     # Internet file retriever - https://www.gnu.org/software/wget/
 brew 'xan'                      # CSV CLI magician written in Rust - https://github.com/medialab/xan
 brew 'yazi'                     # Blazing fast terminal file manager written in Rust, based on async I/O - https://yazi-rs.github.io
+brew 'zellij'                   # Modern terminal multiplexer written in Rust - https://zellij.dev/
 brew 'zk'                       # Plain text note-taking assistant - https://zk-org.github.io/zk/
 brew 'zlib'                     # General-purpose lossless data-compression library - https://zlib.net/
 brew 'zoxide'                   # Shell extension to navigate your filesystem faster - https://github.com/ajeetdsouza/zoxide

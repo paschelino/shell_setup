@@ -1,0 +1,29 @@
+// One session per project: nvim, a coding agent and a shell, each in its own
+// tab. Started by the zsh function `zp`, which also picks the agent per
+// project from the private project list (see README). Commands run through an
+// interactive zsh, so mise and PATH are set up, and fall back to a shell when
+// they exit.
+layout {
+    default_tab_template {
+        children
+        pane size=1 borderless=true {
+            plugin location="compact-bar"
+        }
+    }
+
+    tab name="nvim" focus=true {
+        pane command="zsh" {
+            args "-ic" "nvim; exec zsh"
+        }
+    }
+
+    tab name="agent" {
+        pane command="zsh" {
+            args "-ic" "_zp_agent; exec zsh"
+        }
+    }
+
+    tab name="shell" {
+        pane
+    }
+}

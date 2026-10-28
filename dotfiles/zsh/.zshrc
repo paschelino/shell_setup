@@ -109,7 +109,9 @@ wt() {
     local wt_path repo_name
     wt_path=$(git wt --nocd "$branch" | tail -1)
     repo_name=$(basename "$(git rev-parse --show-toplevel)")
-    if [[ -n $TMUX ]]; then
+    if [[ -n $ZELLIJ ]]; then
+      zellij action new-tab --cwd "$wt_path" --name "$repo_name/$branch" >/dev/null
+    elif [[ -n $TMUX ]]; then
       tmux neww -c "$wt_path" -n "$repo_name/$branch"
     else
       cd "$wt_path"
@@ -131,6 +133,70 @@ compdef _wt wt
 
 alias wt-rm='wt --delete'
 alias 'wt-rm!'='wt --force'
+
+# Private, machine-local project list for zp; deliberately not in this repo.
+# One project per line: <name> <path> [<agent>], e.g. `shup ~/shup claude`.
+# A layout file <name>.kdl next to it replaces the generic project layout.
+ZP_DIR=${XDG_CONFIG_HOME:-$HOME/.config}/zp
+
+# Print the projects as "name<TAB>absolute path<TAB>agent", skipping comments
+_zp_projects() {
+  [[ -r $ZP_DIR/projects ]] || return
+  local line p
+  local -a f
+  while IFS= read -r line; do
+    f=(${(z)line})
+    [[ -z $f[1] || $f[1] == \#* ]] && continue
+    p=${f[2]/#\~/$HOME}
+    print -r -- "$f[1]"$'\t'"${p:A}"$'\t'"${f[3]:-opencode}"
+  done < "$ZP_DIR/projects"
+}
+
+# Start the coding agent configured for the project in $PWD (used by the
+# project layout's agent tab); defaults to opencode.
+_zp_agent() {
+  local agent=$(_zp_projects | awk -F'\t' -v d="${PWD:A}" '$2 == d { print $3; exit }')
+  ${agent:-opencode}
+}
+
+# zp [project]   open the project's Zellij session (nvim, agent and shell
+#                tabs), creating it if needed; without a name, pick via fzf.
+#                Works from inside Zellij as well, by switching sessions.
+zp() {
+  if [[ ! -r $ZP_DIR/projects ]]; then
+    print -u2 "zp: no project list, create $ZP_DIR/projects with lines like: <name> <path> [<agent>]"
+    return 1
+  fi
+  local name=$1
+  if [[ -z $name ]]; then
+    name=$(_zp_projects | cut -f1 | fzf --height 40% --reverse --prompt="project> ") || return
+  fi
+  local entry=$(_zp_projects | awk -F'\t' -v n="$name" '$1 == n { print; exit }')
+  if [[ -z $entry ]]; then
+    print -u2 "zp: unknown project '$name' (see $ZP_DIR/projects)"
+    return 1
+  fi
+  local dir=${${entry#*$'\t'}%$'\t'*}
+  local layout=project
+  [[ -r $ZP_DIR/$name.kdl ]] && layout=$ZP_DIR/$name.kdl
+
+  if zellij list-sessions --short --no-formatting 2>/dev/null | grep -qxF -- "$name"; then
+    if [[ -n $ZELLIJ ]]; then
+      zellij action switch-session "$name"
+    else
+      zellij attach "$name"
+    fi
+  elif [[ -n $ZELLIJ ]]; then
+    zellij action switch-session "$name" --cwd "$dir" --layout "$layout"
+  else
+    (cd "$dir" && zellij --session "$name" --new-session-with-layout "$layout")
+  fi
+}
+
+_zp() {
+  compadd -- ${(f)"$(_zp_projects | cut -f1)"}
+}
+compdef _zp zp
 
 # Must be sourced last, after all widgets are defined.
 source "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"

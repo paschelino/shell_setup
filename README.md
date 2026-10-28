@@ -92,7 +92,7 @@ So let's assume, you have cloned the repository into a folder like
 cd ~/projects/shell_setup/dotfiles
 ls
 # output:
-# carapace  colima  ghostty  lazygit  mise  nushell  nvim  starship  tmux  zk  zsh
+# carapace  colima  ghostty  lazygit  mise  nushell  nvim  starship  tmux  zellij  zk  zsh
 
 # now run:
 stow --target="$HOME" ghostty
@@ -114,8 +114,9 @@ cursor), `v` in normal mode opens the command line in nvim. Further helpers:
 - `Ctrl-r`: fuzzy history search, `Ctrl-t`: insert a file path, `Alt-c`: cd into
   a subdirectory (all via fzf)
 - `→`: accept the grey autosuggestion from your history
-- `wt <branch>`: create a git worktree and open it in a new tmux window; `wt`
-  alone selects an existing one (see [Git worktrees](#git-worktrees-wt))
+- `wt <branch>`: create a git worktree and open it in a new tmux window or
+  Zellij tab; `wt` alone selects an existing one (see
+  [Git worktrees](#git-worktrees-wt))
 
 ## Git worktrees (`wt`)
 
@@ -124,13 +125,13 @@ cursor), `v` in normal mode opens the command line in nvim. Further helpers:
 several branches of one repository side by side, each in its own directory and
 tmux window.
 
-| Command            | What it does                                                                                                                         |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `wt <branch>`      | Create the worktree (and the branch, if needed) and open it in a new tmux window named `<repo>/<branch>`; outside tmux, `cd` into it |
-| `wt`               | Pick one of the other worktrees with fzf and `cd` into it                                                                            |
-| `wt -d [<branch>]` | Delete the worktree; an unmerged branch is kept. Without a branch, the current one is deleted                                        |
-| `wt -D [<branch>]` | Force delete: also removes the branch, even if unmerged                                                                              |
-| `wt-rm`, `wt-rm!`  | Aliases for `wt --delete` and `wt --force`                                                                                           |
+| Command            | What it does                                                                                                                                       |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `wt <branch>`      | Create the worktree (and the branch, if needed) and open it in a new tmux window or Zellij tab named `<repo>/<branch>`; outside both, `cd` into it |
+| `wt`               | Pick one of the other worktrees with fzf and `cd` into it                                                                                          |
+| `wt -d [<branch>]` | Delete the worktree; an unmerged branch is kept. Without a branch, the current one is deleted                                                      |
+| `wt -D [<branch>]` | Force delete: also removes the branch, even if unmerged                                                                                            |
+| `wt-rm`, `wt-rm!`  | Aliases for `wt --delete` and `wt --force`                                                                                                         |
 
 Tab completion offers your local branches as well as the flags.
 
@@ -150,6 +151,49 @@ For full developer productivity, I advise you to remap your CAPS_LOCK key to
 CTRL, short C. Then it is super simple to use the according key mappings and for
 example to press C+a,w to open the window selector. It feels a little bit like
 emacs, as every command you will be using will be preceded with C+a.
+
+## Zellij
+
+Zellij is a modern alternative to tmux. Its config
+(`dotfiles/zellij/.config/zellij/config.kdl`) drops Zellij's default keys, which
+clash with nvim (e.g. `Ctrl-s` to save), and copies the tmux bindings instead.
+Everything starts with the prefix `Ctrl-a`:
+
+| Keys after `Ctrl-a`                 | What it does                                            |
+| ----------------------------------- | ------------------------------------------------------- |
+| `h` `j` `k` `l`                     | Move to the pane on the left, below, above, right       |
+| `H` `J` `K` `L`                     | Resize; keep pressing `h` `j` `k` `l`, `Esc` to stop    |
+| `\|` or `%`, `-` or `"`             | Split right, split down                                 |
+| `z`, `x`, `f`                       | Toggle fullscreen, close pane, toggle floating panes    |
+| `c`, `,`, `&`                       | New tab, rename tab, close tab                          |
+| `Ctrl-h` / `Ctrl-l`, `1`…`9`, `Tab` | Previous / next tab, go to tab, last tab                |
+| `[`, `/`                            | Scroll mode (vi keys), search                           |
+| `e`                                 | Open the scrollback in nvim, to search and copy with vi |
+| `s`, `d`, `q`                       | Session manager, detach, quit                           |
+| `Ctrl-a`                            | Send `Ctrl-a` to the program                            |
+
+Selecting text with the mouse copies it. The config reloads on save.
+
+### Projects (`zp`)
+
+`zp <project>` opens one Zellij session per project with three tabs: nvim, a
+coding agent and a shell (the layout in `layouts/project.kdl`). If the session
+exists, it attaches to it; inside Zellij it switches to it. `zp` alone picks a
+project with fzf.
+
+The projects differ from machine to machine and stay private, so they're not
+part of this repository. List them in `~/.config/zp/projects`, one per line:
+name, path and optionally the agent (default: `opencode`):
+
+```text
+# name      path                  agent
+shup        ~/shup                opencode
+my-api      ~/work/my-api         claude
+```
+
+A project that needs different tabs gets its own layout:
+`~/.config/zp/<name>.kdl` is used instead of the generic one. Start from
+`dotfiles/zellij/.config/zellij/layouts/project.kdl`.
 
 ## NeoVim
 

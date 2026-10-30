@@ -1,0 +1,8 @@
+#!/bin/sh
+# SessionStart hook for agents started by zp (see _zp_claude in zp.zsh): save the
+# conversation's ID, which /clear and /resume change, to restore it after a reboot.
+session=${ZPZ_AGENT_SESSION:-$ZPT_AGENT_SESSION}
+[ -n "$session" ] || exit 0
+state=${XDG_STATE_HOME:-$HOME/.local/state}/zp
+mkdir -p "$state"
+jq -r .session_id >"$state/$session"

@@ -3,7 +3,9 @@
 
 # Private, machine-local project list for zp; deliberately not in this repo.
 # One project per line: <name> <path> [<agent>], e.g. `shup ~/shup claude`.
-# A layout file <name>.kdl next to it replaces the generic project layout.
+# A layout file next to it replaces the generic project layout: <name>.kdl for
+# Zellij, or a zsh snippet with the tool's commands: <name>.tmux, <name>.herdr,
+# <name>.tuios. The snippets get the name as $1 and the directory as $2.
 ZP_DIR=${XDG_CONFIG_HOME:-$HOME/.config}/zp
 
 # Adapter prefix -> tool, whose config directory holds its cheat sheet
@@ -22,11 +24,38 @@ _zp_projects() {
   done < "$ZP_DIR/projects"
 }
 
-# Start the coding agent configured for the project in $PWD (used by the
-# project layout's agent tab); defaults to opencode.
+# _zp_agent [tab] [fallback]   start the coding agent configured for the project
+# in $PWD (used by the project layouts' agent tabs). Outside a project, start the
+# fallback, by default opencode. Zellij and tmux get their conversation back from
+# here, herdr and TUIOS do that by themselves.
 _zp_agent() {
-  local agent=$(_zp_projects | awk -F'\t' -v d="${PWD:A}" '$2 == d { print $3; exit }')
-  ${agent:-opencode}
+  local tab=${1:-agent} agent=${2:-opencode}
+  local entry=$(_zp_projects | awk -F'\t' -v d="${PWD:A}" '$2 == d { print; exit }')
+  local tool=$(_zp_host) name=${entry%%$'\t'*}
+  if [[ -z $entry || -z $tool ]]; then
+    $agent
+    return
+  fi
+  agent=${entry##*$'\t'}
+  local session=$tool-$name-$tab
+  case $tool:$agent in
+    (zpz|zpt):claude) _zp_claude "$tool" "$session" ;;
+    (zpz|zpt):opencode) opencode -s "ses_${tool}_${name//[^a-zA-Z0-9_]/_}_${tab//[^a-zA-Z0-9_]/_}" ;;
+    *:claude) claude -n "$session" ;;
+    *) $agent ;;
+  esac
+}
+
+# _zp_claude <tool> <session>   resume the session's last conversation, if its
+# transcript still exists. The hook keeps the saved ID current across /clear and
+# /resume, and only agents started here load it.
+_zp_claude() {
+  local state=${XDG_STATE_HOME:-$HOME/.local/state}/zp/$2 id=
+  [[ -r $state ]] && id=$(<$state)
+  local settings='{"hooks":{"SessionStart":[{"hooks":[{"type":"command","command":"$HOME/.claude/hooks/zp-agent-session"}]}]}}'
+  local -a args=(-n "$2") transcript=(~/.claude/projects/*/$id.jsonl(N))
+  (( $#transcript )) && args=(-r "$id")
+  env "${(U)1}_AGENT_SESSION=$2" claude --settings "$settings" $args
 }
 
 # _zp_run <command...>   for layouts: run a command in the pane's directory with

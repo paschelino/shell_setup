@@ -1,9 +1,13 @@
-# zp: open a project's Zellij session. Sourced by ~/.zshrc.
+# zp: open a project's multiplexer session. Sourced by ~/.zshrc. This file holds
+# what all tools share, the zp*.zsh files beside it one adapter per tool.
 
 # Private, machine-local project list for zp; deliberately not in this repo.
 # One project per line: <name> <path> [<agent>], e.g. `shup ~/shup claude`.
 # A layout file <name>.kdl next to it replaces the generic project layout.
 ZP_DIR=${XDG_CONFIG_HOME:-$HOME/.config}/zp
+
+# Adapter prefix -> tool, whose config directory holds its cheat sheet
+typeset -gA ZP_TOOLS=(zpz zellij zpt tmux zph herdr zpu tuios)
 
 # Print the projects as "name<TAB>absolute path<TAB>agent", skipping comments
 _zp_projects() {
@@ -25,8 +29,8 @@ _zp_agent() {
   ${agent:-opencode}
 }
 
-# _zp_run <command...>   for Zellij layouts: run a command in the pane's
-# directory with its direnv and mise environment, then stay in a shell.
+# _zp_run <command...>   for layouts: run a command in the pane's directory with
+# its direnv and mise environment, then stay in a shell.
 # Needed because those hooks only run on a prompt, which `zsh -ic` never shows.
 _zp_run() {
   eval "$(direnv export zsh 2>/dev/null)"
@@ -35,17 +39,40 @@ _zp_run() {
   exec zsh
 }
 
-# zp [project]   open the project's Zellij session (nvim, agent and shell
-#                tabs), creating it if needed; without a name, pick via fzf.
-#                Works from inside Zellij as well, by switching sessions.
-# zp -a|--all    start the sessions of all projects in the background (e.g.
-#                after a reboot), then attach to the first one.
-# zp -r|--restart [-a|project]
-#                kill the session(s) first and start them fresh, e.g. to pick
-#                up a changed layout; lists what runs in them and asks first.
-# zp -c|--cheat  open the Zellij cheat sheet in nvim; with -b|--browser (or
-#                -cb) in the browser instead.
-zp() {
+# Print the adapter prefix of the multiplexer this shell runs in, if any. TUIOS
+# comes first because its panes set $HERDR_ENV too, for herdr plugins.
+_zp_host() {
+  if [[ -n $TUIOS_ENV ]]; then
+    print zpu
+  elif [[ -n $HERDR_ENV ]]; then
+    print zph
+  elif [[ -n $ZELLIJ ]]; then
+    print zpz
+  elif [[ -n $TMUX ]]; then
+    print zpt
+  fi
+}
+
+# _zp_cli <adapter> [args]   the commands zp, zpt, zph and zpu, whose adapters
+# provide _<adapter>_sessions (all, including ones to resurrect), _running,
+# _open <name> <dir>, _start <name> <dir> (in the background), _attach <name>,
+# _current, _delete <name> and _busy <name>.
+#
+# <command> [project]   open the project's session, creating it if needed;
+#                       without a name, pick via fzf. Works from inside the same
+#                       multiplexer by switching, and refuses to run inside
+#                       another one, whose prefix key would swallow ours.
+# <command> -a|--all    start the sessions of all projects in the background
+#                       (e.g. after a reboot), then attach to the first one.
+# <command> -r|--restart [-a|project]
+#                       kill the session(s) first and start them fresh, e.g. to
+#                       pick up a changed layout; lists what runs in them and
+#                       asks first.
+# <command> -c|--cheat  open the tool's cheat sheet in nvim; with -b|--browser
+#                       (or -cb) in the browser instead.
+_zp_cli() {
+  local prog=$funcstack[2] tool=$1
+  shift
   local all= restart= cheat= browser=
   while [[ $1 == -* ]]; do
     case $1 in
@@ -56,7 +83,7 @@ zp() {
       -b | --browser) browser=1 ;;
       -cb | -bc) cheat=1 browser=1 ;;
       *)
-        print -u2 "zp: unknown option $1"
+        print -u2 "$prog: unknown option $1"
         return 1
         ;;
     esac
@@ -66,8 +93,9 @@ zp() {
     _zp_cheat $browser
     return
   fi
+  local host=$(_zp_host)
   if [[ ! -r $ZP_DIR/projects ]]; then
-    print -u2 "zp: no project list, create $ZP_DIR/projects with lines like: <name> <path> [<agent>]"
+    print -u2 "$prog: no project list, create $ZP_DIR/projects with lines like: <name> <path> [<agent>]"
     return 1
   fi
   if [[ -n $all ]]; then
@@ -81,66 +109,46 @@ zp() {
   fi
   local entry=$(_zp_projects | awk -F'\t' -v n="$name" '$1 == n { print; exit }')
   if [[ -z $entry ]]; then
-    print -u2 "zp: unknown project '$name' (see $ZP_DIR/projects)"
+    print -u2 "$prog: unknown project '$name' (see $ZP_DIR/projects)"
     return 1
   fi
   local dir=${${entry#*$'\t'}%$'\t'*}
-  local layout=$(_zp_layout "$name")
   [[ -n $restart ]] && { _zp_kill "$name" || return }
-
-  if zellij list-sessions --short --no-formatting 2>/dev/null | grep -qxF -- "$name"; then
-    if [[ -n $ZELLIJ ]]; then
-      zellij action switch-session "$name"
-    else
-      zellij attach "$name"
-    fi
-  elif [[ -n $ZELLIJ ]]; then
-    zellij action switch-session "$name" --cwd "$dir" --layout "$layout"
-  else
-    (cd "$dir" && zellij --session "$name" --new-session-with-layout "$layout")
-  fi
-}
-
-# The project's private layout if there is one, else the generic one
-_zp_layout() {
-  if [[ -r $ZP_DIR/$1.kdl ]]; then
-    print -r -- "$ZP_DIR/$1.kdl"
-  else
-    print project
-  fi
+  _${tool}_open "$name" "$dir"
 }
 
 # Start every project's session in the background; running ones are left
 # alone, exited ones (e.g. after a reboot) are resurrected.
 _zp_all() {
-  local running=$(zellij list-sessions --no-formatting 2>/dev/null | grep -v EXITED | cut -d' ' -f1)
+  local running=$(_${tool}_running)
   local name dir agent first
   while IFS=$'\t' read -r name dir agent; do
     : ${first:=$name}
     if print -r -- "$running" | grep -qxF -- "$name"; then
-      print "zp: $name is already running"
+      print "$prog: $name is already running"
       continue
     fi
-    print "zp: starting $name"
-    (cd "$dir" && zellij attach --create-background "$name" options --default-layout "$(_zp_layout "$name")")
+    print "$prog: starting $name"
+    _${tool}_start "$name" "$dir" </dev/null
   done < <(_zp_projects)
-  [[ -z $ZELLIJ && -n $first ]] && zellij attach "$first"
+  [[ -z $host && -n $first ]] && _${tool}_attach "$first"
 }
 
 # _zp_kill <name...>   kill and delete those of the sessions that exist, after
 # listing what runs in them and asking; fails when declined. Refuses the
 # session it's called from, which would take the terminal down with it.
 _zp_kill() {
-  local -a sessions=(${(f)"$(zellij list-sessions --short --no-formatting 2>/dev/null)"})
+  local -a sessions=(${(f)"$(_${tool}_sessions)"})
   local -a hits=(${argv:*sessions})
   (( $#hits )) || return 0
-  if (( ${hits[(Ie)$ZELLIJ_SESSION_NAME]} )); then
-    print -u2 "zp: can't restart $ZELLIJ_SESSION_NAME from inside it"
+  local current=$(_${tool}_current)
+  if [[ -n $current ]] && (( ${hits[(Ie)$current]} )); then
+    print -u2 "$prog: can't restart $current from inside it"
     return 1
   fi
   local s busy
   for s in $hits; do
-    if ! busy=$(_zp_busy "$s"); then
+    if ! busy=$(_${tool}_busy "$s"); then
       print -r -- "$s: exited"
     elif [[ -z $busy ]]; then
       print -r -- "$s: only idle shells"
@@ -154,19 +162,17 @@ _zp_kill() {
   fi
   print
   for s in $hits; do
-    zellij delete-session --force "$s" >/dev/null
+    _${tool}_delete "$s" >/dev/null
   done
 }
 
-# _zp_busy <session>   print "pid command" of what runs in the session's
-# panes: a pane's child processes, or the pane itself if it isn't an idle
-# shell. Fails if the session has no server (exited). A shell busy with
-# builtins only (e.g. `while :; do :; done`) has no child and looks idle.
-_zp_busy() {
-  local server=$(ps -axo pid=,args= | awk -v s="$1" '$3 == "--server" && $2 ~ /zellij$/ { n = split($4, p, "/"); if (p[n] == s) { print $1; exit } }')
-  [[ -n $server ]] || return
+# _zp_busy_panes <pid...>   print "pid command" of what runs in the panes with
+# these shell pids: a pane's child processes, or the pane itself if it isn't an
+# idle shell. A shell busy with builtins only (e.g. `while :; do :; done`) has
+# no child and looks idle.
+_zp_busy_panes() {
   local pane kids
-  for pane in $(pgrep -P $server); do
+  for pane; do
     kids=$(pgrep -P $pane)
     if [[ -n $kids ]]; then
       ps -o pid=,args= -p ${(j:,:)${(f)kids}}
@@ -176,17 +182,22 @@ _zp_busy() {
   done | sed 's/^ */  /'
 }
 
-# _zp_cheat [browser]   open the Zellij cheat sheet in nvim, or rendered as
+# _zp_cheat [browser]   open the tool's cheat sheet in nvim, or rendered as
 # HTML in the default browser when an argument is given
 _zp_cheat() {
-  local sheet=${XDG_CONFIG_HOME:-$HOME/.config}/zellij/cheatsheet.md
+  local name=$ZP_TOOLS[$tool]
+  local sheet=${XDG_CONFIG_HOME:-$HOME/.config}/$name/cheatsheet.md
+  if [[ ! -r $sheet ]]; then
+    print -u2 "$prog: no cheat sheet at $sheet"
+    return 1
+  fi
   if [[ -z $1 ]]; then
     nvim "$sheet"
     return
   fi
-  local html=${TMPDIR:-/tmp}/zellij-cheatsheet.html
+  local html=${TMPDIR:-/tmp}/$name-cheatsheet.html
   {
-    print -r -- '<!doctype html><html><head><meta charset="utf-8"><title>Zellij cheat sheet</title><style>
+    print -r -- "<!doctype html><html><head><meta charset=\"utf-8\"><title>${(C)name} cheat sheet</title>"'<style>
 body { font: 16px/1.5 -apple-system, sans-serif; max-width: 52rem; margin: 2rem auto; padding: 0 1rem; color: #cdd6f4; background: #1e1e2e; }
 h1, h2 { color: #89b4fa; } a { color: #89b4fa; }
 code { font-family: "Meslo LGS Nerd Font Mono", monospace; background: #313244; padding: 0 .3em; border-radius: 4px; }
@@ -203,7 +214,7 @@ _zp() {
   _arguments \
     '(-a --all -c --cheat 1)'{-a,--all}'[start all projects in the background]' \
     '(-r --restart -c --cheat -b --browser)'{-r,--restart}'[kill the session(s) first, after asking]' \
-    '(-a --all -r --restart -c --cheat 1)'{-c,--cheat}'[open the Zellij cheat sheet in nvim]' \
+    '(-a --all -r --restart -c --cheat 1)'{-c,--cheat}'[open the cheat sheet in nvim]' \
     '(-a --all -r --restart -b --browser 1)'{-b,--browser}'[with --cheat: open it in the browser]' \
     '1:project:->project'
   if [[ $state == project ]]; then
@@ -211,3 +222,5 @@ _zp() {
   fi
 }
 compdef _zp zp
+
+source "$XDG_CONFIG_HOME/zsh/zpz.zsh"

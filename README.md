@@ -170,6 +170,7 @@ Everything starts with the prefix `Ctrl-a`:
 | `[`, `/`                            | Scroll mode (vi keys), search                           |
 | `e`                                 | Open the scrollback in nvim, to search and copy with vi |
 | `s`, `d`, `q`                       | Session manager, detach, quit                           |
+| `S`, `W`, `P`                       | New stacked pane, share session, plugin manager         |
 | `Ctrl-a`                            | Send `Ctrl-a` to the program                            |
 
 The status bar lists the main keys after `Ctrl-a`. Selecting text with the mouse

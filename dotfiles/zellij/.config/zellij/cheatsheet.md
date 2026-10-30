@@ -37,6 +37,7 @@ in the other modes, like resize and scroll.
 | `-` or `"`      | Split down                                                |
 | `z`             | Toggle fullscreen for the current pane                    |
 | `x`             | Close the pane                                            |
+| `S`             | New pane, stacked on the current one                      |
 | `o`             | Go to the next pane                                       |
 | `f`             | Show or hide floating panes                               |
 | `H` `J` `K` `L` | Resize, then keep pressing `h` `j` `k` `l`; `Esc` to stop |
@@ -72,13 +73,15 @@ match, `c` toggles case sensitivity, `w` toggles wrap-around. `Esc` leaves.
 **Copying:** select with the mouse and the text goes straight to the macOS
 clipboard. For keyboard copying, use `Ctrl-a e` and yank in nvim.
 
-## Sessions
+## Sessions and tools
 
 | After `Ctrl-a` | What it does                                          |
 | -------------- | ----------------------------------------------------- |
 | `s` or `w`     | Session manager: switch, create or resurrect sessions |
 | `d`            | Detach (the session keeps running)                    |
 | `q`            | Quit the session (stops everything in it)             |
+| `W`            | Share the session in the browser                      |
+| `P`            | Plugin manager                                        |
 | `?`            | Zellij's configuration screen                         |
 
 ## The generic project layout

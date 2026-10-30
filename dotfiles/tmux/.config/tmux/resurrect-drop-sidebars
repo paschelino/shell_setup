@@ -1,0 +1,9 @@
+#!/bin/sh
+# tmux-resurrect hook: it brings a workmux sidebar back as an empty shell, so close
+# those panes and let workmux draw its sidebars again.
+panes=$(awk -F'\t' '$1 == "pane" && $10 == "workmux" { print $2 ":" $3 "." $6 }' "$HOME/.local/share/tmux/resurrect/last")
+[ -n "$panes" ] || exit 0
+echo "$panes" | while IFS= read -r pane; do
+  tmux kill-pane -t "=$pane"
+done
+workmux sidebar on

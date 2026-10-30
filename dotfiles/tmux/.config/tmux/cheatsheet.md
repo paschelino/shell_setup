@@ -50,6 +50,26 @@ lists the main keys while the prefix is active. `Ctrl-a Ctrl-a` sends a real
 | `Ctrl-s`       | Save all sessions now                          |
 | `Ctrl-r`       | Restore the last save                          |
 
+## Agents and worktrees (workmux)
+
+| After `Ctrl-a` | What it does                                 |
+| -------------- | -------------------------------------------- |
+| `a`            | Dashboard of all agents                      |
+| `b`            | Toggle the agent sidebar in all windows      |
+| `A`            | Jump to the agent that finished or waits     |
+| `{`, `}`       | Previous, next agent                         |
+
+| Command                       | What it does                                    |
+| ----------------------------- | ----------------------------------------------- |
+| `workmux add <branch>`        | New worktree and window with an agent and shell |
+| `workmux add -l edit <branch>` | The same, with nvim beside the agent           |
+| `workmux add -A -p "<task>"`  | Name the branch from the task and start on it   |
+| `workmux merge`               | Merge the branch, remove worktree and window    |
+| `workmux rm <branch>`         | Remove without merging                          |
+
+In the sidebar: `v` tiles or compact, `t` grouping, `f` session filter, `z` sleep
+an agent. In the dashboard: `T` theme, which is saved to the config in this repo.
+
 **In copy mode:** vi keys. `v` selects, `Ctrl-v` toggles a rectangle, `y` copies
 to the macOS clipboard, `/` and `?` search, `n` and `N` repeat, `q` leaves.
 

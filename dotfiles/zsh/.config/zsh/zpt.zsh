@@ -60,5 +60,5 @@ _zpt_delete() {
 _zpt_busy() {
   local panes=$(tmux list-panes -s -t "=$1" -F '#{pane_pid}' 2>/dev/null)
   [[ -n $panes ]] || return
-  _zp_busy_panes ${(f)panes}
+  _zp_busy_panes ${(f)panes} | sed '/workmux _sidebar-run/d'
 }

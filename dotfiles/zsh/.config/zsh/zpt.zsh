@@ -15,8 +15,16 @@ _zpt_open() {
   _zpt_attach "$1"
 }
 
+# The project's private layout if there is one, else nvim, a coding agent and a
+# shell, each in its own window
 _zpt_start() {
-  tmux new-session -d -s "$1" -c "$2"
+  if [[ -r $ZP_DIR/$1.tmux ]]; then
+    source "$ZP_DIR/$1.tmux" "$1" "$2"
+    return
+  fi
+  tmux new-session -d -s "$1" -c "$2" -n nvim "zsh -ic '_zp_run nvim .'"
+  tmux new-window -d -t "=$1:" -c "$2" -n agent "zsh -ic '_zp_run _zp_agent'"
+  tmux new-window -d -t "=$1:" -c "$2" -n shell
 }
 
 _zpt_attach() {

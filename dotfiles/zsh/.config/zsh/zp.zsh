@@ -25,15 +25,16 @@ _zp_projects() {
 }
 
 # _zp_agent [tab] [fallback]   start the coding agent configured for the project
-# in $PWD (used by the project layouts' agent tabs). Outside a project, start the
-# fallback, by default opencode. Zellij and tmux get their conversation back from
-# here, herdr and TUIOS do that by themselves.
+# in $PWD (used by the project layouts' agent tabs). Elsewhere, like a worktree
+# that tmux restores, continue the fallback's last conversation there, by default
+# opencode's. Zellij and tmux get their conversation back from here, herdr and
+# TUIOS do that by themselves.
 _zp_agent() {
   local tab=${1:-agent} agent=${2:-opencode}
   local entry=$(_zp_projects | awk -F'\t' -v d="${PWD:A}" '$2 == d { print; exit }')
   local tool=$(_zp_host) name=${entry%%$'\t'*}
   if [[ -z $entry || -z $tool ]]; then
-    $agent
+    $agent --continue || $agent
     return
   fi
   agent=${entry##*$'\t'}

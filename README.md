@@ -92,7 +92,7 @@ So let's assume, you have cloned the repository into a folder like
 cd ~/projects/shell_setup/dotfiles
 ls
 # output:
-# carapace  colima  ghostty  lazygit  mise  nushell  nvim  starship  tmux  zellij  zk  zsh
+# carapace  colima  ghostty  herdr  lazygit  mise  nushell  nvim  starship  tmux  tuios  zellij  zk  zsh
 
 # now run:
 stow --target="$HOME" ghostty
@@ -114,8 +114,8 @@ cursor), `v` in normal mode opens the command line in nvim. Further helpers:
 - `Ctrl-r`: fuzzy history search, `Ctrl-t`: insert a file path, `Alt-c`: cd into
   a subdirectory (all via fzf)
 - `→`: accept the grey autosuggestion from your history
-- `wt <branch>`: create a git worktree and open it in a new tmux window or
-  Zellij tab; `wt` alone selects an existing one (see
+- `wt <branch>`: create a git worktree and open it in a new window or tab of the
+  multiplexer you're in; `wt` alone selects an existing one (see
   [Git worktrees](#git-worktrees-wt))
 
 ## Git worktrees (`wt`)
@@ -123,15 +123,15 @@ cursor), `v` in normal mode opens the command line in nvim. Further helpers:
 `wt` is a zsh function (in `.zshrc`) on top of
 [git-wt](https://github.com/k1LoW/git-wt), which makes it easy to work on
 several branches of one repository side by side, each in its own directory and
-tmux window.
+multiplexer window or tab.
 
-| Command            | What it does                                                                                                                                       |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `wt <branch>`      | Create the worktree (and the branch, if needed) and open it in a new tmux window or Zellij tab named `<repo>/<branch>`; outside both, `cd` into it |
-| `wt`               | Pick one of the other worktrees with fzf and `cd` into it                                                                                          |
-| `wt -d [<branch>]` | Delete the worktree; an unmerged branch is kept. Without a branch, the current one is deleted                                                      |
-| `wt -D [<branch>]` | Force delete: also removes the branch, even if unmerged                                                                                            |
-| `wt-rm`, `wt-rm!`  | Aliases for `wt --delete` and `wt --force`                                                                                                         |
+| Command            | What it does                                                                                                                                             |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `wt <branch>`      | Create the worktree (and the branch, if needed) and open it in a new window or tab of the multiplexer named `<repo>/<branch>`; outside one, `cd` into it |
+| `wt`               | Pick one of the other worktrees with fzf and `cd` into it                                                                                                |
+| `wt -d [<branch>]` | Delete the worktree; an unmerged branch is kept. Without a branch, the current one is deleted                                                            |
+| `wt -D [<branch>]` | Force delete: also removes the branch, even if unmerged                                                                                                  |
+| `wt-rm`, `wt-rm!`  | Aliases for `wt --delete` and `wt --force`                                                                                                               |
 
 Tab completion offers your local branches as well as the flags.
 
@@ -207,6 +207,21 @@ my-api      ~/work/my-api         claude
 A project that needs different tabs gets its own layout:
 `~/.config/zp/<name>.kdl` is used instead of the generic one. Start from
 `dotfiles/zellij/.config/zellij/layouts/project.kdl`.
+
+### Other multiplexers (`zpt`, `zph`, `zpu`)
+
+I'm comparing Zellij with tmux, herdr and TUIOS. `zpt` (tmux), `zph` (herdr) and
+`zpu` (TUIOS) take the same arguments as `zp` and read the same project list,
+and `zpz` is an alias for `zp`. For now, a project in these three is a single
+shell in its directory, on the tool's default keys.
+
+Each command switches projects when run inside its own multiplexer and refuses
+to run inside another one, whose prefix key would swallow its own. tmux and
+TUIOS get one session per project. herdr gets one workspace per project in its
+default server, because it can't switch between named sessions from inside one.
+
+herdr keeps its runtime data in `~/.config/herdr` and TUIOS writes changed
+settings to its config file, so `./install` links their config files one by one.
 
 ## NeoVim
 

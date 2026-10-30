@@ -94,6 +94,10 @@ _zp_cli() {
     return
   fi
   local host=$(_zp_host)
+  if [[ -n $host && $host != $tool ]]; then
+    print -u2 "$prog: refusing to run inside $ZP_TOOLS[$host]; detach from it first"
+    return 1
+  fi
   if [[ ! -r $ZP_DIR/projects ]]; then
     print -u2 "$prog: no project list, create $ZP_DIR/projects with lines like: <name> <path> [<agent>]"
     return 1

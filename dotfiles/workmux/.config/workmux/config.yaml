@@ -1,0 +1,56 @@
+# workmux: see `workmux config reference` for all options. The dashboard saves
+# the theme you pick with `T` back to this file.
+
+nerdfont: true
+theme:
+  scheme: default
+  mode: dark
+  custom:
+    accent: "#89b4fa"
+
+# ~/.tmux.conf shows the status, in every session rather than only workmux's.
+status_format: false
+
+# `workmux add <branch>`: the agent above a small shell
+panes:
+  - command: <agent>
+    focus: true
+  - split: vertical
+    size: 12
+
+# `workmux add -l edit <branch>`: nvim beside the agent and the shell
+layouts:
+  edit:
+    panes:
+      - command: nvim .
+      - command: <agent>
+        split: horizontal
+        focus: true
+      - split: vertical
+        size: 12
+
+# Worktrees don't get what git ignores, and direnv and mise trust by path.
+files:
+  copy:
+    - .env
+    - .env.local
+    - mise.local.toml
+post_create:
+  - "[ ! -f .envrc ] || direnv allow"
+  - "mise trust --quiet 2>/dev/null || true"
+
+# `workmux add -A -p <prompt>`: a branch name from the prompt
+auto_name:
+  command: "claude -p --model haiku"
+  background: true
+
+stale_after: 5h
+
+dashboard:
+  layout: side_by_side
+  sort_mode: priority
+
+sidebar:
+  layout: compact
+  sort: priority
+  group_by: project

@@ -55,7 +55,7 @@ while IFS= read -r -d '' src; do
   fi
 done < <(cd "$REPO_DIR/dotfiles" && find . -mindepth 2 -type f -print0)
 # These targets also hold the tools' runtime data: link single files, never fold the directory into the repo.
-NO_FOLDING=(claude herdr opencode tuios)
+NO_FOLDING=(claude herdr opencode tuios workmux)
 (
   cd "$REPO_DIR/dotfiles"
   folding=()

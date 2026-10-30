@@ -238,6 +238,14 @@ Getting a project back after a reboot works differently per tool:
 `zpt -r` resumes the conversation like `zp -r`. `zph -r` and `zpu -r` start a new
 one, since their resume only runs when the tool itself restarts.
 
+tmux gets its agent view from [workmux](https://workmux.dev): a worktree and
+window per task, the agents' states in the window names, a dashboard
+(`Ctrl-a a`), a sidebar (`Ctrl-a b`) and `Ctrl-a A` to jump to the agent that
+finished or waits. Its config is in `dotfiles/workmux`. Run `workmux setup` once
+per machine: it adds the hooks that report the agents' states to Claude Code and
+opencode, and offers its skills. After a tmux restore, agents in worktrees continue
+their last conversation there and the sidebars get redrawn.
+
 All four share the tmux keys after the prefix `Ctrl-a`: `h` `j` `k` `l` to move,
 `H` `J` `K` `L` to resize, `|` `%` `-` `"` to split, `c` `,` `&` for tabs,
 `Ctrl-h` `Ctrl-l` `1`-`9` to switch tabs, `z` `x` for panes, `w` to switch

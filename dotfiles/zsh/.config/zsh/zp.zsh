@@ -225,7 +225,8 @@ _zp() {
     compadd -- ${(f)"$(_zp_projects | cut -f1)"}
   fi
 }
-compdef _zp zp zpt
+compdef _zp zp zpt zph
 
 source "$XDG_CONFIG_HOME/zsh/zpz.zsh"
 source "$XDG_CONFIG_HOME/zsh/zpt.zsh"
+source "$XDG_CONFIG_HOME/zsh/zph.zsh"

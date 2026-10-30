@@ -1,0 +1,4 @@
+# herdr: see `herdr --default-config` for all options.
+
+# Skip the first-run dialog.
+onboarding = false

@@ -2,7 +2,19 @@
 
 zpt() { _zp_cli zpt "$@" }
 
+ZPT_RESTORE=~/.local/share/tmux/plugins/tmux-resurrect/scripts/restore.sh
+
+# After a reboot, bring back the state tmux-continuum saved. Session 0 is what
+# tmux-resurrect replaces when it restores from scratch. Not after a kill, which
+# may have ended the server, because -r wants a fresh session.
+_zpt_server() {
+  tmux list-sessions >/dev/null 2>&1 && return
+  [[ -z $_zpt_killed && -x $ZPT_RESTORE && -e ~/.local/share/tmux/resurrect/last ]] || return 0
+  tmux new-session -d -s 0 && tmux run-shell "$ZPT_RESTORE"
+}
+
 _zpt_sessions() {
+  _zpt_server
   tmux list-sessions -F '#S' 2>/dev/null
 }
 
@@ -11,6 +23,7 @@ _zpt_running() {
 }
 
 _zpt_open() {
+  _zpt_server
   tmux has-session -t "=$1" 2>/dev/null || _zpt_start "$1" "$2"
   _zpt_attach "$1"
 }
@@ -40,6 +53,7 @@ _zpt_current() {
 }
 
 _zpt_delete() {
+  typeset -g _zpt_killed=1
   tmux kill-session -t "=$1"
 }
 

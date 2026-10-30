@@ -47,6 +47,8 @@ lists the main keys while the prefix is active. `Ctrl-a Ctrl-a` sends a real
 | `(`, `)`       | Previous, next session                         |
 | `?`            | List all keys                                  |
 | `r`            | Reload the config                              |
+| `Ctrl-s`       | Save all sessions now                          |
+| `Ctrl-r`       | Restore the last save                          |
 
 **In copy mode:** vi keys. `v` selects, `Ctrl-v` toggles a rectangle, `y` copies
 to the macOS clipboard, `/` and `?` search, `n` and `N` repeat, `q` leaves.
@@ -54,5 +56,6 @@ to the macOS clipboard, `/` and `?` search, `n` and `N` repeat, `q` leaves.
 ## Good to know
 
 - `wt <branch>` opens a window.
-- Sessions don't survive a reboot yet. That's still to come.
+- Sessions are saved every 5 minutes. After a reboot, `zpt` restores the last
+  save, including nvim and the agents.
 - Config: `~/.tmux.conf`.

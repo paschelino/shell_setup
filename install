@@ -67,6 +67,17 @@ NO_FOLDING=(claude herdr opencode tuios)
   stow --verbose=1 --no-folding --target="$TARGET_HOME" "${NO_FOLDING[@]}"
 )
 
+step "Installing tmux plugins..."
+# Not in Homebrew. Pinned, because they run as code on every tmux start.
+install_tmux_plugin() {
+  local dir="$TARGET_HOME/.local/share/tmux/plugins/$1"
+  [ -d "$dir" ] || git clone --quiet "https://github.com/tmux-plugins/$1" "$dir"
+  git -C "$dir" fetch --quiet origin
+  git -C "$dir" checkout --quiet --detach "$2"
+}
+install_tmux_plugin tmux-resurrect cff343cf9e81983d3da0c8562b01616f12e8d548
+install_tmux_plugin tmux-continuum 0698e8f4b17d6454c71bf5212895ec055c578da0
+
 # Ghostty and tmux start the login shell, which the zsh config expects to be zsh.
 if [ "$(dscl . -read "/Users/$TARGET_USER" UserShell | awk '{print $2}')" != "/bin/zsh" ]; then
   step "Setting zsh as login shell..."

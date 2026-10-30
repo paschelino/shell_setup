@@ -5,6 +5,10 @@
 tiled = true
 daemon = true
 
+# Type the resume command into a restored agent's pane without asking first
+[daemon]
+resume_agents = "auto"
+
 # tuios's own tmux keys, where a tmux window is a tuios workspace and a tmux pane
 # a tuios window. The keys tmux takes move to the menu Ctrl-a Ctrl-t. Below that:
 # what ~/.tmux.conf changes. `tuios keybinds preset` would drop the leader.

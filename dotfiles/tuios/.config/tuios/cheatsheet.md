@@ -81,6 +81,8 @@ a popup lists the keys. `Ctrl-a Ctrl-a` sends a real `Ctrl-a` to the program.
   other way.
 - `Ctrl-p`, `Alt-Space` and some `Alt` keys work without the prefix, so programs
   in a window don't get them. See `tuios keybinds doctor`.
+- After a reboot, TUIOS restores windows and directories and resumes the agents,
+  but doesn't restart nvim.
 - Settings changed in the UI get written to `config.toml`, so they show up as a
   change in this repository.
 - Config: `~/.config/tuios/config.toml`.

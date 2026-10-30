@@ -89,6 +89,7 @@ brew 'typst'                    # Markup-based typesetting system - https://typs
 brew 'utftex'                   # Pretty print math in monospace fonts, using a TeX-like syntax - https://github.com/bartp5/libtexprintf
 brew 'uv'                       # Extremely fast Python package installer and resolver, written in Rust - https://docs.astral.sh/uv/
 brew 'wget'                     # Internet file retriever - https://www.gnu.org/software/wget/
+brew 'workmux'                  # Git worktrees + tmux windows for zero-friction parallel dev - https://workmux.dev
 brew 'xan'                      # CSV CLI magician written in Rust - https://github.com/medialab/xan
 brew 'yazi'                     # Blazing fast terminal file manager written in Rust, based on async I/O - https://yazi-rs.github.io
 brew 'zellij'                   # Modern terminal multiplexer written in Rust - https://zellij.dev/

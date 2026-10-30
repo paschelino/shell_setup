@@ -78,6 +78,12 @@ install_tmux_plugin() {
 install_tmux_plugin tmux-resurrect cff343cf9e81983d3da0c8562b01616f12e8d548
 install_tmux_plugin tmux-continuum 0698e8f4b17d6454c71bf5212895ec055c578da0
 
+step "Connecting the coding agents to herdr and TUIOS..."
+# Their hooks report the agents' states and conversations, which restores them.
+herdr integration install claude
+herdr integration install opencode
+tuios integration install --no-skill claude-code opencode
+
 # Ghostty and tmux start the login shell, which the zsh config expects to be zsh.
 if [ "$(dscl . -read "/Users/$TARGET_USER" UserShell | awk '{print $2}')" != "/bin/zsh" ]; then
   step "Setting zsh as login shell..."

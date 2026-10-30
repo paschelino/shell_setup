@@ -263,7 +263,9 @@ Two package managers, with a clear split:
   (`HOMEBREW_VERIFY_ATTESTATIONS`; needs `gh` to be logged in, see
   `gh auth login`). Add a third-party tap only when it is the vendor's own, and
   trust its formula in the `brew trust --formula` line of `./install`: Homebrew
-  refuses to load formulae from untrusted taps.
+  refuses to load formulae from untrusted taps. Uninstalling such a formula
+  drops its trust as well, so run `./install` (or `brew trust --formula`) again
+  before reinstalling it with `brew bundle`.
 - **mise** (`dotfiles/mise/.config/mise/config.toml`) installs language runtimes
   only (`node = "26"`, `ruby = "3.4"`, ...) and the per-project versions in a
   project's `mise.toml` or `.tool-versions`; `.nvmrc` and `.ruby-version` files

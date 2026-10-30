@@ -2,3 +2,30 @@
 
 # Skip the first-run dialog.
 onboarding = false
+
+# Keys modelled on ~/.tmux.conf, on top of herdr's own ones, which stay. Pressing
+# the prefix twice sends it to the program.
+[keys]
+prefix = "ctrl+a"
+detach = ["prefix+d", "prefix+q"]
+new_tab = "prefix+c"
+rename_tab = ["prefix+comma", "prefix+shift+t"]
+close_tab = ["prefix+ampersand", "prefix+shift+x"]
+previous_tab = ["prefix+ctrl+h", "prefix+p"]
+next_tab = ["prefix+ctrl+l", "prefix+n"]
+split_vertical = ["prefix+|", "prefix+%", "prefix+v"]
+split_horizontal = ["prefix+minus", "prefix+\""]
+resize_pane_left = "prefix+shift+h"
+resize_pane_down = "prefix+shift+j"
+resize_pane_up = "prefix+shift+k"
+resize_pane_right = "prefix+shift+l"
+# Projects are workspaces, so this is the switcher. `w` opens the picker of all
+# workspaces and agents instead of herdr's workspace navigation.
+goto = ["prefix+w", "prefix+g"]
+workspace_picker = "prefix+shift+s"
+# herdr can't start a search directly: in copy mode, press `/` once more.
+copy_mode = ["prefix+[", "prefix+/"]
+
+[ui]
+# `c` opens the tab at once, like in tmux
+prompt_new_tab_name = false

@@ -208,12 +208,35 @@ A project that needs different tabs gets its own layout:
 `~/.config/zp/<name>.kdl` is used instead of the generic one. Start from
 `dotfiles/zellij/.config/zellij/layouts/project.kdl`.
 
+The agent tab gets its last conversation back. For Claude Code, a `SessionStart`
+hook that only agents started by `zp` load saves the conversation's ID to
+`~/.local/state/zp/`, so it survives `/clear` and `/resume`. If the transcript is
+gone, a new conversation starts. opencode gets a fixed session ID per project,
+so after `/new` it reopens the older conversation, with the newer one in a tab
+beside it.
+
 ### Other multiplexers (`zpt`, `zph`, `zpu`)
 
 I'm comparing Zellij with tmux, herdr and TUIOS. `zpt` (tmux), `zph` (herdr) and
 `zpu` (TUIOS) take the same arguments as `zp` and read the same project list,
-and `zpz` is an alias for `zp`. For now, a project in these three is a single
-shell in its directory.
+and `zpz` is an alias for `zp`. A project has the same three tabs in all of them,
+and a project with its own layout has a private zsh snippet instead, which gets
+the name as `$1` and the directory as `$2`: `~/.config/zp/<name>.tmux`, `.herdr`
+or `.tuios`. TUIOS tapes can't do this, because they need an attached client and
+so can't start a project in the background.
+
+Getting a project back after a reboot works differently per tool:
+
+- **tmux:** `tmux-resurrect` and `tmux-continuum`, which `./install` puts in
+  `~/.local/share/tmux/plugins`, save every 5 minutes. `zpt` restores the last
+  save when no server runs, including nvim and the agents.
+- **herdr and TUIOS:** they restore their tabs and directories and resume the
+  agents' conversations themselves, through the hooks `./install` adds. They
+  don't restart nvim. An agent that never got a prompt has no conversation to
+  resume, so its tab comes back as a shell.
+
+`zpt -r` resumes the conversation like `zp -r`. `zph -r` and `zpu -r` start a new
+one, since their resume only runs when the tool itself restarts.
 
 All four share the tmux keys after the prefix `Ctrl-a`: `h` `j` `k` `l` to move,
 `H` `J` `K` `L` to resize, `|` `%` `-` `"` to split, `c` `,` `&` for tabs,

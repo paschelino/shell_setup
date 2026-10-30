@@ -15,10 +15,10 @@ _zpu_running() {
 _zpu_open() {
   if [[ -n $TUIOS_ENV ]]; then
     tuios switch-session "$1" --create --cwd "$2" >/dev/null
-  elif _zpu_sessions | grep -qxF -- "$1"; then
-    tuios attach "$1"
   else
-    tuios new "$1" --cwd "$2"
+    # An attached `tuios new` opens an empty desktop, a detached one a shell.
+    _zpu_sessions | grep -qxF -- "$1" || _zpu_start "$1" "$2"
+    _zpu_attach "$1"
   fi
 }
 

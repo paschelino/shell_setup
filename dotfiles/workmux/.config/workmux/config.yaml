@@ -6,7 +6,21 @@ theme:
   scheme: default
   mode: dark
   custom:
-    accent: "#89b4fa"
+    current_row_bg: "#313244" # surface0
+    highlight_row_bg: "#45475a" # surface1
+    current_worktree_fg: "#b4befe" # lavender
+    text: "#cdd6f4" # text
+    dimmed: "#6c7086" # overlay0
+    border: "#45475a" # surface1
+    help_border: "#89b4fa" # blue
+    help_muted: "#a6adc8" # subtext0
+    header: "#89b4fa" # blue
+    keycap: "#cba6f7" # mauve
+    info: "#89dceb" # sky
+    success: "#a6e3a1" # green
+    warning: "#f9e2af" # yellow
+    danger: "#f38ba8" # red
+    accent: "#89b4fa" # blue
 
 # ~/.tmux.conf shows the status, in every session rather than only workmux's.
 status_format: false

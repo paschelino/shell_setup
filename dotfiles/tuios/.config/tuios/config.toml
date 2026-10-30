@@ -4,3 +4,42 @@
 [startup]
 tiled = true
 daemon = true
+
+# tuios's own tmux keys, where a tmux window is a tuios workspace and a tmux pane
+# a tuios window. The keys tmux takes move to the menu Ctrl-a Ctrl-t. Below that:
+# what ~/.tmux.conf changes. `tuios keybinds preset` would drop the leader.
+[keybindings]
+preset = "tmux"
+leader_key = "ctrl+a"
+repeat = [
+  "resize_pane_left_5", "resize_pane_right_5", "resize_pane_up_5", "resize_pane_down_5",
+  "prev_workspace", "next_workspace",
+]
+
+[keybindings.prefix_mode]
+terminal_focus_left = ["h", "left"]
+terminal_focus_down = ["j", "down"]
+terminal_focus_up = ["k", "up"]
+terminal_focus_right = ["l", "right"]
+resize_pane_left_5 = ["H"]
+resize_pane_down_5 = ["J"]
+resize_pane_up_5 = ["K"]
+resize_pane_right_5 = ["L"]
+prev_workspace = ["ctrl+h", "p"]
+next_workspace = ["ctrl+l", "n"]
+prefix_session_switcher = ["w", "s"]
+prefix_workspace_switcher = ["W"]
+copy_mode_search_backward = ["/"]
+# New homes for what hjkl, HJKL and w took
+last_workspace = ["tab"]
+last_session = []
+next_agent = ["}"]
+prev_agent = ["{"]
+prefix_toggle_other_rail = ["y"]
+prefix_jump_notif = ["Y"]
+prefix_keybinds = ["ctrl+k"]
+
+# `c` would leave you in window mode, where typing runs commands: `w` closes a
+# window. Back to terminal mode, so a new shell can be typed in right away.
+[hooks]
+after-new-window = ["tuios run-command TerminalMode"]

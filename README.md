@@ -172,7 +172,8 @@ Everything starts with the prefix `Ctrl-a`:
 | `s`, `d`, `q`                       | Session manager, detach, quit                           |
 | `Ctrl-a`                            | Send `Ctrl-a` to the program                            |
 
-Selecting text with the mouse copies it. The config reloads on save.
+The status bar lists the main keys after `Ctrl-a`. Selecting text with the mouse
+copies it. The config reloads on save.
 
 The full cheat sheet lives in `dotfiles/zellij/.config/zellij/cheatsheet.md`:
 `zp -c` (`--cheat`) opens it in nvim, `zp -cb` (`--cheat --browser`) renders it

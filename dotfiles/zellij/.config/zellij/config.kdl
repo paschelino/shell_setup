@@ -5,7 +5,8 @@
 
 theme "catppuccin-mocha"
 default_shell "zsh"
-default_layout "compact"
+// Tab bar plus status bar, which lists the keys of the current mode
+default_layout "base"
 pane_frames false
 mouse_mode true
 copy_command "pbcopy"

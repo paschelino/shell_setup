@@ -25,7 +25,8 @@ name, path and optionally the agent (default: `opencode`). A file
 
 Every Zellij shortcut starts with `Ctrl-a`, followed by a key. `Esc` cancels.
 `Ctrl-a Ctrl-a` sends a real `Ctrl-a` to the program, e.g. to jump to the start
-of the line in zsh.
+of the line in zsh. The status bar then lists the main keys, and it does the same
+in the other modes, like resize and scroll.
 
 ## Panes
 

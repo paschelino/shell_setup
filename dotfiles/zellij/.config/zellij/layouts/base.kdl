@@ -1,0 +1,15 @@
+// Plain sessions and tabs: the tab bar, plus the status bar with the keys of
+// the current mode. Layouts with their own tabs repeat this template.
+layout {
+    default_tab_template {
+        children
+        pane size=1 borderless=true {
+            plugin location="compact-bar"
+        }
+        pane size=1 borderless=true {
+            plugin location="status-bar"
+        }
+    }
+
+    tab
+}

@@ -213,7 +213,18 @@ A project that needs different tabs gets its own layout:
 I'm comparing Zellij with tmux, herdr and TUIOS. `zpt` (tmux), `zph` (herdr) and
 `zpu` (TUIOS) take the same arguments as `zp` and read the same project list,
 and `zpz` is an alias for `zp`. For now, a project in these three is a single
-shell in its directory, on the tool's default keys.
+shell in its directory.
+
+All four share the tmux keys after the prefix `Ctrl-a`: `h` `j` `k` `l` to move,
+`H` `J` `K` `L` to resize, `|` `%` `-` `"` to split, `c` `,` `&` for tabs,
+`Ctrl-h` `Ctrl-l` `1`-`9` to switch tabs, `z` `x` for panes, `w` to switch
+projects, `d` to detach, `[` `/` to scroll and search, and `Ctrl-a` to send a
+real `Ctrl-a`. Everything else stays on each tool's own keys. A tab is a window
+in tmux and a workspace in TUIOS. `zpt -c`, `zph -c` and `zpu -c` open each
+tool's cheat sheet, and `-cb` opens it in the browser.
+
+herdr has no action that starts a search, so `Ctrl-a /` opens copy mode there
+and you press `/` again. Its `H` `J` `K` `L` don't repeat either.
 
 Each command switches projects when run inside its own multiplexer and refuses
 to run inside another one, whose prefix key would swallow its own. tmux and

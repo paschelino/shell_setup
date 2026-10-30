@@ -40,13 +40,18 @@ _zp_run() {
 #                Works from inside Zellij as well, by switching sessions.
 # zp -a|--all    start the sessions of all projects in the background (e.g.
 #                after a reboot), then attach to the first one.
+# zp -r|--restart [-a|project]
+#                kill the session(s) first and start them fresh, e.g. to pick
+#                up a changed layout; lists what runs in them and asks first.
 # zp -c|--cheat  open the Zellij cheat sheet in nvim; with -b|--browser (or
 #                -cb) in the browser instead.
 zp() {
-  local all= cheat= browser=
+  local all= restart= cheat= browser=
   while [[ $1 == -* ]]; do
     case $1 in
       -a | --all) all=1 ;;
+      -r | --restart) restart=1 ;;
+      -ra | -ar) all=1 restart=1 ;;
       -c | --cheat) cheat=1 ;;
       -b | --browser) browser=1 ;;
       -cb | -bc) cheat=1 browser=1 ;;
@@ -66,6 +71,7 @@ zp() {
     return 1
   fi
   if [[ -n $all ]]; then
+    [[ -n $restart ]] && { _zp_kill ${(f)"$(_zp_projects | cut -f1)"} || return }
     _zp_all
     return
   fi
@@ -80,6 +86,7 @@ zp() {
   fi
   local dir=${${entry#*$'\t'}%$'\t'*}
   local layout=$(_zp_layout "$name")
+  [[ -n $restart ]] && { _zp_kill "$name" || return }
 
   if zellij list-sessions --short --no-formatting 2>/dev/null | grep -qxF -- "$name"; then
     if [[ -n $ZELLIJ ]]; then
@@ -120,6 +127,55 @@ _zp_all() {
   [[ -z $ZELLIJ && -n $first ]] && zellij attach "$first"
 }
 
+# _zp_kill <name...>   kill and delete those of the sessions that exist, after
+# listing what runs in them and asking; fails when declined. Refuses the
+# session it's called from, which would take the terminal down with it.
+_zp_kill() {
+  local -a sessions=(${(f)"$(zellij list-sessions --short --no-formatting 2>/dev/null)"})
+  local -a hits=(${argv:*sessions})
+  (( $#hits )) || return 0
+  if (( ${hits[(Ie)$ZELLIJ_SESSION_NAME]} )); then
+    print -u2 "zp: can't restart $ZELLIJ_SESSION_NAME from inside it"
+    return 1
+  fi
+  local s busy
+  for s in $hits; do
+    if ! busy=$(_zp_busy "$s"); then
+      print -r -- "$s: exited"
+    elif [[ -z $busy ]]; then
+      print -r -- "$s: only idle shells"
+    else
+      print -r -- "$s:"$'\n'"$busy"
+    fi
+  done
+  if ! read -q "?Kill and restart these sessions? [y/N] "; then
+    print
+    return 1
+  fi
+  print
+  for s in $hits; do
+    zellij delete-session --force "$s" >/dev/null
+  done
+}
+
+# _zp_busy <session>   print "pid command" of what runs in the session's
+# panes: a pane's child processes, or the pane itself if it isn't an idle
+# shell. Fails if the session has no server (exited). A shell busy with
+# builtins only (e.g. `while :; do :; done`) has no child and looks idle.
+_zp_busy() {
+  local server=$(ps -axo pid=,args= | awk -v s="$1" '$3 == "--server" && $2 ~ /zellij$/ { n = split($4, p, "/"); if (p[n] == s) { print $1; exit } }')
+  [[ -n $server ]] || return
+  local pane kids
+  for pane in $(pgrep -P $server); do
+    kids=$(pgrep -P $pane)
+    if [[ -n $kids ]]; then
+      ps -o pid=,args= -p ${(j:,:)${(f)kids}}
+    elif [[ $(ps -o args= -p $pane) != (-|)(*/|)zsh ]]; then
+      ps -o pid=,args= -p $pane
+    fi
+  done | sed 's/^ */  /'
+}
+
 # _zp_cheat [browser]   open the Zellij cheat sheet in nvim, or rendered as
 # HTML in the default browser when an argument is given
 _zp_cheat() {
@@ -146,8 +202,9 @@ th { background: #313244; }
 _zp() {
   _arguments \
     '(-a --all -c --cheat 1)'{-a,--all}'[start all projects in the background]' \
-    '(-a --all -c --cheat 1)'{-c,--cheat}'[open the Zellij cheat sheet in nvim]' \
-    '(-a --all -b --browser 1)'{-b,--browser}'[with --cheat: open it in the browser]' \
+    '(-r --restart -c --cheat -b --browser)'{-r,--restart}'[kill the session(s) first, after asking]' \
+    '(-a --all -r --restart -c --cheat 1)'{-c,--cheat}'[open the Zellij cheat sheet in nvim]' \
+    '(-a --all -r --restart -b --browser 1)'{-b,--browser}'[with --cheat: open it in the browser]' \
     '1:project:->project'
   if [[ $state == project ]]; then
     compadd -- ${(f)"$(_zp_projects | cut -f1)"}

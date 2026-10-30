@@ -9,6 +9,7 @@ Open this sheet with `zp -c` (in nvim) or `zp -cb` (in the browser).
 | `zp -a` / `zp --all`              | Start all project sessions in the background, attach to the first one |
 | `zp <name>`                       | Open a project's session, creating it if needed                       |
 | `zp`                              | Pick a project with fzf                                               |
+| `zp -r <name>` / `zp -ra`         | Ask, then kill the session(s) and start them fresh (e.g. new layout)  |
 | `zp -c` / `zp --cheat`            | Open this cheat sheet in nvim                                         |
 | `zp -cb` / `zp --cheat --browser` | Open this cheat sheet in the browser                                  |
 | `zellij list-sessions`            | List sessions, including exited ones                                  |

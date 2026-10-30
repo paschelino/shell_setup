@@ -187,6 +187,10 @@ project with fzf. `zp -a` (`--all`) starts the sessions of all projects in the
 background, e.g. after a reboot, and then attaches to the first one. Sessions
 that are already running are left alone.
 
+`zp -r <project>` (`--restart`) kills the session and starts it fresh, e.g. to
+pick up a changed layout; `zp -ra` does that for all projects. It first lists
+what still runs in the sessions (idle shells left out) and asks.
+
 The projects differ from machine to machine and stay private, so they're not
 part of this repository. List them in `~/.config/zp/projects`, one per line:
 name, path and optionally the agent (default: `opencode`):

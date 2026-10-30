@@ -2,7 +2,6 @@
 
 tap 'anomalyco/tap'             # OpenCode's official tap, providing opencode-v2 - https://github.com/anomalyco/homebrew-tap
 tap 'k1LoW/tap'                 # Tap providing git-wt - https://github.com/k1LoW/homebrew-tap
-tap 'sst/tap'                   # SST's official tap, providing sst - https://github.com/sst/homebrew-tap
 
 brew 'adr-tools'                # CLI tool for working with Architecture Decision Records - https://github.com/npryce/adr-tools
 brew 'autoconf'                 # Automatic configure script builder - https://www.gnu.org/software/autoconf/
@@ -70,7 +69,6 @@ brew 'ripgrep'                  # Search tool like grep and The Silver Searcher 
 brew 'ruby-completion'          # Bash completion for Ruby - https://github.com/mernen/completion-ruby
 brew 'saml2aws'                 # Login and retrieve AWS temporary credentials using a SAML IDP - https://github.com/Versent/saml2aws
 brew 'sevenzip'                 # 7-Zip is a file archiver with a high compression ratio - https://7-zip.org
-brew 'sst/tap/sst'              # Framework to build full-stack apps on your own infrastructure - https://sst.dev
 brew 'starship'                 # Cross-shell prompt for astronauts - https://starship.rs/
 brew 'stow'                     # Organize software neatly under a single directory tree (e.g. /usr/local) - https://www.gnu.org/software/stow/
 brew 'telnet'                   # User interface to the TELNET protocol - https://opensource.apple.com/

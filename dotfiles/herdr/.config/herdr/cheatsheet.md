@@ -65,5 +65,7 @@ select, `y` or `Enter` copy, `/` and `?` search, `n` and `N` repeat, `q` or
 ## Good to know
 
 - `wt <branch>` opens a tab.
+- After a reboot, herdr restores tabs and directories and resumes the agents, but
+  doesn't restart nvim.
 - `H` `J` `K` `L` don't repeat: herdr leaves prefix mode after each key.
 - Config: `~/.config/herdr/config.toml`.

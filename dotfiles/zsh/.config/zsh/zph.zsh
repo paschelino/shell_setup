@@ -40,9 +40,32 @@ _zph_open() {
   _zph_attach "$1"
 }
 
+# The project's private layout if there is one, else nvim, a coding agent and a
+# shell, each in its own tab
 _zph_start() {
   _zph_server || return
-  herdr workspace create --cwd "$2" --label "$1" --no-focus >/dev/null
+  if [[ -r $ZP_DIR/$1.herdr ]]; then
+    source "$ZP_DIR/$1.herdr" "$1" "$2"
+    return
+  fi
+  local id=$(_zph_workspace "$1" "$2" nvim "_zp_run nvim .")
+  _zph_tab "$id" "$2" agent "_zp_run _zp_agent"
+  _zph_tab "$id" "$2" shell
+}
+
+# _zph_workspace <name> <dir> <tab> [command]   create the workspace with its
+# first tab and print the workspace's ID
+_zph_workspace() {
+  local created=$(herdr workspace create --cwd "$2" --label "$1" --no-focus)
+  herdr tab rename "$(jq -r .result.tab.tab_id <<<$created)" "$3" >/dev/null
+  [[ -z $4 ]] || herdr pane run "$(jq -r .result.root_pane.pane_id <<<$created)" "$4" >/dev/null
+  jq -r .result.workspace.workspace_id <<<$created
+}
+
+# _zph_tab <workspace> <dir> <tab> [command]   add a tab to the workspace
+_zph_tab() {
+  local created=$(herdr tab create --workspace "$1" --cwd "$2" --label "$3" --no-focus)
+  [[ -z $4 ]] || herdr pane run "$(jq -r .result.root_pane.pane_id <<<$created)" "$4" >/dev/null
 }
 
 # Inside herdr, focusing is all it takes: the client follows.

@@ -1,0 +1,6 @@
+# TUIOS: see `tuios list-options` for all options. tuios writes settings changed
+# in its UI back to this file.
+
+[startup]
+tiled = true
+daemon = true

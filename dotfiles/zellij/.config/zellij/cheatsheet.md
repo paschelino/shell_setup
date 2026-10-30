@@ -82,7 +82,8 @@ clipboard. For keyboard copying, use `Ctrl-a e` and yank in nvim.
 | `q`            | Quit the session (stops everything in it)             |
 | `W`            | Share the session in the browser                      |
 | `P`            | Plugin manager                                        |
-| `?`            | Zellij's configuration screen                         |
+| `?`            | This cheat sheet, read-only in nvim; `:q` closes it   |
+| `C`            | Zellij's configuration screen                         |
 
 ## The generic project layout
 

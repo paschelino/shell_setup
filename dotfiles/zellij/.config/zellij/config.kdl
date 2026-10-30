@@ -94,10 +94,18 @@ keybinds clear-defaults=true {
             };
             SwitchToMode "Normal";
         }
-        bind "?" {
+        bind "C" {
             LaunchOrFocusPlugin "configuration" {
                 floating true
                 move_to_focused_tab true
+            };
+            SwitchToMode "Normal";
+        }
+        bind "?" {
+            Run "zsh" "-c" "exec nvim -R ${XDG_CONFIG_HOME:-$HOME/.config}/zellij/cheatsheet.md" {
+                floating true
+                close_on_exit true
+                name "cheat sheet"
             };
             SwitchToMode "Normal";
         }

@@ -109,7 +109,11 @@ wt() {
     local wt_path repo_name
     wt_path=$(git wt --nocd "$branch" | tail -1)
     repo_name=$(basename "$(git rev-parse --show-toplevel)")
-    if [[ -n $ZELLIJ ]]; then
+    if [[ -n $TUIOS_ENV ]]; then # also sets $HERDR_ENV
+      tuios new-window "$repo_name/$branch" --cwd "$wt_path" >/dev/null
+    elif [[ -n $HERDR_ENV ]]; then
+      herdr tab create --cwd "$wt_path" --label "$repo_name/$branch" --focus >/dev/null
+    elif [[ -n $ZELLIJ ]]; then
       zellij action new-tab --cwd "$wt_path" --name "$repo_name/$branch" >/dev/null
     elif [[ -n $TMUX ]]; then
       tmux neww -c "$wt_path" -n "$repo_name/$branch"

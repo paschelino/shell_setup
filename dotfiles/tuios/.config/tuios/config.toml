@@ -47,3 +47,40 @@ prefix_keybinds = ["ctrl+k"]
 # window. Back to terminal mode, so a new shell can be typed in right away.
 [hooks]
 after-new-window = ["tuios run-command TerminalMode"]
+
+[appearance]
+calm = false
+dim_unfocused = 40
+zen_mode = "always"
+shared_borders = true
+hide_window_buttons = true
+theme = "catppuccin_mocha"
+dock_compact = true
+click_to_type = "double"
+nvim_navigation = true
+
+[appearance.sidebar]
+enabled = false
+
+[agents]
+enabled = true
+
+[appearance.sidebar.left]
+enabled = false
+
+[appearance.sidebar.right]
+enabled = false
+
+[notifications.agent]
+sound = true
+sound_mode = "audio"
+settle_seconds = 5
+
+[spotlight]
+enabled = false
+
+[workspaces]
+return_when_empty = true
+
+[launcher]
+keep_open = true

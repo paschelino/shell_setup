@@ -32,6 +32,7 @@ brew 'glow'                     # Render markdown on the CLI - https://github.co
 brew 'gnupg'                    # GNU Privacy Guard (OpenPGP) - https://gnupg.org/
 brew 'go'                       # Open source programming language to build simple/reliable/efficient software - https://go.dev/
 brew 'helm'                     # Kubernetes package manager - https://helm.sh/
+brew 'herdr'                    # Agent multiplexer that lives in your terminal - https://herdr.dev
 brew 'imagemagick'              # Tools and libraries to manipulate images in select formats - https://imagemagick.org
 brew 'kubectx'                  # Tool that can switch between kubectl contexts easily and create aliases - https://github.com/ahmetb/kubectx
 brew 'kubernetes-cli'           # Kubernetes command-line interface - https://kubernetes.io/docs/reference/kubectl/
@@ -83,6 +84,7 @@ brew 'tmuxinator-completion'    # Shell completion for Tmuxinator - https://gith
 brew 'trash'                    # CLI tool that moves files or folder to the trash - https://hasseg.org/trash/
 brew 'tree'                     # Display directories as trees (with optional color/HTML output) - https://oldmanprogrammer.net/source.php?dir=projects/tree
 brew 'trivy'                    # Vulnerability scanner for container images, file systems, and Git repos - https://trivy.dev/
+brew 'tuios'                    # Terminal UI OS (Terminal Multiplexer) - https://tuios.dev/
 brew 'typst'                    # Markup-based typesetting system - https://typst.app/
 brew 'utftex'                   # Pretty print math in monospace fonts, using a TeX-like syntax - https://github.com/bartp5/libtexprintf
 brew 'uv'                       # Extremely fast Python package installer and resolver, written in Rust - https://docs.astral.sh/uv/

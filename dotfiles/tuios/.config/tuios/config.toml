@@ -72,6 +72,14 @@ enabled = false
 [appearance.sidebar.right]
 enabled = false
 
+# The default left side, plus the session's name in front of the tabs
+[dock]
+left = ["mode", "session", "workspaces", "trail", "tape"]
+
+[dock.session]
+format = "{session}"
+bold = true
+
 [notifications.agent]
 sound = true
 sound_mode = "audio"

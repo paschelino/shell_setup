@@ -72,6 +72,7 @@ brew 'saml2aws'                 # Login and retrieve AWS temporary credentials u
 brew 'sevenzip'                 # 7-Zip is a file archiver with a high compression ratio - https://7-zip.org
 brew 'starship'                 # Cross-shell prompt for astronauts - https://starship.rs/
 brew 'stow'                     # Organize software neatly under a single directory tree (e.g. /usr/local) - https://www.gnu.org/software/stow/
+brew 'superfile'                # Modern and fast file manager - https://superfile.dev/
 brew 'telnet'                   # User interface to the TELNET protocol - https://opensource.apple.com/
 brew 'terraform-docs'           # Tool to generate documentation from Terraform modules - https://terraform-docs.io/
 brew 'terragrunt'               # Thin wrapper for Terraform e.g. for locking state - https://terragrunt.gruntwork.io/

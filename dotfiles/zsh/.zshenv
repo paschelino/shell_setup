@@ -6,6 +6,10 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export EDITOR=nvim
 export VISUAL=nvim
 
+# Opt out of telemetry in every tool that honors these
+export DISABLE_TELEMETRY=1
+export DO_NOT_TRACK=1
+
 # zk
 export ZK_NOTEBOOK_DIR="$HOME/z"
 export ZK_SHELL=/bin/bash

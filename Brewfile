@@ -76,7 +76,6 @@ brew 'superfile'                # Modern and fast file manager - https://superfi
 brew 'telnet'                   # User interface to the TELNET protocol - https://opensource.apple.com/
 brew 'terraform-docs'           # Tool to generate documentation from Terraform modules - https://terraform-docs.io/
 brew 'terragrunt'               # Thin wrapper for Terraform e.g. for locking state - https://terragrunt.gruntwork.io/
-brew 'tflint'                   # Linter for Terraform files - https://github.com/terraform-linters/tflint
 brew 'tig'                      # Text interface for Git repositories - https://jonas.github.io/tig/
 brew 'thefuck'                  # Programmatically correct mistyped console commands - https://github.com/nvbn/thefuck
 brew 'tmux'                     # Terminal multiplexer - https://tmux.github.io/

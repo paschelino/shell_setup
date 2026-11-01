@@ -28,6 +28,7 @@ brew 'gh'                       # GitHub command-line tool - https://cli.github.
 brew 'git-filter-repo'          # Quickly rewrite git repository history - https://github.com/newren/git-filter-repo
 brew 'k1LoW/tap/git-wt'         # A Git subcommand that makes `git worktree` simple - https://github.com/k1LoW/git-wt
 brew 'gcc'                      # GNU compiler collection - https://gcc.gnu.org/
+brew 'geckodriver'              # GeckoDriver is a WebDriver for Firefox - https://geckodriver.org/
 brew 'glow'                     # Render markdown on the CLI - https://github.com/charmbracelet/glow
 brew 'gnupg'                    # GNU Privacy Guard (OpenPGP) - https://gnupg.org/
 brew 'go'                       # Open source programming language to build simple/reliable/efficient software - https://go.dev/

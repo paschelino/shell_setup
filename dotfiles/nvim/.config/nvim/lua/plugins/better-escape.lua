@@ -1,4 +1,4 @@
--- Leave insert mode with jj or jk without delaying typed j/k characters.
+-- Leave insert mode with jj, jk, kk or kj without delaying typed j/k characters.
 -- Unlike a regular `imap jj <Esc>`, better-escape inserts the first key
 -- immediately and only removes it again if the second key follows in time.
 return {
@@ -11,6 +11,10 @@ return {
         j = {
           j = "<Esc>",
           k = "<Esc>",
+        },
+        k = {
+          k = "<Esc>",
+          j = "<Esc>",
         },
       },
     },

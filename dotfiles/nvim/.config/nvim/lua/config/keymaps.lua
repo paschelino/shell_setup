@@ -4,7 +4,7 @@
 
 local k = vim.keymap
 
--- jj / jk to leave insert mode are provided by better-escape.nvim (see
+-- jj / jk / kk / kj to leave insert mode are provided by better-escape.nvim (see
 -- lua/plugins/better-escape.lua). Plain mappings would delay every typed
 -- j and k by timeoutlen.
 

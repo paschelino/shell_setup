@@ -138,6 +138,8 @@ compdef _wt wt
 alias wt-rm='wt --delete'
 alias 'wt-rm!'='wt --force'
 
+alias re-stow-dotfiles='(cd ~/shup/dotfiles && stow --restow --target="$HOME" */)'
+
 source "$XDG_CONFIG_HOME/zsh/zp.zsh"
 
 # Must be sourced last, after all widgets are defined.

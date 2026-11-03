@@ -7,6 +7,7 @@ brew 'adr-tools'                # CLI tool for working with Architecture Decisio
 brew 'autoconf'                 # Automatic configure script builder - https://www.gnu.org/software/autoconf/
 brew 'b2sum'                    # BLAKE2 b2sum reference binary - https://github.com/BLAKE2/BLAKE2
 brew 'bat'                      # Clone of cat(1) with syntax highlighting and Git integration - https://github.com/sharkdp/bat
+brew 'btop'                     # Easy to use system resources monitor - https://github.com/aristocratos/btop
 brew 'bundler-completion'       # Bash completion for Bundler - https://github.com/mernen/completion-ruby
 brew 'carapace'                 # Multi-shell multi-command argument completer - https://carapace.sh
 brew 'cmake'                    # Cross-platform make - https://www.cmake.org/

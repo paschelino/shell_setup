@@ -24,7 +24,8 @@ brew install podman docker-compose
 
 if ! podman machine inspect &>/dev/null; then
   step "Creating Podman machine..."
-  podman machine init --cpus "${PODMAN_CPUS:-4}" --memory "${PODMAN_MEMORY:-8192}" --disk-size "${PODMAN_DISK:-100}"
+  # Size comes from ~/.config/containers/containers.conf, so stow the dotfiles first.
+  podman machine init
 fi
 
 if [ "$(podman machine inspect --format '{{.State}}')" != "running" ]; then

@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+step() { echo; echo "==> $*"; }
+
+[ "$(uname -s)" = "Darwin" ] || { echo "!! macOS only" >&2; exit 1; }
+command -v brew &>/dev/null || { echo "!! Homebrew required" >&2; exit 1; }
+
+if command -v colima &>/dev/null; then
+  step "Removing Colima VM..."
+  colima stop || true
+  colima delete --force || true
+fi
+
+step "Uninstalling Colima and Docker CLI plugins..."
+for f in colima docker-buildx lima; do
+  if brew list --formula "$f" &>/dev/null; then
+    brew uninstall --formula "$f"
+  fi
+done
+
+step "Installing Podman and docker-compose..."
+brew install podman docker-compose
+
+if ! podman machine inspect &>/dev/null; then
+  step "Creating Podman machine..."
+  podman machine init --cpus "${PODMAN_CPUS:-4}" --memory "${PODMAN_MEMORY:-8192}" --disk-size "${PODMAN_DISK:-100}"
+fi
+
+if [ "$(podman machine inspect --format '{{.State}}')" != "running" ]; then
+  step "Starting Podman machine..."
+  podman machine start
+fi
+
+step "Smoke test..."
+podman run --rm quay.io/podman/hello
+podman compose version
+
+step "Done. Colima's leftover data in ~/.colima can be removed manually."

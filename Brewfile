@@ -12,11 +12,9 @@ brew 'bundler-completion'       # Bash completion for Bundler - https://github.c
 brew 'carapace'                 # Multi-shell multi-command argument completer - https://carapace.sh
 brew 'cmake'                    # Cross-platform make - https://www.cmake.org/
 brew 'cmark-gfm'                # C implementation of GitHub Flavored Markdown - https://github.com/github/cmark-gfm
-brew 'colima'                   # Container runtimes on MacOS (and Linux) with minimal setup - https://colima.run
 brew 'curl'                     # Get a file from an HTTP, HTTPS or FTP server - https://curl.se
 brew 'direnv'                   # Load/unload environment variables based on $PWD - https://direnv.net/
 # brew 'docker'                   # Pack, ship and run any application as a lightweight container - https://www.docker.com/
-brew 'docker-buildx'            # Docker CLI plugin for extended build capabilities with BuildKit - https://docs.docker.com/buildx/working-with-buildx/
 brew 'docker-compose'           # Isolated development environments using Docker - https://docs.docker.com/compose/
 brew 'fd'                       # Simple, fast and user-friendly alternative to find - https://github.com/sharkdp/fd
 brew 'ffmpeg'                   # Play, record, convert, and stream select audio and video codecs - https://ffmpeg.org/
@@ -58,6 +56,7 @@ brew 'pip-completion'           # Bash completion for Pip - https://github.com/e
 brew 'pkgconf'                  # Package compiler and linker metadata toolkit - https://github.com/pkgconf/pkgconf
 brew 'pngpaste'                 # Paste PNG into files - https://github.com/jcsalterego/pngpaste
 brew 'pnpm'                     # Fast, disk space efficient package manager - https://pnpm.io/
+brew 'podman'                   # Tool for managing OCI containers and pods - https://podman.io/
 brew 'poppler'                  # PDF rendering library (based on the xpdf-3.0 code base) - https://poppler.freedesktop.org/
 brew 'pre-commit'               # Framework for managing multi-language pre-commit hooks - https://pre-commit.com/
 brew 'prettier'                 # Code formatter for JavaScript, CSS, JSON, GraphQL, Markdown, YAML - https://prettier.io/

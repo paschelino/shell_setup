@@ -5,6 +5,57 @@ open, surprises, next step.
 
 ---
 
+## 2026-11-06: T1b, fab built; T1c drafted; waiting for the token
+
+- **Done:** T1b, commits `6f7ac74` (fab) and `c22cb74` (install wiring).
+  `dotfiles/fab` stowed with `--no-folding`, `npm ci` run in `~/.config/fab`,
+  sandcastle pinned at 0.14.0 with a lockfile. `fab run`, `fab runs`,
+  `fab status`; `main.mts` with `lib/{tasks,status,report,summary,env}.mts`;
+  `prompts/task.md` (T1c's draft) and `test/fake-agent.sh`. README section.
+  Verified with the fake agent on the throwaway repository from T0: AC4 (no
+  `.env`: instructions, exit 2), AC5 (only the agent's commits appear, main
+  checkout clean, no `.sandcastle/`), AC6 half (`summary.md`, `events.jsonl`),
+  AC7 half (parked question and assumption reach `summary.md`; the run continued
+  with tasks that don't depend on it), AC8 (`--until 0s` starts nothing,
+  `--until 3s` with a 4-second task stops after it, both named in the summary),
+  AC9 (second run on a busy worktree refused with run id and pid, a run on
+  another branch proceeds, lock removed afterwards). The tuios pane went
+  working, done, and the run's notification reached the Inbox.
+- **Decisions:**
+  - `fab run` accepts a directory as `<project>` besides a name from the zp
+    list, so tests never touch the private list.
+  - The summary is rendered by `lib/summary.mts`, not from `prompts/summary.md`:
+    lists need loops. Spec deviation, noted in T1c's row.
+  - Dependencies and retries are two sets: a parked or failed task is not
+    offered again in the run, and tasks depending on it wait. First version
+    treated parked as done for dependencies; caught by the fake test.
+  - A failed-only run exits 1; a run with any task done exits 0. The default
+    model for Claude is `claude-fable-5-1`; opencode needs `--model`.
+  - Private `~/.config/fab/mounts` created with Playwright's cache path.
+- **Open, for the maintainer:**
+  - **Token:** run `claude setup-token`, then
+    `umask 077; print 'CLAUDE_CODE_OAUTH_TOKEN=<token>' > ~/.config/fab/.env`.
+    That unblocks T0 check 1, T1c's real run and T2.
+  - The fab tests sent about eight notification mails and state changes to this
+    tuios pane's Inbox. They are harmless; dismiss them.
+  - The fake agent runs with `--agent fake` and `FAB_FAKE_AGENT=<script>` only.
+    It can't model a Claude session's progress entry, so AC6's first half and
+    the prompt's wording stay unverified until a real run.
+  - Push isn't tested (the throwaway has no remote). First real run with a
+    remote: watch `summary.md`'s Push line.
+- **Surprises:**
+  - Node's strip-only TypeScript rejects constructor parameter properties.
+  - Node resolves imports from a symlink's real path, so a stowed `main.mts`
+    would look for `node_modules` inside the repository; `fab` runs Node with
+    `--preserve-symlinks --preserve-symlinks-main`.
+  - The sandbox can't read a test script under the home directory (exit 126);
+    the fake provider inlines the script text into the command.
+  - zsh expands `$id` before assigning it when both are on one `local` line.
+  - A `git wt` worktree under `.wt/` in the repository leaves the main
+    checkout's `git status` clean.
+- **Next step:** T1c with a real agent as soon as `.env` exists (one task on the
+  throwaway repository, `--agent claude`), then T2.
+
 ## 2026-11-06: T1a, mx built and stowed
 
 - **Done:** T1a. `dotfiles/mx/.local/bin/mx`, stowed to `~/.local/bin/mx`

@@ -5,6 +5,59 @@ open, surprises, next step.
 
 ---
 
+## 2026-11-06: T0, sandcastle verified in a sandbox, token pending
+
+- **Done:** T0 checks 2 to 6, on `@ai-hero/sandcastle` 0.14.0 (2026-11-02, the
+  last stable release; the GitHub docs describe the `1.0.0-v1-next` nightlies,
+  whose API matched for everything used here). Instead of an agent, a custom
+  `AgentProvider` ran a shell script as the "agent" (`buildPrintCommand` returns
+  `sh -s` with the prompt as stdin), so the sandbox could be probed without a
+  token. Scripts are in the session scratchpad only.
+  - **Check 2, clean repository:** `seatbelt()`, `branchStrategy: head`, `cwd`
+    set to a worktree from `git wt --nocd`, `logging.path` outside the repo.
+    Nothing appeared in the worktree or the main checkout besides the probe's
+    own file; no `.sandcastle/` anywhere. `git wt` puts worktrees under `.wt/`
+    in the repository by default and the main checkout's `git status` stays
+    clean.
+  - **Check 3, visibility:** the worktree's `CLAUDE.md` and `.agents/skills/`
+    are readable inside. The real home is not: `ls ~/.claude` and reading
+    `~/.config/opencode/AGENTS.md` fail with "Operation not permitted". The
+    sandbox home is a fresh temp dir holding only a `.gitconfig`; the
+    environment is `HOME PATH PWD SHLVL TMPDIR`. Writing outside the worktree is
+    denied. The network is open.
+  - **Check 4, status path:** harness hooks can't load (settings hidden). But
+    `tuios get-agent-state` run inside the sandbox still found the pane, through
+    the controlling terminal, so the tuios socket is reachable from inside. `mx`
+    stays a host-side call as decided; this only means a project-local hook
+    would also work.
+  - **Check 5, tools:** `node` 26 (mise install dir), `python3` (mise shim),
+    `git`, `claude` 2.1.311, `opencode` and `tuios` run inside. `playwright` is
+    not on `PATH` (it is a project dependency, run through `npx`). Playwright's
+    browser cache under `~/Library/Caches/ms-playwright` is hidden; a read-only
+    `seatbelt({ mounts })` entry for it was accepted. `hugo` is a dangling mise
+    shim on the host itself, unrelated to the sandbox.
+  - **Check 6, structured output:** `Output.object` with a Zod schema of the
+    spec's task report round-tripped from a `<report>` tag; the prompt must
+    contain the opening tag literal.
+- **Open:**
+  - **Check 1, OAuth token in the sandbox:** needs the maintainer to run
+    `claude setup-token` and put the result in `~/.config/fab/.env` as
+    `CLAUDE_CODE_OAUTH_TOKEN`. Verified at the first real run in T1b.
+  - **Check 7, opencode in the sandbox:** opencode's auth lives under the hidden
+    home too. Deferred to the first work-machine use; note the likely need for a
+    read-only mount or env-based auth.
+  - mise shims inside the sandbox resolve without the global mise config (python
+    did), but a project's tool versions come from its own `mise.toml`, which is
+    visible. Confirm with the pilot's `hugo` in T2.
+- **Surprises:**
+  - tuios `set-agent-state` states are
+    `none, working, needs_input, idle, done, errored, unknown`, with `-m`,
+    `--kind question|approval|auth`, `--if-state` and `-w`. `mx` maps `waiting`
+    to `needs_input --kind question` and `error` to `errored`.
+  - tuios `notify` already pushes Inbox items to a phone (Web Push and providers
+    in `config.toml`). Relevant for T4c before building anything.
+- **Next step:** T1a (`mx`). T0's remaining two checks ride along with T1b.
+
 ## 2026-11-06: Spec drafted after the interview
 
 - **Done:** T0a. Interview with the maintainer over several rounds, an analysis

@@ -316,6 +316,30 @@ flag as well:
 stow --no-folding --target="$HOME" claude opencode
 ```
 
+### Agent state for any multiplexer (`mx`)
+
+`mx` (`dotfiles/mx`) is one small command between tools that report on an
+agent and the terminal multiplexer the pane runs in. It detects the host from
+the environment (TUIOS, herdr, Zellij, tmux) and talks to that tool, so hooks,
+runners and scripts don't have to know which one is active. Outside any
+multiplexer every verb exits 0 and only the common sinks run.
+
+```shell
+mx host                              # tuios | herdr | zellij | tmux | none
+mx state working -m "running tests"  # working | waiting | done | error | idle | none
+mx notify "alpha" "run finished"     # inbox or status line, plus a macOS notification
+mx ask "Continue?" -o yes -o no      # prints the answer; waits for the person
+mx session <id>                      # record the agent's conversation id on the pane
+```
+
+TUIOS gets the full set (`set-agent-state`, mail to the person's Inbox,
+`ask-human`). tmux with workmux gets the window status and a status-line
+message. herdr and Zellij have no CLI for this yet, so those adapters only log.
+Outside TUIOS, `mx ask` turns into a waiting state plus a notification, and the
+answer comes from `mx answer <id> <text>`. State files and a log of every call
+are under `~/.local/state/mx/`. The design is in
+`specs/decisions/ADR-0002-mx-multiplexer-interface.md`.
+
 ## Package management (Homebrew and mise)
 
 Two package managers, with a clear split:

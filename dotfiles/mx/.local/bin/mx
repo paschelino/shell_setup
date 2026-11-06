@@ -1,0 +1,268 @@
+#!/usr/bin/env zsh
+# mx: report an agent's state, a notification or a question to the terminal
+# multiplexer this pane runs in, without the caller knowing which one it is.
+# One adapter per multiplexer; common sinks run for every host. Every verb
+# exits 0 outside any multiplexer, so hooks and runners can call it blindly.
+#
+#   mx host                               tuios | herdr | zellij | tmux | none
+#   mx state <state> [-m <text>]          working | waiting | done | error | idle | none
+#   mx notify <title> [<body>]            inbox or status line, plus a macOS notification
+#   mx ask <question> -o <a> [-o <b>...] [-t <seconds>]
+#                                         print the person's answer; exit 2 on timeout, 1 when none
+#   mx answer <id> <text>                 answer a question asked outside tuios (see mx ask)
+#   mx session <id>                       record the agent conversation id on the pane
+#
+# State and a log of what the no-op adapters would have done live under
+# ${XDG_STATE_HOME:-~/.local/state}/mx/. Spec: specs/projects/unattended-runs.
+
+emulate -L zsh
+setopt err_return no_unset pipe_fail
+
+MX_STATE_DIR=${XDG_STATE_HOME:-$HOME/.local/state}/mx
+MX_SELF=${0:A} # inside functions $0 is the function's name
+
+# Print the multiplexer this pane runs in. TUIOS first: its panes also set
+# HERDR_ENV, for herdr plugins.
+_mx_host() {
+  if [[ -n ${TUIOS_ENV:-} ]]; then
+    print tuios
+  elif [[ -n ${HERDR_ENV:-} ]]; then
+    print herdr
+  elif [[ -n ${ZELLIJ:-} ]]; then
+    print zellij
+  elif [[ -n ${TMUX:-} ]]; then
+    print tmux
+  else
+    print none
+  fi
+}
+
+# A stable id for this pane, for the state file: the host's pane id, else the
+# calling process.
+_mx_pane() {
+  local id=${TUIOS_PANE_ID:-${HERDR_PANE_ID:-${ZELLIJ_PANE_ID:-${TMUX_PANE:-}}}}
+  id=${id#%}
+  print -r -- "${id:-pid-$PPID}"
+}
+
+# JSON string literal of $1.
+_mx_json() {
+  local s=$1
+  s=${s//\\/\\\\}
+  s=${s//\"/\\\"}
+  s=${s//$'\n'/\\n}
+  s=${s//$'\t'/\\t}
+  print -r -- "\"$s\""
+}
+
+_mx_now() { date -u +%Y-%m-%dT%H:%M:%SZ }
+
+# _mx_record <verb> <key=value...>   write the pane's state file and append
+# the log line that every adapter, including the no-ops, leaves behind.
+_mx_record() {
+  local verb=$1 host=$(_mx_host) pane=$(_mx_pane) kv
+  shift
+  mkdir -p "$MX_STATE_DIR"
+  local json="{\"pane\":$(_mx_json "$pane"),\"host\":$(_mx_json "$host"),\"verb\":$(_mx_json "$verb"),\"at\":$(_mx_json "$(_mx_now)")"
+  for kv in "$@"; do
+    json+=",$(_mx_json "${kv%%=*}"):$(_mx_json "${kv#*=}")"
+  done
+  json+="}"
+  print -r -- "$json" >| "$MX_STATE_DIR/$pane.json"
+  print -r -- "$(_mx_now) $host $pane $verb $*" >> "$MX_STATE_DIR/log"
+}
+
+# _mx_have <command>   true when the adapter's tool is installed.
+_mx_have() { (( $+commands[$1] )) }
+
+# macOS notification, when osascript exists. Never fails the caller.
+_mx_notify_macos() {
+  _mx_have osascript || return 0
+  local title=${1//\"/\\\"} body=${2//\"/\\\"}
+  osascript -e "display notification \"$body\" with title \"$title\"" >/dev/null 2>&1 || true
+}
+
+# ---- state ----------------------------------------------------------------
+
+_mx_state_tuios() {
+  local state=$1 msg=$2 s kind=()
+  case $state in
+    working) s=working ;;
+    waiting) s=needs_input kind=(--kind question) ;;
+    done) s=done ;;
+    error) s=errored ;;
+    idle) s=idle ;;
+    none) s=none ;;
+  esac
+  tuios set-agent-state "$s" $kind ${msg:+-m "$msg"} >/dev/null 2>&1 || true
+}
+
+# workmux shows working, waiting and done in the window name; waiting and
+# done clear when the window gets focus. error needs eyes, so it is waiting.
+_mx_state_tmux() {
+  local state=$1 msg=$2 s
+  if _mx_have workmux; then
+    case $state in
+      working) s=working ;;
+      waiting | error) s=waiting ;;
+      done) s=done ;;
+      idle | none) s=clear ;;
+    esac
+    workmux set-window-status "$s" >/dev/null 2>&1 || true
+  fi
+}
+
+# herdr detects state from the screen and has no CLI to set it; its socket
+# API does, which is T4f's job. Logged only.
+_mx_state_herdr() { : }
+
+# Zellij has no agent model. Logged only; a scorecard finding.
+_mx_state_zellij() { : }
+
+_mx_state() {
+  local state=${1:-} msg=
+  (( $# == 0 )) || shift
+  while (( $# )); do
+    case $1 in
+      -m | --message) msg=${2:-}; shift 2 ;;
+      *) print -u2 "mx state: unknown argument $1"; return 1 ;;
+    esac
+  done
+  case $state in
+    working | waiting | done | error | idle | none) ;;
+    *) print -u2 "mx state: state must be working, waiting, done, error, idle or none"; return 1 ;;
+  esac
+  local host=$(_mx_host)
+  _mx_record state "state=$state" "message=$msg"
+  [[ $host == none ]] || _mx_state_$host "$state" "$msg"
+}
+
+# ---- notify ---------------------------------------------------------------
+
+# A message to the person's inbox, not a session notice, so it waits for them.
+_mx_notify_tuios() { tuios send-agent-message -w human "$1${2:+: $2}" >/dev/null 2>&1 || true }
+_mx_notify_tmux() { tmux display-message "$1${2:+: $2}" >/dev/null 2>&1 || true }
+_mx_notify_herdr() { : }
+_mx_notify_zellij() { : }
+
+_mx_notify() {
+  local title=${1:-} body=${2:-}
+  if [[ -z $title ]]; then
+    print -u2 "mx notify: a title is required"
+    return 1
+  fi
+  local host=$(_mx_host)
+  _mx_record notify "title=$title" "body=$body"
+  [[ $host == none ]] || _mx_notify_$host "$title" "$body"
+  _mx_notify_macos "$title" "$body"
+}
+
+# ---- ask ------------------------------------------------------------------
+
+# Outside tuios the question becomes a waiting state and a notification, and
+# the answer comes from `mx answer <id> <text>`, polled once a second.
+_mx_ask_fallback() {
+  local question=$1 timeout=$2 id=$3
+  shift 3
+  local -a options=("$@")
+  local dir=$MX_STATE_DIR/questions
+  mkdir -p "$dir"
+  print -r -- "$question"$'\n'"${(F)options}" >| "$dir/$id.question"
+  _mx_state waiting -m "$question"
+  _mx_notify "Question $id" "$question (answer with: mx answer $id <${(j:|:)options}>)"
+  local waited=0
+  while [[ ! -s $dir/$id.answer ]]; do
+    if [[ -n $timeout ]] && (( waited >= timeout )); then
+      rm -f -- "$dir/$id.question"
+      return 2
+    fi
+    sleep 1
+    (( waited += 1 ))
+  done
+  local answer=$(<"$dir/$id.answer")
+  rm -f -- "$dir/$id.answer" "$dir/$id.question"
+  _mx_state working -m "answered: $answer"
+  print -r -- "$answer"
+}
+
+_mx_ask() {
+  local question=${1:-} timeout=
+  local -a options=()
+  (( $# == 0 )) || shift
+  while (( $# )); do
+    case $1 in
+      -o | --option) options+=("${2:-}"); shift 2 ;;
+      -t | --timeout) timeout=${2:-}; shift 2 ;;
+      *) print -u2 "mx ask: unknown argument $1"; return 1 ;;
+    esac
+  done
+  if [[ -z $question ]] || (( $#options < 1 )); then
+    print -u2 "mx ask: usage: mx ask <question> -o <answer> [-o <answer>...] [-t <seconds>]"
+    return 1
+  fi
+  local host=$(_mx_host) id=$(date +%s)-$$
+  _mx_record ask "question=$question" "options=${(j:|:)options}" "id=$id"
+  if [[ $host == tuios ]]; then
+    local -a oargs=()
+    local o
+    for o in "${options[@]}"; do oargs+=(-o "$o"); done
+    tuios ask-human "$question" "${oargs[@]}" ${timeout:+--timeout $timeout}
+  else
+    _mx_ask_fallback "$question" "$timeout" "$id" "${options[@]}"
+  fi
+}
+
+_mx_answer() {
+  local id=${1:-} text=${2:-}
+  if [[ -z $id || -z $text ]]; then
+    print -u2 "mx answer: usage: mx answer <id> <text>"
+    return 1
+  fi
+  local dir=$MX_STATE_DIR/questions
+  if [[ ! -f $dir/$id.question ]]; then
+    print -u2 "mx answer: no open question $id"
+    return 1
+  fi
+  print -r -- "$text" >| "$dir/$id.answer"
+}
+
+# ---- session --------------------------------------------------------------
+
+_mx_session_tuios() { tuios set-agent-session "$1" >/dev/null 2>&1 || true }
+_mx_session_tmux() { : }
+_mx_session_herdr() { : }
+_mx_session_zellij() { : }
+
+_mx_session() {
+  local id=${1:-}
+  if [[ -z $id ]]; then
+    print -u2 "mx session: an id is required"
+    return 1
+  fi
+  local host=$(_mx_host)
+  _mx_record session "session=$id"
+  [[ $host == none ]] || _mx_session_$host "$id"
+}
+
+# ---- main -----------------------------------------------------------------
+
+_mx_usage() {
+  sed -n '2,/^$/p' "$MX_SELF" | sed 's/^# \{0,1\}//'
+}
+
+main() {
+  local verb=${1:-}
+  (( $# == 0 )) || shift
+  case $verb in
+    host) _mx_host ;;
+    state) _mx_state "$@" ;;
+    notify) _mx_notify "$@" ;;
+    ask) _mx_ask "$@" ;;
+    answer) _mx_answer "$@" ;;
+    session) _mx_session "$@" ;;
+    -h | --help | help | '') _mx_usage; [[ -n $verb ]] ;;
+    *) print -u2 "mx: unknown verb $verb"; _mx_usage >&2; return 1 ;;
+  esac
+}
+
+main "$@"

@@ -55,7 +55,7 @@ while IFS= read -r -d '' src; do
   fi
 done < <(cd "$REPO_DIR/dotfiles" && find . -mindepth 2 -type f -print0)
 # These targets also hold the tools' runtime data: link single files, never fold the directory into the repo.
-NO_FOLDING=(claude herdr opencode tuios workmux)
+NO_FOLDING=(claude fab herdr opencode tuios workmux)
 (
   cd "$REPO_DIR/dotfiles"
   folding=()
@@ -66,6 +66,16 @@ NO_FOLDING=(claude herdr opencode tuios workmux)
   stow --verbose=1 --target="$TARGET_HOME" "${folding[@]}"
   stow --verbose=1 --no-folding --target="$TARGET_HOME" "${NO_FOLDING[@]}"
 )
+
+step "Installing fab's Node dependencies..."
+# fab (unattended agent runs) is TypeScript on sandcastle. Its node_modules
+# live in the real ~/.config/fab, next to the stowed files, never in the repo.
+# Skipped where Node is missing: fab then explains what to install.
+if command -v node >/dev/null 2>&1; then
+  npm ci --prefix "$TARGET_HOME/.config/fab" --no-audit --no-fund
+else
+  echo "   node not found, skipping (fab will not run on this machine)"
+fi
 
 step "Installing tmux plugins..."
 # Not in Homebrew. Pinned, because they run as code on every tmux start.

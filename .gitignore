@@ -3,3 +3,6 @@ Brewfile.lock.json
 history.txt
 plugin.msgpackz
 dotfiles/carapace/.config/carapace/bridge/
+# fab's runtime files belong to ~/.config/fab, not here (install stows it with --no-folding)
+dotfiles/fab/.config/fab/node_modules/
+dotfiles/fab/.config/fab/.env

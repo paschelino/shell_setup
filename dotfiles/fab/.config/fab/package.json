@@ -1,0 +1,10 @@
+{
+  "name": "fab",
+  "private": true,
+  "description": "Unattended agent runs on top of sandcastle. See specs/projects/unattended-runs in the shell setup repository.",
+  "type": "module",
+  "dependencies": {
+    "@ai-hero/sandcastle": "0.14.0",
+    "zod": "4.1.12"
+  }
+}

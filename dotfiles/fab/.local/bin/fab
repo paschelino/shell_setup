@@ -1,0 +1,218 @@
+#!/usr/bin/env zsh
+# fab: run a coding agent unattended on a project, one fresh sandboxed session
+# per open task of a spec's Tasks table, until the queue is empty, the deadline
+# passes or two tasks in a row fail. Built on @ai-hero/sandcastle; reports to
+# the multiplexer through mx. Spec: specs/projects/unattended-runs.
+#
+#   fab run <project> <spec> [--until 2h] [--agent claude|opencode] [--model <m>]
+#                            [--branch <name>] [--no-push]
+#   fab runs                 list runs, newest first
+#   fab status [<run-id>]    show a run's summary (default: the newest)
+#
+# <project> is a name from ~/.config/zp/projects or a path to a git checkout.
+# <spec> is a path relative to the project root. Secrets live in
+# ~/.config/fab/.env (CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`),
+# read-only sandbox mounts one per line in ~/.config/fab/mounts, and runs under
+# ~/.local/state/fab/runs/.
+
+emulate -L zsh
+setopt err_return no_unset pipe_fail extended_glob
+
+FAB_CONFIG=${XDG_CONFIG_HOME:-$HOME/.config}/fab
+FAB_STATE=${XDG_STATE_HOME:-$HOME/.local/state}/fab
+ZP_DIR=${XDG_CONFIG_HOME:-$HOME/.config}/zp
+FAB_SELF=${0:A}
+
+_fab_usage() { sed -n '2,/^$/p' "$FAB_SELF" | sed 's/^# \{0,1\}//' }
+
+_fab_die() { print -u2 "fab: $1"; return ${2:-1} }
+
+_fab_json() {
+  local s=$1
+  s=${s//\\/\\\\}
+  s=${s//\"/\\\"}
+  s=${s//$'\n'/\\n}
+  print -r -- "\"$s\""
+}
+
+# _fab_project <name-or-path>   print "name<TAB>dir<TAB>agent". A directory
+# is taken as it is; a name comes from the zp project list.
+_fab_project() {
+  local arg=$1
+  if [[ -d $arg ]]; then
+    local dir=${arg:A}
+    print -r -- "${dir:t}"$'\t'"$dir"$'\t'"claude"
+    return
+  fi
+  [[ -r $ZP_DIR/projects ]] || _fab_die "no project list at $ZP_DIR/projects, and '$arg' is not a directory"
+  local line
+  local -a f
+  while IFS= read -r line; do
+    f=(${(z)line})
+    [[ -z ${f[1]:-} || $f[1] == \#* ]] && continue
+    if [[ $f[1] == $arg ]]; then
+      local p=${f[2]/#\~/$HOME}
+      print -r -- "$f[1]"$'\t'"${p:A}"$'\t'"${f[3]:-opencode}"
+      return
+    fi
+  done < "$ZP_DIR/projects"
+  _fab_die "unknown project '$arg' (see $ZP_DIR/projects)"
+}
+
+# "2h", "90m", "1h30m", "45s" -> seconds
+_fab_seconds() {
+  local t=$1
+  if [[ $t =~ '^(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?$' && -n $t ]]; then
+    print $(( ${match[2]:-0} * 3600 + ${match[4]:-0} * 60 + ${match[6]:-0} ))
+  else
+    _fab_die "not a duration: $t (use e.g. 2h, 90m, 1h30m)"
+  fi
+}
+
+# What a run needs on this machine; exit 2 with instructions when missing.
+_fab_check() {
+  local agent=$1
+  (( $+commands[node] )) || _fab_die "node is not installed; fab needs Node 22 or later (mise provides it)" 2
+  (( $+commands[git] )) || _fab_die "git is not installed" 2
+  if [[ ! -d $FAB_CONFIG/node_modules/@ai-hero/sandcastle ]]; then
+    _fab_die "sandcastle is not installed. Run: npm ci --prefix $FAB_CONFIG" 2
+  fi
+  if [[ $agent != fake && ! -r $FAB_CONFIG/.env ]]; then
+    print -u2 "fab: no $FAB_CONFIG/.env. Set it up once:"
+    print -u2 "  claude setup-token                       # prints an OAuth token for your subscription"
+    print -u2 "  umask 077; print 'CLAUDE_CODE_OAUTH_TOKEN=<token>' > $FAB_CONFIG/.env"
+    print -u2 "For opencode put its provider variables in the same file."
+    return 2
+  fi
+}
+
+_fab_run() {
+  local project= spec= until=2h agent= model= branch= push=1
+  local -a positional=()
+  while (( $# )); do
+    case $1 in
+      --until) until=${2:?--until needs a duration}; shift 2 ;;
+      --agent) agent=${2:?--agent needs claude or opencode}; shift 2 ;;
+      --model) model=${2:?--model needs a model id}; shift 2 ;;
+      --branch) branch=${2:?--branch needs a name}; shift 2 ;;
+      --no-push) push=0; shift ;;
+      -h | --help) _fab_usage; return 0 ;;
+      -*) _fab_die "unknown option $1" ;;
+      *) positional+=("$1"); shift ;;
+    esac
+  done
+  (( $#positional == 2 )) || _fab_die "usage: fab run <project> <spec> [options]"
+  project=$positional[1] spec=$positional[2]
+
+  local entry=$(_fab_project "$project")
+  local name=${entry%%$'\t'*} dir=${${entry#*$'\t'}%$'\t'*} default_agent=${entry##*$'\t'}
+  agent=${agent:-$default_agent}
+  case $agent in
+    claude) model=${model:-claude-fable-5-1} ;;
+    opencode) [[ -n $model ]] || _fab_die "--model is required for opencode (e.g. github-copilot/claude-sonnet-4.5)" ;;
+    fake) model=${model:-fake}; [[ -n ${FAB_FAKE_AGENT:-} ]] || _fab_die "agent fake needs FAB_FAKE_AGENT=<script>" ;;
+    *) _fab_die "agent must be claude or opencode" ;;
+  esac
+  _fab_check "$agent"
+  git -C "$dir" rev-parse --is-inside-work-tree >/dev/null 2>&1 || _fab_die "$dir is not a git checkout"
+
+  local seconds=$(_fab_seconds "$until")
+  local spec_id=${spec:t:r}
+  [[ $spec_id == spec ]] && spec_id=${spec:h:t}
+  branch=${branch:-fab/$spec_id}
+  local default_branch=$(git -C "$dir" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')
+  [[ $branch == ${default_branch:-main} || $branch == master ]] && _fab_die "refusing to run on $branch"
+
+  # The worktree is ours, made with git wt, never sandcastle's (ADR-0003).
+  local wt=$(git -C "$dir" wt --nocd "$branch" | tail -1)
+  [[ -d $wt ]] || _fab_die "git wt did not produce a worktree for $branch"
+  wt=${wt:A}
+  [[ -f $wt/$spec ]] || _fab_die "no spec at $spec in the worktree $wt"
+
+  # One run per worktree.
+  mkdir -p "$FAB_STATE/locks" "$FAB_STATE/runs"
+  local lock=$FAB_STATE/locks/${${wt//\//%}#%}
+  if [[ -r $lock ]]; then
+    local -a held=(${=$(<$lock)})
+    if (( $#held == 2 )) && kill -0 "$held[2]" 2>/dev/null; then
+      _fab_die "worktree $wt is busy with run $held[1] (pid $held[2])"
+    fi
+    rm -f -- "$lock"
+  fi
+
+  local id=$name-$(date +%Y%m%d-%H%M%S)
+  local rundir=$FAB_STATE/runs/$id
+  mkdir -p "$rundir"
+  local started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  local deadline=$(date -u -v+${seconds}S +%Y-%m-%dT%H:%M:%SZ)
+  print -r -- "{
+  \"id\": $(_fab_json "$id"),
+  \"project\": $(_fab_json "$name"),
+  \"projectDir\": $(_fab_json "$dir"),
+  \"worktree\": $(_fab_json "$wt"),
+  \"branch\": $(_fab_json "$branch"),
+  \"spec\": $(_fab_json "$spec"),
+  \"agent\": $(_fab_json "$agent"),
+  \"model\": $(_fab_json "$model"),
+  \"until\": $(_fab_json "$deadline"),
+  \"push\": $([[ $push == 1 ]] && print true || print false),
+  \"startedAt\": $(_fab_json "$started"),
+  \"pid\": $$
+}" >| "$rundir/run.json"
+  print -r -- "$id $$" >| "$lock"
+  trap 'rm -f -- "$lock"' EXIT INT TERM
+
+  print "fab: run $id"
+  print "fab: $name on $branch in $wt, spec $spec, agent $agent ($model), until $deadline"
+  print "fab: state in $rundir"
+  local rc=0
+  node --preserve-symlinks --preserve-symlinks-main "$FAB_CONFIG/main.mts" "$rundir" || rc=$?
+  rm -f -- "$lock"
+  trap - EXIT INT TERM
+  return $rc
+}
+
+_fab_runs() {
+  local d
+  for d in $FAB_STATE/runs/*(N/On); do
+    local json=$d/run.json
+    [[ -r $json ]] || continue
+    local id=${d:t}
+    local stop=$(sed -n 's/^  "stopReason": "\(.*\)",*$/\1/p' "$json")
+    local tasks=$(sed -n 's/^  "tasks": \([0-9]*\),*$/\1/p' "$json")
+    printf '%s  %s  %s\n' "$id" "${tasks:-?} tasks" "${stop:-running or crashed}"
+  done
+}
+
+_fab_status() {
+  local id=${1:-}
+  local d
+  if [[ -z $id ]]; then
+    local -a runs=($FAB_STATE/runs/*(N/On))
+    (( $#runs )) || _fab_die "no runs yet"
+    d=$runs[1]
+  else
+    d=$FAB_STATE/runs/$id
+    [[ -d $d ]] || _fab_die "no run $id"
+  fi
+  if [[ -r $d/summary.md ]]; then
+    cat "$d/summary.md"
+  else
+    print "run ${d:t} has no summary yet; last events:"
+    tail -5 "$d/events.jsonl" 2>/dev/null || print "(none)"
+  fi
+}
+
+main() {
+  local verb=${1:-}
+  (( $# == 0 )) || shift
+  case $verb in
+    run) _fab_run "$@" ;;
+    runs) _fab_runs ;;
+    status) _fab_status "$@" ;;
+    -h | --help | help | '') _fab_usage; [[ -n $verb ]] ;;
+    *) _fab_die "unknown command $verb" ;;
+  esac
+}
+
+main "$@"

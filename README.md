@@ -340,6 +340,42 @@ answer comes from `mx answer <id> <text>`. State files and a log of every call
 are under `~/.local/state/mx/`. The design is in
 `specs/decisions/ADR-0002-mx-multiplexer-interface.md`.
 
+### Unattended runs (`fab`)
+
+`fab` (`dotfiles/fab`) runs a coding agent on a project for hours without
+anyone watching: one fresh, sandboxed session per open task of a spec's Tasks
+table, until the queue is empty, the deadline passes or two tasks in a row
+fail. It is a thin layer over [sandcastle](https://github.com/mattpocock/sandcastle),
+which provides the sessions, the macOS sandbox and the session capture; the
+design is in `specs/decisions/ADR-0001-sandcastle-as-run-engine.md` and the
+full spec in `specs/projects/unattended-runs/`.
+
+```shell
+fab run alpha specs/projects/csv-export/spec.md --until 2h   # a project from ~/.config/zp/projects
+fab run ~/dev/beta specs/spec.md --agent opencode --model <m> # or a path to a checkout
+fab runs                                                      # list runs
+fab status                                                    # the newest run's summary
+```
+
+A run works on its own git worktree and branch (`fab/<spec-id>` by default,
+made with `git wt`), never on your checkout, and refuses a worktree another run
+is busy with. Each task gets a prompt that carries your global agent
+instructions, the task's row, the spec, run brief and progress log, and the
+deadline; the agent can't ask anyone, so it decides and records, or parks the
+question and the next task comes up. The agent ends with a structured report;
+the run ends with `~/.local/state/fab/runs/<id>/summary.md` (shipped,
+decisions, dependencies, deleted files, parked questions, how to try it), a
+push of the branch if a remote exists, and a notification through `mx`.
+
+The spec's Tasks table needs the columns `Task`, `Step`, `Depends on`,
+`Done when` and `Demo`; a task is done when its Step cell starts with
+`**Done**`. One-time setup: `claude setup-token`, then put the token into
+`~/.config/fab/.env` as `CLAUDE_CODE_OAUTH_TOKEN`. Paths the agent's tools need
+from your home directory, such as Playwright's browser cache, go one per line
+into `~/.config/fab/mounts` and are mounted read-only. `./install` runs
+`npm ci --prefix ~/.config/fab`; the package is stowed with `--no-folding`,
+so `node_modules` and `.env` stay out of this repository.
+
 ## Package management (Homebrew and mise)
 
 Two package managers, with a clear split:

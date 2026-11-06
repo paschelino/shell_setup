@@ -56,6 +56,24 @@ const label = `fab ${cfg.project}`;
 const reporter = new Reporter(join(runDir, "events.jsonl"), label);
 const dotenv = readDotenv(join(CONFIG_DIR, ".env"));
 
+// The sandbox allows writes only in the worktree and its private $TMPDIR, but
+// Claude Code keeps scratch files under /tmp/claude-<uid> (EPERM at start) and
+// zsh, the agent's Bash tool shell, writes heredoc temp files under /tmp/zsh.
+// The agent command runs through /bin/sh, so $TMPDIR expands inside the
+// sandbox; both tools create what they need under it.
+function withSandboxTmp(inner: AgentProvider): AgentProvider {
+  return {
+    ...inner,
+    buildPrintCommand: (o) => {
+      const c = inner.buildPrintCommand(o);
+      return {
+        ...c,
+        command: `CLAUDE_CODE_TMPDIR="$TMPDIR/claude" TMPPREFIX="$TMPDIR/zsh" ${c.command}`,
+      };
+    },
+  };
+}
+
 function agentProvider(): AgentProvider {
   const pick = (...keys: string[]) =>
     Object.fromEntries(
@@ -63,11 +81,15 @@ function agentProvider(): AgentProvider {
     );
   switch (cfg.agent) {
     case "claude":
-      return claudeCode(cfg.model, {
-        env: pick("CLAUDE_CODE_OAUTH_TOKEN", "ANTHROPIC_API_KEY"),
-      });
+      return withSandboxTmp(
+        claudeCode(cfg.model, {
+          env: pick("CLAUDE_CODE_OAUTH_TOKEN", "ANTHROPIC_API_KEY"),
+        }),
+      );
     case "opencode":
-      return opencode(cfg.model, { env: pick(...Object.keys(dotenv)) });
+      return withSandboxTmp(
+        opencode(cfg.model, { env: pick(...Object.keys(dotenv)) }),
+      );
     case "fake": {
       // Test hook: FAB_FAKE_AGENT names a script that gets the prompt on stdin
       // and plays the agent. Never used for real work.

@@ -5,6 +5,33 @@ open, surprises, next step.
 
 ---
 
+## 2026-11-06: T1a, mx built and stowed
+
+- **Done:** T1a. `dotfiles/mx/.local/bin/mx`, stowed to `~/.local/bin/mx`
+  (folding allowed, the directory already exists), README section, commit
+  `037ff3f`. Verbs `host`, `state`, `notify`, `ask`, `answer`, `session`. Tested
+  in this TUIOS pane: all six states land in `tuios get-agent-state` (`waiting`
+  as `needs_input --kind question`, `error` as `errored`), `notify` arrives as
+  mail to the person's Inbox (`send-agent-message -w human`, which waits for
+  them, rather than a session notice) and `osascript` exits 0. With the
+  multiplexer variables stripped: `host` prints `none`, every verb exits 0, the
+  fallback `ask` was answered from a second process via `mx answer` and times
+  out with exit 2, cleaning its question file.
+- **Open:**
+  - AC1 is checked for TUIOS and outside only. Detection for tmux, herdr and
+    Zellij follows the `_zp_host` logic but hasn't run in their panes yet; the
+    tmux adapter (`workmux set-window-status`, `tmux display-message`) is
+    untested. Check when such a pane is at hand, at the latest in T4f.
+  - `README.md` was already not prettier-clean before this work; a separate
+    `style` commit would reformat 16 unrelated lines. Left for the maintainer.
+  - The herdr adapter could use its socket API as its Claude hook does (python
+    over a Unix socket). Deferred to T4f with the bake-off.
+- **Surprises:**
+  - Inside zsh functions `$0` is the function name, so the usage text reads the
+    script through `${0:A}` captured at top level.
+  - BSD `grep` has no `\|` alternation in basic regexps; use `-E` or `-F`.
+- **Next step:** T1b (`fab`).
+
 ## 2026-11-06: T0, sandcastle verified in a sandbox, token pending
 
 - **Done:** T0 checks 2 to 6, on `@ai-hero/sandcastle` 0.14.0 (2026-11-02, the

@@ -144,11 +144,9 @@ how to try it, next task, run statistics (tasks, duration, stops and why).
 - [x] AC5: After a `fab run`, the project repository has commits only on the run
       branch and no untracked or ignored files it did not have before, apart
       from what the agent committed.
-- [ ] AC6 (half: summary and events verified with the fake agent; the progress
-      entry needs a real agent, T1c): Each task leaves a `progress.md` entry in
-      the project, and the run leaves `summary.md` and `events.jsonl` in its
-      state directory.
-- [ ] AC7: A task containing a known fork ends with status `parked`, the
+- [x] AC6: Each task leaves a `progress.md` entry in the project, and the run
+      leaves `summary.md` and `events.jsonl` in its state directory.
+- [x] AC7: A task containing a known fork ends with status `parked`, the
       question and assumption appear in `progress.md` and `summary.md`, and the
       run continued with the next task.
 - [x] AC8: `--until 10m` stops after the task running at the deadline, never
@@ -160,8 +158,10 @@ how to try it, next task, run statistics (tasks, duration, stops and why).
       into the run branch; a forced conflict is parked, not merged.
 - [ ] AC11: `stow -n` shows no folding under `~/.config/fab`; the opencode skill
       symlinks resolve.
-- [ ] AC12: `git grep` over `specs/` and the two new stow packages finds no
-      `/Users/` path and no name from `~/.config/zp/projects`.
+- [x] AC12 (hits read on 2026-11-06: only the rule's own wording and short
+      project names that are also common words): `git grep` over `specs/` and
+      the two new stow packages finds no `/Users/` path and no name from
+      `~/.config/zp/projects`.
 
 Manual checks:
 
@@ -194,10 +194,10 @@ with the 255 questions in 75 transcripts before.
 | Task | Step                                                                                                                                                                                                                                                                                                   | Depends on            | Done when                                                                             | Demo                                                |
 | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------- |
 | T0a  | **Done** 2026-11-06. This spec, the run brief, the progress log, ADR-0001 to 0003 and the private notes file.                                                                                                                                                                                          | -                     | AC12 passes; a cleared session can start T0 from the run brief alone                  | `git log -1 -- specs/`                              |
-| T0   | **Done** 2026-11-06, checks 1 and 7 pending the maintainer's token and ride along with T1b. Verify sandcastle on a throwaway repository: what the sandbox hides, nothing written into the repository, host tools, structured output.                                                                   | T0a                   | Every item of the run brief's T0 checklist has a recorded result in `progress.md`     | The throwaway run's log                             |
+| T0   | **Done** 2026-11-06, check 1 verified in T1c, check 7 pending the work machine. Verify sandcastle on a throwaway repository: what the sandbox hides, nothing written into the repository, host tools, structured output.                                                                   | T0a                   | Every item of the run brief's T0 checklist has a recorded result in `progress.md`     | The throwaway run's log                             |
 | T1a  | **Done** 2026-11-06, AC1 checked in TUIOS and outside only; the other hosts' detection is checked when their panes are next at hand. `mx`: host detection, tuios adapter, logging no-op adapters, state file, macOS notification, README section.                                                      | T0a                   | AC1, AC2, AC3                                                                         | `mx state working -m demo` in a TUIOS pane          |
 | T1b  | **Done** 2026-11-06, AC6 half pending a real agent. `fab`: stow package, `package.json` pinned, `main.mts` sequential loop, worktree via `git wt`, lock, deadline, events, summary, push once, `mx` reporting. `install` and `.gitignore` changes.                                                     | T0, T1a               | AC4, AC5, AC6, AC8, AC9, AC11                                                         | `fab run <made-up project> …` on the throwaway repo |
-| T1c  | Drafted 2026-11-06 with T1b (`prompts/task.md`; the summary is rendered by code instead of a template). Open until a real run verifies it. Prompts: `prompts/task.md` from the maintainer's run brief and hand-off checklist, `prompts/summary.md`. Global instructions injected via prompt arguments. | T1b                   | A throwaway run produces a progress entry, a commit and a valid task report           | The report in `events.jsonl`                        |
+| T1c  | **Done** 2026-11-06, verified with a real sandboxed Claude run on a throwaway project. Prompts: `prompts/task.md` from the maintainer's run brief and hand-off checklist, `prompts/summary.md` as the template `lib/summary.mts` fills. Global instructions injected via prompt arguments.             | T1b                   | A throwaway run produces a progress entry, a commit and a valid task report           | The report in `events.jsonl`                        |
 | T2   | Pilot on the private pilot project: one task with the maintainer present, then a two-hour run, then two parallel runs. Record measurements.                                                                                                                                                            | T1c                   | AC7, MC1, MC2; rate-limit behaviour recorded                                          | The pilot's `summary.md`                            |
 | T2b  | Fan-out: `--fan`, `--jobs`, per-task worktrees branched from the run branch, local merge, conflicts parked.                                                                                                                                                                                            | T2                    | AC10                                                                                  | Two tasks merged in one run                         |
 | T3   | Skills: promote `new-project-spec`, `new-adr`, `session-handoff`, `visual-check` to `dotfiles/claude` and `dotfiles/opencode`; `new-project-spec` emits the Tasks table columns and ends with the `fab run` command.                                                                                   | T2                    | A spec written with the skill runs through `fab` on a second project                  | That project's first run summary                    |

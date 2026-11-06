@@ -5,6 +5,67 @@ open, surprises, next step.
 
 ---
 
+## 2026-11-06: T1c, prompts written and verified with a real sandboxed run
+
+- **Done:** T1c. `prompts/task.md` rewritten from the pilot project's run brief
+  and its `session-handoff` skill: precedence (run brief over prompt over
+  global instructions), parking rules, `$TMPDIR` for temporary files, no
+  worktrees or branch switches, verify before done and never weaken a check,
+  a clean tree at the end because leftovers leak into the next session, a
+  progress entry for parked and failed tasks too, and a `DATE` argument so the
+  agent needn't compute it. `prompts/summary.md` is now the summary's
+  wording, a template with `{{KEY}}` slots that `lib/summary.mts` fills with
+  the lists already rendered. First real run: three tasks on a throwaway
+  project (T2 asks for a fact only the maintainer knows). Result in 3 minutes:
+  T1 done, T2 parked, T3 done, stop reason "queue empty". Each task left an
+  entry in the project's `progress.md` in the asked shape, atomic conventional
+  commits with the attribution line, the spec row marked and ACs ticked;
+  the parked task committed only its entry, with the question and
+  recommendation under **Open**, and `summary.md` carries question and
+  assumption. Nothing outside the agent's commits appeared in the worktree or
+  the main checkout. That verifies T0 check 1 (the OAuth token works inside
+  `seatbelt()`), AC6 and AC7. AC12's grep ran; hits read.
+- **Decisions:**
+  - Kept the summary rendered by code, as T1b decided, but moved its wording
+    into `prompts/summary.md` so the spec's file exists and the maintainer can
+    edit the text without touching TypeScript. A slot without a value throws.
+  - The prompt tells the agent to create `progress.md` next to the spec when
+    the project has none, so every run leaves a hand-off log.
+  - Agent commands get `CLAUDE_CODE_TMPDIR="$TMPDIR/claude"` and
+    `TMPPREFIX="$TMPDIR/zsh"` prefixed in `main.mts` (`withSandboxTmp`), for
+    Claude and opencode alike. The command runs through `/bin/sh` inside the
+    sandbox, so `$TMPDIR` expands to its private temp dir.
+- **Open, for the maintainer:**
+  - The agent's `summary` fields came back long (four sentences with commit
+    ids); the prompt now asks for two to four sentences. Fine for the pilot?
+    Recommendation: leave it, judge on the pilot's summary (MC1).
+  - Three real sessions and one host `claude -p` call were spent on this
+    test, all on the Max plan. Rate limits showed nothing at this size.
+  - The fab tests again sent a few state changes and notifications to this
+    tuios pane's Inbox. Dismiss them.
+- **Surprises:**
+  - Claude Code refuses to start in the sandbox with
+    `EPERM: operation not permitted, open '/tmp/claude-501'`: it keeps its
+    scratch directory under `/tmp/claude-<uid>`, ignoring `TMPDIR`, and the
+    seatbelt profile allows writes only in the worktree, the private home and
+    the private temp dir. `CLAUDE_CODE_TMPDIR` moves it, and Claude creates
+    the directory itself. Neither T0 nor T1b could see this: no real agent ran.
+  - zsh heredocs fail inside the sandbox ("can't create temp file for here
+    document"): zsh's `TMPPREFIX` defaults to `/tmp/zsh`. The agent's Bash
+    tool uses zsh because the sandbox passes `SHELL=/bin/zsh`. `/bin/sh` and
+    bash heredocs were fine. The agent worked around it with `printf` before
+    the fix.
+  - Session capture lands in the host's `~/.claude/projects/<encoded worktree
+    path>/`, so `claude --resume` from the worktree finds the run's sessions.
+  - The sandbox's git identity comes from the host's `user.name` and
+    `user.email`; the agent's commits are authored as the maintainer, with the
+    `Co-Authored-By` line Claude Code adds.
+  - sandcastle's prompt files execute `` !`command` `` blocks; the prompt must
+    never contain a backtick right after an exclamation mark.
+- **Next step:** T2, the pilot. Before it: check the pilot's `mise.toml` for
+  `hugo` (T0 note) and read `~/.config/zp/fab-notes.md` for the branch and
+  spec.
+
 ## 2026-11-06: T1b, fab built; T1c drafted; waiting for the token
 
 - **Done:** T1b, commits `6f7ac74` (fab) and `c22cb74` (install wiring).

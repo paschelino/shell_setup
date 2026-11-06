@@ -110,6 +110,7 @@ function promptArgs(task: Task): Record<string, string> {
     TASK_STEP: task.step,
     TASK_DONE_WHEN: task.doneWhen || "see the spec's acceptance criteria",
     TASK_DEMO: task.demo || "describe how to see the result",
+    DATE: new Date().toISOString().slice(0, 10),
     DEADLINE: `${until.toISOString()} (${Math.max(0, Math.round((until.getTime() - Date.now()) / 60_000))} minutes from now)`,
     GLOBAL_INSTRUCTIONS: readGlobalInstructions() || "(none found)",
   };
@@ -230,18 +231,21 @@ async function main() {
   const endedAt = new Date().toISOString();
   // For the maintainer, a parked or failed task is still the next thing to look at.
   const nextTask = readyTasks(readTasks(specPath), completed)[0]?.id ?? null;
-  const summary = renderSummary({
-    project: cfg.project,
-    branch: cfg.branch,
-    worktree: cfg.worktree,
-    spec: cfg.spec,
-    startedAt: cfg.startedAt,
-    endedAt,
-    stopReason,
-    outcomes,
-    nextTask,
-    pushed,
-  });
+  const summary = renderSummary(
+    {
+      project: cfg.project,
+      branch: cfg.branch,
+      worktree: cfg.worktree,
+      spec: cfg.spec,
+      startedAt: cfg.startedAt,
+      endedAt,
+      stopReason,
+      outcomes,
+      nextTask,
+      pushed,
+    },
+    join(CONFIG_DIR, "prompts", "summary.md"),
+  );
   writeFileSync(join(runDir, "summary.md"), summary);
   writeFileSync(
     join(runDir, "run.json"),

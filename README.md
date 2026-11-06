@@ -365,7 +365,9 @@ deadline; the agent can't ask anyone, so it decides and records, or parks the
 question and the next task comes up. The agent ends with a structured report;
 the run ends with `~/.local/state/fab/runs/<id>/summary.md` (shipped,
 decisions, dependencies, deleted files, parked questions, how to try it), a
-push of the branch if a remote exists, and a notification through `mx`.
+push of the branch if a remote exists, and a notification through `mx`. The
+task prompt is `~/.config/fab/prompts/task.md` and the summary's wording
+`prompts/summary.md`; both are plain Markdown with `{{KEY}}` slots.
 
 The spec's Tasks table needs the columns `Task`, `Step`, `Depends on`,
 `Done when` and `Demo`; a task is done when its Step cell starts with

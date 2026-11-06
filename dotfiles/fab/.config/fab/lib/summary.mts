@@ -1,4 +1,7 @@
-// summary.md: what the maintainer reads after a run, in the spec's order.
+// summary.md: what the maintainer reads after a run, in the spec's order. The
+// wording lives in prompts/summary.md; this file fills its {{KEY}} slots, with
+// the lists already rendered.
+import { readFileSync } from "node:fs";
 import type { TaskReport } from "./report.mts";
 
 export interface TaskOutcome {
@@ -29,7 +32,19 @@ const list = (items: string[], empty = "none") =>
 const minutes = (a: string, b: string) =>
   Math.round((new Date(b).getTime() - new Date(a).getTime()) / 60_000);
 
-export function renderSummary(s: RunSummaryInput): string {
+// {{KEY}} substitution as sandcastle does it for prompts: a slot without a
+// value is a bug, not an empty string.
+export function fillTemplate(
+  template: string,
+  values: Record<string, string>,
+): string {
+  return template.replace(/\{\{([A-Z_]+)\}\}/g, (_, key: string) => {
+    if (!(key in values)) throw new Error(`summary template: no value for {{${key}}}`);
+    return values[key];
+  });
+}
+
+export function renderSummary(s: RunSummaryInput, templatePath: string): string {
   const reports = s.outcomes
     .map((o) => o.report)
     .filter((r): r is TaskReport => r !== null);
@@ -64,47 +79,31 @@ export function renderSummary(s: RunSummaryInput): string {
       `${o.task}: ${(o.error ?? o.report?.summary ?? "failed").split("\n").slice(0, 3).join(" / ")}`,
   );
 
-  return `# fab run: ${s.project} on ${s.branch}
-
-Spec \`${s.spec}\`, worktree \`${s.worktree}\`.
-
-## Shipped
-
-${list(shipped, "nothing")}
-
-## Decisions taken
-
-${list(decisions)}
-
-## Dependencies added
-
-${list(dependencies)}
-
-## Files deleted
-
-${list(deleted)}
-
-## Parked questions
-
-${list(parkedQuestions)}
-
-## Failures
-
-${list(failures)}
-
-## How to try it
-
-${list(demos, "no demo reported")}
-
-## Next task
-
-${s.nextTask ?? "none open"}
-
-## Run
-
-- Started ${s.startedAt}, ended ${s.endedAt}, ${minutes(s.startedAt, s.endedAt)} min.
-- Tasks: ${done.length} done, ${parked.length} parked, ${failed.length} failed.
-- Stopped because: ${s.stopReason}.
-- Push: ${typeof s.pushed === "boolean" ? (s.pushed ? "pushed" : "not pushed") : s.pushed}.
-`;
+  return fillTemplate(readFileSync(templatePath, "utf8"), {
+    PROJECT: s.project,
+    BRANCH: s.branch,
+    SPEC: s.spec,
+    WORKTREE: s.worktree,
+    SHIPPED: list(shipped, "nothing"),
+    DECISIONS: list(decisions),
+    DEPENDENCIES: list(dependencies),
+    DELETED: list(deleted),
+    PARKED: list(parkedQuestions),
+    FAILURES: list(failures),
+    DEMOS: list(demos, "no demo reported"),
+    NEXT_TASK: s.nextTask ?? "none open",
+    STARTED_AT: s.startedAt,
+    ENDED_AT: s.endedAt,
+    MINUTES: String(minutes(s.startedAt, s.endedAt)),
+    DONE_COUNT: String(done.length),
+    PARKED_COUNT: String(parked.length),
+    FAILED_COUNT: String(failed.length),
+    STOP_REASON: s.stopReason,
+    PUSH:
+      typeof s.pushed === "boolean"
+        ? s.pushed
+          ? "pushed"
+          : "not pushed"
+        : s.pushed,
+  });
 }

@@ -353,8 +353,12 @@ full spec in `specs/projects/unattended-runs/`.
 ```shell
 fab run alpha specs/projects/csv-export/spec.md --until 2h   # a project from ~/.config/zp/projects
 fab run ~/dev/beta specs/spec.md --agent opencode --model <m> # or a path to a checkout
-fab runs                                                      # list runs
+fab run alpha specs/projects/csv-export/spec.md --task T3,T4  # only these rows
+fab runs                                                      # list runs, with review minutes
 fab status                                                    # the newest run's summary
+fab tail                                                      # follow the newest run in a pane
+fab review                                                    # read its summary, start the clock
+fab review --done "merged"                                    # stop the clock
 ```
 
 A run works on its own git worktree and branch (`fab/<spec-id>` by default,
@@ -362,10 +366,17 @@ made with `git wt`), never on your checkout, and refuses a worktree another run
 is busy with. Each task gets a prompt that carries your global agent
 instructions, the task's row, the spec, run brief and progress log, and the
 deadline; the agent can't ask anyone, so it decides and records, or parks the
-question and the next task comes up. The agent ends with a structured report;
-the run ends with `~/.local/state/fab/runs/<id>/summary.md` (shipped,
-decisions, dependencies, deleted files, parked questions, how to try it), a
-push of the branch if a remote exists, and a notification through `mx`. The
+question and the next task comes up. `--task` restricts the queue to the
+given rows, in table order, so two runs on one spec don't take the same row.
+A task fails when the agent is silent for longer than `--idle` (default `1h`,
+since one long test command can be quiet that long). The agent ends with a
+structured report; the run ends with
+`~/.local/state/fab/runs/<id>/summary.md` (shipped, decisions, dependencies,
+deleted files, parked questions, how to try it), a push of the branch if a
+remote exists, and a notification through `mx`.
+`fab tail` shows the run's events and the agent's text as they come, and
+`fab review` prints the summary and stamps when you started reading it;
+`fab review --done` stamps the end, and `fab runs` shows the minutes. The
 task prompt is `~/.config/fab/prompts/task.md` and the summary's wording
 `prompts/summary.md`; both are plain Markdown with `{{KEY}}` slots.
 
@@ -374,7 +385,11 @@ The spec's Tasks table needs the columns `Task`, `Step`, `Depends on`,
 `**Done**`. One-time setup: `claude setup-token`, then put the token into
 `~/.config/fab/.env` as `CLAUDE_CODE_OAUTH_TOKEN`. Paths the agent's tools need
 from your home directory, such as Playwright's browser cache, go one per line
-into `~/.config/fab/mounts` and are mounted read-only. `./install` runs
+into `~/.config/fab/mounts` and are mounted read-only, or read-write with a
+` rw` suffix (a package manager's store). The sandbox's home directory is
+private, so tools that look for such paths under it need telling:
+`~/.config/fab/sandbox.env` holds `KEY=VALUE` lines for every process in the
+sandbox, such as `pnpm_config_store_dir=~/Library/pnpm/store`. `./install` runs
 `npm ci --prefix ~/.config/fab`; the package is stowed with `--no-folding`,
 so `node_modules` and `.env` stay out of this repository.
 

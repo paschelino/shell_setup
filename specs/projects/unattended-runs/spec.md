@@ -80,7 +80,7 @@ TUIOS also sets `HERDR_ENV`, hence the order.
 ```text
 fab run <project> <spec> [--until <duration>] [--agent claude|opencode]
         [--branch <name>] [--task <id,…>] [--idle <duration>] [--no-push]
-        [--fan [--jobs <n>]]
+        [--sandbox seatbelt|podman] [--fan [--jobs <n>]]
 fab status [<run-id>]
 fab runs
 fab tail [<run-id>] [-n <lines>] [--no-follow]
@@ -105,9 +105,15 @@ fab review [<run-id>] | fab review --done [note]
   appends `{startedAt}` to `reviews` in `run.json`; `fab review --done [note]`
   closes the latest open review. `fab runs` shows the summed review minutes
   (MC1).
-- Sandbox: `~/.config/fab/mounts` lists host paths, one per line, read-only or
-  with a ` rw` suffix read-write; `~/.config/fab/sandbox.env` sets variables for
-  every process in the sandbox (tool settings, never secrets).
+- Sandbox: `--sandbox seatbelt` (default) is macOS's process sandbox with the
+  host's tools; `~/.config/fab/mounts` lists host paths for it, one per line,
+  read-only or with a ` rw` suffix read-write, and `~/.config/fab/sandbox.env`
+  sets variables for every process in it (tool settings, never secrets).
+  `--sandbox podman` (ADR-0004) runs the agent in a Linux container built from
+  `~/.config/fab/Containerfile` on Playwright's image, tagged by the file's
+  hash; it mounts the worktree, its git directories and fab's tool caches under
+  `~/.local/share/fab/podman/`, and runs `mise install` for the project's pinned
+  tools before the agent starts.
 - Secrets: `~/.config/fab/.env` with `CLAUDE_CODE_OAUTH_TOKEN` (from
   `claude setup-token`), optionally `GH_TOKEN`. Missing file: print setup
   instructions, exit 2.
@@ -201,16 +207,9 @@ with the 255 questions in 75 transcripts before.
   git server, included into prompts (T4b).
 - Phone: self-hosted ntfy as an `mx` adapter, or an own app (T4c).
 - Rate limits on the Max plan with two or three parallel runs: measure in T2.
-- Which sandbox runs browser work, decided in T2s. The question is not how
-  browsers start but what harness survives a Playwright, macOS or sandcastle
-  update and runs unchanged on a cloud node. Seatbelt can be made to work (T2a
-  found the rules) but with a macOS-only list of Mach services and
-  browser-specific variables; a container pins browsers and OS dependencies per
-  Playwright version and is the same object locally and in the cloud, at the
-  price of Linux WebKit instead of Safari's engine. A test service outside the
-  sandbox, which the agent asks for a gate, is a third shape: verification
-  outside the agent's hands, cloud-separable; it still needs a sandbox for the
-  test run itself.
+- Answered in T2s (ADR-0004): browser work runs in a podman container from fab's
+  Containerfile on Playwright's Linux image, `--sandbox podman`; Seatbelt stays
+  the default for everything else. Linux WebKit stands in for Safari's engine.
 - Answered in T2a: the pilot's tools need mise's install directory read-only,
   pnpm's store, metadata cache and lock directory read-write, and variables that
   point mise, pnpm and Playwright there; the project's `mise.toml` then resolves
@@ -226,7 +225,7 @@ with the 255 questions in 75 transcripts before.
 | T1b  | **Done** 2026-11-06, AC6 half pending a real agent. `fab`: stow package, `package.json` pinned, `main.mts` sequential loop, worktree via `git wt`, lock, deadline, events, summary, push once, `mx` reporting. `install` and `.gitignore` changes.                                                                                                                                                            | T0, T1a               | AC4, AC5, AC6, AC8, AC9, AC11                                                                                                                                       | `fab run <made-up project> …` on the throwaway repo |
 | T1c  | **Done** 2026-11-06, verified with a real sandboxed Claude run on a throwaway project. Prompts: `prompts/task.md` from the maintainer's run brief and hand-off checklist, `prompts/summary.md` as the template `lib/summary.mts` fills. Global instructions injected via prompt arguments.                                                                                                                    | T1b                   | A throwaway run produces a progress entry, a commit and a valid task report                                                                                         | The report in `events.jsonl`                        |
 | T2a  | **Done** 2026-11-13. Prepare the pilot. `fab`: `--task <id,…>` to restrict the queue, `--idle <duration>` for sandcastle's idle timeout, read-write mounts (` rw` suffix in `mounts`), `fab tail` for a multiplexer pane, `fab review` stamping review time into `run.json`. Pilot: Tasks table in the five columns with Done markers and dependencies, stale run-brief lines fixed, committed on its `main`. | T1c                   | `fab`'s parser lists only the open rows of the pilot's spec; `fab review --done` shows review minutes in `fab runs`; fake-agent test passes with `--task`           | `fab runs` with a review column                     |
-| T2s  | Sandbox for browser work: ADR-0004 choosing between Seatbelt with the T2a rules, sandcastle's `podman()` with Playwright's Linux image, and a verification service, by the harness's robustness and cloud fit; a throwaway run of the chosen one with all three engines; `fab --sandbox`.                                                                                                                     | T2a                   | ADR-0004 accepted; a fake-agent run on the throwaway launches Chromium, Firefox and WebKit under the chosen sandbox; the pilot's `check-layout.mjs` runs there once | The throwaway run's log                             |
+| T2s  | **Done** 2026-11-13. Sandbox for browser work: ADR-0004 choosing between Seatbelt with the T2a rules, sandcastle's `podman()` with Playwright's Linux image, and a verification service, by the harness's robustness and cloud fit; a throwaway run of the chosen one with all three engines; `fab --sandbox`.                                                                                                | T2a                   | ADR-0004 accepted; a fake-agent run on the throwaway launches Chromium, Firefox and WebKit under the chosen sandbox; the pilot's `check-layout.mjs` runs there once | The throwaway run's log                             |
 | T2   | Pilot on the private pilot project: one task with the maintainer present (`--task`, `--until 1h`), then a two-hour run of three tasks, then two parallel runs on two branches. Record measurements.                                                                                                                                                                                                           | T2s                   | AC7, MC1, MC2; rate-limit behaviour recorded                                                                                                                        | The pilot's `summary.md`                            |
 | T2b  | Fan-out: `--fan`, `--jobs`, per-task worktrees branched from the run branch, local merge, conflicts parked.                                                                                                                                                                                                                                                                                                   | T2                    | AC10                                                                                                                                                                | Two tasks merged in one run                         |
 | T3   | Skills: promote `new-project-spec`, `new-adr`, `session-handoff`, `visual-check` to `dotfiles/claude` and `dotfiles/opencode`; `new-project-spec` emits the Tasks table columns and ends with the `fab run` command.                                                                                                                                                                                          | T2                    | A spec written with the skill runs through `fab` on a second project                                                                                                | That project's first run summary                    |

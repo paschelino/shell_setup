@@ -213,7 +213,8 @@ specs/README.md, the spec, specs/projects/unattended-runs/run-brief.md,
 progress.md and ~/.config/zp/fab-notes.md, whose pilot section holds the run
 plan: project, spec, branch names, which rows each run takes, and the traps.
 Create each run's worktree from the pilot's main with `git wt --nocd <branch>
-main` before `fab run`, always with --no-push. Run the attended task first
+main` before `fab run`, always with --no-push and --sandbox podman (ADR-0004;
+the podman machine must exist). Run the attended task first
 with --task and --until 1h while the maintainer watches `fab tail`; stop and
 let them review with `fab review` and merge. Then the two-hour run, then the
 two parallel runs. Record every measurement in progress.md: stop reasons,

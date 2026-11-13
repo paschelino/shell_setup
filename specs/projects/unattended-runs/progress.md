@@ -5,6 +5,99 @@ open, surprises, next step.
 
 ---
 
+## 2026-11-13: T2s, podman is the sandbox for browser work; ADR-0004; fab --sandbox
+
+- **Done:** T2s. ADR-0004 accepted: projects with browser work run in a podman
+  container built from fab's own `Containerfile` on Playwright's
+  `v1.65.0-noble` image; Seatbelt stays the default. `fab run --sandbox
+  seatbelt|podman` (commit below) with `lib/sandbox.mts`: the podman sandbox
+  starts a stopped machine, builds the image tagged by the Containerfile's hash
+  with an empty build context, mounts fab's two caches
+  (`~/.local/share/fab/podman/{mise,pnpm}`) under `/home/agent/.local/share`,
+  sets `TMPDIR` and pnpm's store variables, and runs `mise install` as a
+  sandcastle `onSandboxReady` hook. README, spec contracts, the T2 kickoff and
+  the private notes carry it. Verified with the fake agent on the throwaway's
+  `fab/probe`: a cold run (image build, five tools downloaded) and a warm run in
+  which Chromium 158, Firefox 159 and WebKit 27.2 launched headless and loaded
+  a worktree file. The pilot's `check-layout.mjs` ran in the container once,
+  on a throwaway clone in the scratchpad (built with hugo and pagefind from
+  mise, `--ac 1,2`, all three engines): PASS. No real agent session spent.
+- **Read in sandcastle 0.14.0's podman provider:** it never builds; it checks
+  that `imageName` (default `sandcastle:<repo dir>`) exists and otherwise says
+  to run `podman build`. Only the CLI's `build-image` reads
+  `.sandcastle/Containerfile`. It mounts the worktree at
+  `/home/agent/workspace`, the worktree's `.git` file and the main
+  repository's `.git` at their host paths, caller mounts as given, runs as uid
+  1000 with `--userns=keep-id`, `--entrypoint sleep infinity`, and removes the
+  container after the task. Hooks: `sandbox.onSandboxReady` runs before the
+  agent, fails the task on a non-zero exit, 60 s default timeout.
+- **Measured** (fake agent; Seatbelt from T2a and a baseline run today):
+  - One-off: `podman machine init` 1:54; image pull 3:40 (2.57 GB); fab's
+    image build 29 to 37 s (3.07 GB). Machine start after a boot 16.5 s.
+  - Task start to the agent's first line: Seatbelt 0.4 s; container 1.3 s warm,
+    191 s cold (`mise install` of node, python, hugo, pagefind, pnpm; 186 s of
+    it in sandcastle's "Setting up sandbox").
+  - `mise install` cached: 77 ms vs 371 ms. `pnpm install --frozen-lockfile`
+    cached: 47 to 183 ms vs 237 ms (cold 2.8 s into the Linux store).
+  - Browsers: Seatbelt SIGABRT, all three; container 0.65 s, 1.65 s, 1.73 s to
+    launch and load a page. Whole fake task 1.7 s vs 8 s.
+  - Pilot clone in the container: `pnpm install` 0.4 s, build 61 s,
+    `check-layout --ac 1,2` in three engines 4.6 min, PASS.
+- **Decisions:**
+  - The Containerfile is committed in the stow package: it holds versions, no
+    paths. Its hash is the image tag, so an edit rebuilds and nothing else does;
+    the build context is an empty temp directory, so the file can't copy
+    anything in. Pinned there: Playwright 1.65.0 (the pilot's), Claude Code
+    2.1.311 (the host's today), pnpm 12.16.1, mise v2026.11.8. opencode is not
+    in the image yet.
+  - `~/.config/fab/mounts` and `sandbox.env` stay Seatbelt's. The container's
+    mounts are fab's own caches at fixed paths, not user-configurable yet:
+    macOS cache paths mean nothing in Linux, and pnpm's macOS store is better
+    left alone.
+  - Each project's tools come from its `mise.toml` through `mise install`
+    before the agent starts, with `MISE_TRUSTED_CONFIG_PATHS` set to the
+    workspace and shims first on `PATH`. Inside the container `node` is
+    therefore the pinned version, unlike under Seatbelt.
+  - fab starts a stopped machine but doesn't create one: init takes two
+    minutes and chooses CPU and memory. This session's machine: 4 CPUs, 6 GB,
+    40 GB disk, libkrun.
+  - `--sandbox` is per run, default `seatbelt`; no per-project field in the
+    project list. The pilot's run plan in the private notes says `--sandbox
+    podman` on every run.
+  - Linux WebKit stands in for Safari's engine (ADR-0004).
+  - Seatbelt's T2a rules stay a record in the previous entry, not a patch.
+- **Open, for the maintainer:**
+  - The podman machine and the two images live in
+    `~/.local/share/containers/`; the caches in `~/.local/share/fab/podman/`.
+    Keep them for T2. If you don't want the VM at all,
+    `podman machine rm podman-machine-default`.
+  - Two parallel runs (T2's third step) share the VM's 4 CPUs and 6 GB and one
+    container each; a browser gate per run may slow both. Recommendation: leave
+    it for the measurement, `podman machine set --cpus 6 --memory 8192` if it
+    hurts.
+  - The pilot's gate: two ACs in three engines took 4.6 minutes in the VM. The
+    full gate may be slower than the 45 to 60 minutes on macOS; the 10-minute
+    tool-call limit makes per-AC runs necessary anyway. Recommendation: the
+    pilot's spec notes that AC16 timings come from the container.
+  - The image's `claude` is pinned to 2.1.311 and will drift from the host's.
+    Recommendation: bump `CLAUDE_CODE_VERSION` when a run needs a newer
+    feature, not on every release; the build is 30 seconds.
+- **Surprises:**
+  - podman creates a bind mount's missing parent directories as root, so
+    `/home/agent/.local` was root's and mise couldn't make
+    `~/.local/state/mise`. The Containerfile pre-creates `.local/share`,
+    `.local/state` and `.cache` for the agent.
+  - In the Playwright image uid 1000 is `ubuntu`, `pwuser` is 1001; the
+    Containerfile renames whoever holds 1000 to `agent`.
+  - The main repository's `.git` is mounted at its host path, so the container
+    sees the path's name (for the pilot, `/Users/<name>/dev/<project>/.git`).
+    Only the git directory, not the checkout.
+  - The probe's `[ -e ~/.ssh ]` says "visible" under Seatbelt: stat is allowed,
+    read is denied (T2a). An existence test is not a read test.
+  - The podman machine's `inspect` lists no mounts, yet `/Users` and
+    `/private` bind-mount fine; libkrun shares them implicitly.
+- **Next step:** T2, with `--sandbox podman`.
+
 ## 2026-11-13: browsers in the sandbox explored; the question reframed as T2s
 
 - **Done:** an hour of profile bisection with plain `sandbox-exec` and

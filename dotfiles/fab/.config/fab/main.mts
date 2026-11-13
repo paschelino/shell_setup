@@ -126,7 +126,7 @@ function agentProvider(): AgentProvider {
           command: `sh -c '${body}'`,
           stdin: prompt,
         }),
-        parseStreamLine: (line) => [{ type: "text", text: line }],
+        parseStreamLine: (line) => [{ type: "text", text: `${line}\n` }],
       };
     }
   }

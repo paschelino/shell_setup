@@ -7,8 +7,12 @@
 #   fab run <project> <spec> [--until 2h] [--agent claude|opencode] [--model <m>]
 #                            [--branch <name>] [--task <id,...>] [--idle 1h]
 #                            [--no-push]
-#   fab runs                 list runs, newest first
+#   fab runs                 list runs, newest first, with review minutes
 #   fab status [<run-id>]    show a run's summary (default: the newest)
+#   fab tail [<run-id>] [-n <lines>] [--no-follow]
+#                            follow a run's events and agent text, for a pane
+#   fab review [<run-id>]    print the summary and stamp the review's start
+#   fab review --done [note] stamp the end of the open review
 #
 # <project> is a name from ~/.config/zp/projects or a path to a git checkout.
 # <spec> is a path relative to the project root. --task restricts the queue to
@@ -203,16 +207,10 @@ _fab_run() {
   return $rc
 }
 
-_fab_runs() {
-  local d
-  for d in $FAB_STATE/runs/*(N/On); do
-    local json=$d/run.json
-    [[ -r $json ]] || continue
-    local id=${d:t}
-    local stop=$(sed -n 's/^  "stopReason": "\(.*\)",*$/\1/p' "$json")
-    local tasks=$(sed -n 's/^  "tasks": \([0-9]*\),*$/\1/p' "$json")
-    printf '%s  %s  %s\n' "$id" "${tasks:-?} tasks" "${stop:-running or crashed}"
-  done
+# The verbs that only read run state live in cli.mts: runs, review, tail.
+_fab_cli() {
+  (( $+commands[node] )) || _fab_die "node is not installed; fab needs Node 22 or later (mise provides it)" 2
+  node --preserve-symlinks --preserve-symlinks-main "$FAB_CONFIG/cli.mts" "$@"
 }
 
 _fab_status() {
@@ -239,7 +237,7 @@ main() {
   (( $# == 0 )) || shift
   case $verb in
     run) _fab_run "$@" ;;
-    runs) _fab_runs ;;
+    runs | review | tail) _fab_cli "$verb" "$@" ;;
     status) _fab_status "$@" ;;
     -h | --help | help | '') _fab_usage; [[ -n $verb ]] ;;
     *) _fab_die "unknown command $verb" ;;

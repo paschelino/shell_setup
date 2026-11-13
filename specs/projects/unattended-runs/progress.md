@@ -5,6 +5,72 @@ open, surprises, next step.
 
 ---
 
+## 2026-11-13: browsers in the sandbox explored; the question reframed as T2s
+
+- **Done:** an hour of profile bisection with plain `sandbox-exec` and
+  sandcastle's own Seatbelt profile text, on the throwaway's `fab/probe`
+  worktree. No real agent session. The crashes reproduce outside sandcastle and
+  are missing rules, not a limit of sandboxing: all three headless engines
+  launch and render with these additions, while `~/.ssh` stays unreadable and
+  `~` unwritable:
+  - Chromium: `mach-register` and `mach-lookup` for
+    `^org\.chromium\.Chromium\.MachPortRendezvousServer\.`; nothing else. Its
+    helpers are forked children and stay inside. It refuses `file://`.
+  - Firefox: a broad `mach-lookup` (it needs LaunchServices for
+    `_RegisterApplication`), `mach-register` for `^org\.mozilla\.`, and
+    `MOZ_DISABLE_{CONTENT,GPU,RDD,SOCKET_PROCESS,UTILITY}_SANDBOX=1`, because
+    macOS doesn't nest sandboxes; it crashes even under `(allow default)`
+    without them. Its helpers stay inside: a worktree file loads, `~/.zshrc` is
+    refused.
+  - WebKit: the broad `mach-lookup`, `mach-issue-extension`, and
+    `(allow mach-lookup (xpc-service-name-prefix "com.apple.WebKit"))` after
+    sandcastle's XPC deny. Its Networking, GPU and WebContent helpers are
+    started by launchd (parent pid 1), so they run outside the profile under
+    WebKit's own sandbox; the UI process hands them extensions. It also needs
+    `com.apple.windowserver.active`. No hidden file could be read through it,
+    but neither could a worktree file (`file://` timed out), so that boundary is
+    unverified. `process-info*` beyond the sandbox is not needed.
+- **Measured:** the broad `mach-lookup` is the cost. Apple Events stay blocked
+  (`appleevent-send` is denied) and `lsopen` too, but `pbcopy` succeeded: the
+  pasteboard is writable, and `com.apple.pasteboard.1` is not its service name.
+  Denying `pasteboard.1`, `appleevents` and `tccd` after the allow keeps the
+  engines working; denying `launchservicesd` or `coreservicesd` breaks Firefox
+  and WebKit. `sandbox-exec` offers no denial log without root, so the exact
+  lookup list couldn't be enumerated.
+- **Decisions:**
+  - Not recording the host Playwright server or a no-sandbox run as options any
+    more: the first opens every `file://` path the maintainer can read, the
+    second everything.
+  - The question is reframed, with the maintainer: not how browsers start, but
+    what harness survives a Playwright, macOS or sandcastle update and runs
+    unchanged on a cloud node. The Seatbelt rules are a macOS-only list of
+    service names and browser variables; a container pins browsers and OS
+    dependencies per Playwright version. A verification service the agent asks
+    for a gate is a third shape (verification outside the agent's hands,
+    serialised gates, cloud-separable) that still needs a sandbox for the test
+    run and is slower for the agent's fix loop. Decided as T2s with ADR-0004
+    before T2; the spec's open question and the run brief carry it.
+- **Open, for the maintainer:**
+  - T2s weighs: Linux WebKit is not Safari's engine, and the pilot's
+    three-engine checks and AC16 timings are calibrated on macOS; sandcastle's
+    `podman()` builds from a Containerfile, whose place must leave no trace in
+    the project; worktree I/O through the podman machine; pnpm's store can't
+    hard-link into a container. Seatbelt stays the sandbox for projects without
+    browser work.
+  - If Seatbelt is chosen after all, the route is `patch-package` on
+    `dist/sandboxes/seatbelt.js` plus an upstream proposal for an opt-in profile
+    option, in the spirit of sandcastle's hardening issue #1282.
+  - The probe profiles are in `/tmp/fab-tests/sb/` (`combined.sb` is the working
+    one) until macOS cleans `/tmp`; the rules above are the record.
+- **Surprises:**
+  - `sandbox-exec` rejects `(with report)` on deny rules and wrote no
+    `(trace …)` file; the kernel logged no denials either. Bisection it was.
+  - The pasteboard probes overwrote the maintainer's clipboard twice
+    (`fab-probe`, `fab-probe-2`). Don't probe the pasteboard by writing.
+  - Chromium's headless shell refuses `file://` even for the worktree; the
+    pilot's check serves pages by request interception, so it doesn't matter.
+- **Next step:** T2s.
+
 ## 2026-11-13: T2a, fab ready for the pilot; browsers don't launch in the sandbox
 
 - **Done:** T2a. `fab` gained `--task <id,…>`, `--idle <duration>` (default

@@ -185,6 +185,26 @@ Make reasonable decisions and record them in progress.md instead of asking.
 Finish with the hand-off checklist and a summary naming the next task.
 ```
 
+### T2s: the sandbox for browser work
+
+```text
+Work on T2s of specs/projects/unattended-runs/spec.md in this repository. Read
+specs/README.md, the spec, specs/projects/unattended-runs/run-brief.md,
+progress.md (the two 2026-11-13 entries on browsers), ADR-0001 and
+~/.config/zp/fab-notes.md. The question is which sandbox runs the pilot's
+browser checks so that the harness survives tool updates and runs unchanged
+on a cloud node: Seatbelt with the rules T2a found, sandcastle's podman()
+with Playwright's Linux image, or a verification service the agent asks for
+a gate. Read sandcastle's podman provider docs and code for where it expects
+a Containerfile and how it mounts the worktree; nothing may land in the
+project. Trial the container route on /tmp/fab-tests/alpha's fab/probe
+branch with the fake agent and all three engines, measure start-up and a
+pnpm install, and compare with the Seatbelt figures in progress.md. Write
+ADR-0004 with the decision and add --sandbox to fab if the ADR needs it.
+Make reasonable decisions and record them in progress.md instead of asking.
+Finish with the hand-off checklist and a summary naming the next task.
+```
+
 ### T2: pilot
 
 ```text

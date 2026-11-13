@@ -5,6 +5,122 @@ open, surprises, next step.
 
 ---
 
+## 2026-11-13: T2a, fab ready for the pilot; browsers don't launch in the sandbox
+
+- **Done:** T2a. `fab` gained `--task <id,…>`, `--idle <duration>` (default
+  `1h`), read-write mounts (` rw` suffix), a private `sandbox.env` for variables
+  inside the sandbox, `fab tail`, and `fab review` with
+  `fab review --done [note]`; `fab runs` shows done, parked and failed, run time
+  and review minutes. Commits `cf03a3c`, `263fab3`, `e55d100`, `db05318`,
+  `65ac694`. The pilot's spec and run brief are converted on its `main`, in two
+  commits of its own. Verified with the fake agent on `/tmp/fab-tests/alpha`,
+  recreated from the private notes:
+  - `--task T3` with T1 open stops with "queue empty; T3 waits for T1";
+    `--task 'T3, T1'` runs T1, then T3; an id that names no row refuses the run
+    with exit 2; a done row is skipped with a message.
+  - `--idle 2s` fails a fake agent silent for 6 s with sandcastle's idle error;
+    `run.json` holds `idleSeconds` 3600 by default; `--idle 0s` and
+    `--idle soon` are refused.
+  - A ` rw` mount that didn't exist was created and written from inside; the
+    read-only Playwright cache refused a write.
+  - `fab tail` followed a three-task run live and exited at its end.
+    `fab review` refuses a running run, stamps a finished one, keeps an open
+    review on a second call; `--done` closed it, and `fab runs` showed 13
+    minutes for a review backdated by 13 minutes.
+  - Regression: park, deadline, busy worktree and two failures in a row behave
+    as in T1b.
+  - The pilot's spec through `fab`'s parser: 23 rows, 15 done, the 8 open ones
+    M5.1 to M6.2, and only M5.1 ready. `--task M5.2,M5.3,M5.4`, M5.5 and M5.6
+    become ready once M5.1 is merged into the pilot's `main`, which is the plan.
+  - `stow --no-folding fab` linked `cli.mts`, `lib/runs.mts` and `lib/tail.mts`;
+    `zsh -n` and prettier pass on the changed files.
+- **Measured:** inside the sandbox, with the pilot's `mise.toml` and lockfile on
+  the throwaway: `pnpm install --frozen-lockfile` 35 to 140 ms from the shared
+  store (before: failed); pnpm, hugo, python and pagefind resolve in under a
+  second each (before: mise downloaded each into the private home, 3 to 22 s per
+  tool, per task). No real agent session spent.
+- **Decisions:**
+  - `--task` takes rows in table order, whatever order it is given, so
+    dependencies hold. Dependencies outside the list must be done already.
+  - An unknown `--task` id refuses the run after the worktree exists, since the
+    spec is read from the worktree.
+  - Every run's stop reason names rows left blocked, as in "queue empty; T3
+    waits for T1", not only with `--task`.
+  - A missing read-write mount directory is created, mode 700: pnpm's lock
+    directory lives in `/tmp`, which macOS cleans. Missing read-only mounts are
+    still skipped.
+  - Sandbox variables go into a new private `~/.config/fab/sandbox.env`, not
+    `.env`: they are tool settings, not secrets, and every tool that looks under
+    the private home needs one. Without them the rw store mount alone didn't
+    help.
+  - Reviews are a list in `run.json` (`reviews: [{startedAt, endedAt, note}]`).
+    `fab review` on a run with an open review doesn't open another; `--done`
+    closes the most recently started open review of any run; `fab runs` sums the
+    closed ones.
+  - `fab tail` drops sandcastle's per-task boilerplate (sandbox setup,
+    iteration, commit collection), which the events already say, and keeps the
+    agent's text, tool calls and errors. `-n` (default 40) counts the lines it
+    shows.
+  - `fab runs`, `tail` and `review` are Node (`cli.mts`): `run.json` now holds
+    lists, and parsing JSON with `sed` was fragile. `fab runs` sorts by the run
+    id's time, not by name.
+  - The pilot's `Covers` column became its "Done when", for done rows too (their
+    ACs "pass"), rather than a sixth column. Done rows got the dependencies they
+    were built in (T2 on T1, T3 to T8 on T2, M0 on T1, M1 to M4 a chain) and
+    dates from its progress log; M4 is dated 2026-11-09, when MC5 and MC6 closed
+    it. M5.3 names M5.2 only; M5.1 follows through it.
+  - The pilot's run brief: commits only on the run's `fab/*` branch or the
+    branch an interactive prompt names; an unattended run starts in its
+    worktree; `$TMPDIR` as scratch; a full gate outlasts a 10-minute tool call;
+    no `pnpm browsers` in an unattended run. Its checks: prettier and
+    markdownlint. `pnpm check` needs a build and the export, not run for a docs
+    change.
+- **Open, for the maintainer:**
+  - **Browsers in the sandbox, blocking T2.** With the browsers found
+    (`PLAYWRIGHT_BROWSERS_PATH`), Chromium, Firefox and WebKit all abort at
+    launch inside `seatbelt()`. Its profile denies every XPC service and all but
+    a short list of Mach services, and sandcastle 0.14.0 offers no way to extend
+    it. Every M5 row's "Done when" needs `pnpm check:layout`, so each task would
+    park or fail. Options:
+    1. Browsers on the host: `playwright run-server` bound to 127.0.0.1, and the
+       pilot's `check-layout.mjs` connecting when a variable names the endpoint
+       (it has two `launch()` calls). Verified: all three engines, driven from
+       inside the sandbox, loaded a worktree file. Cost: the host browser reads
+       any `file://` path the maintainer can, so the agent could read through it
+       what the sandbox hides; AC16's timings cross a websocket.
+    2. No sandbox for the pilot (sandcastle's `noSandbox()`, a `--sandbox none`
+       in `fab`): everything runs, but the agent sees the home directory, global
+       hooks fire, and it can write anywhere.
+    3. Ask sandcastle for a profile extension point and wait. Recommendation: 1
+       for the pilot, with `fab` starting and stopping the server per run, an
+       ADR with status `proposed` naming the read hole, and 3 filed upstream.
+       The pilot's `check-layout.mjs` change is the pilot's work: a row before
+       M5.1, or M5.1's first step.
+  - `node` in the sandbox is the host's global 26.13.1, first on `PATH`, not the
+    pilot's pinned 26.12.0. Its `engines` asks for 26.12.0 or later.
+    Recommendation: leave it.
+  - The pilot's main checkout has `node_modules` now, and `.wt/docs/` and
+    `.wt/feat/` hold only a `README.md` each, left from deleted worktrees. Not
+    touched; they are yours.
+  - About thirty fake runs sent state changes and notifications to this
+    session's tuios Inbox. Dismiss them.
+- **Surprises:**
+  - pnpm 12 keeps its store locks in `/tmp/pnpm-store-operation-locks-<uid>`,
+    ignoring `TMPDIR`: "Failed to open the store operation lock", even with the
+    store inside the private home.
+  - In the sandbox mise trusts the project's `mise.toml` but installs each
+    pinned tool into the private home. Outside it, a changed `HOME` makes mise
+    refuse the same file as untrusted.
+  - pnpm 12 reads `pnpm_config_*` variables, not `npm_config_*`.
+  - Playwright looks for its browsers under `HOME` too.
+  - The browsers' aborts leave no sandbox denial in `log show`.
+  - The fake agent was broken since T1c moved the task fields into a nested
+    list; T1c ran the real agent only. And `local x=$(…)` in `fab` had hidden a
+    failed project lookup or a bad `--until` since T1b.
+  - A shell whose current directory is `~/.config/fab` makes every mise shim
+    complain that `package.json` there isn't trusted.
+- **Next step:** T2, once the browser question is decided.
+
 ## 2026-11-13: hard limits reworked; T2 planned with the maintainer, T2a added
 
 - **Done:** the run brief's hard limits after four sessions (commit

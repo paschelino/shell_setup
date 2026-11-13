@@ -79,9 +79,12 @@ TUIOS also sets `HERDR_ENV`, hence the order.
 
 ```text
 fab run <project> <spec> [--until <duration>] [--agent claude|opencode]
-        [--branch <name>] [--fan [--jobs <n>]]
+        [--branch <name>] [--task <id,…>] [--idle <duration>] [--no-push]
+        [--fan [--jobs <n>]]
 fab status [<run-id>]
 fab runs
+fab tail [<run-id>] [-n <lines>] [--no-follow]
+fab review [<run-id>] | fab review --done [note]
 ```
 
 - `<project>` is a name from `~/.config/zp/projects` (`name path [agent]`),
@@ -92,6 +95,19 @@ fab runs
 - `--branch` defaults to `fab/<spec-id>`. The worktree comes from
   `git wt --nocd <branch>`. A branch whose worktree holds a live lock file is
   refused.
+- `--task` restricts the queue to these rows, taken in table order; an id that
+  names no row refuses the run with exit 2. Dependencies outside the list must
+  be done already.
+- `--idle` defaults to `1h`: sandcastle fails a task whose agent is silent that
+  long. One test command can be silent for most of an hour.
+- `fab tail` follows `events.jsonl` and the agent's text in `sandcastle.log` as
+  readable lines until the run ends. `fab review` prints `summary.md` and
+  appends `{startedAt}` to `reviews` in `run.json`; `fab review --done [note]`
+  closes the latest open review. `fab runs` shows the summed review minutes
+  (MC1).
+- Sandbox: `~/.config/fab/mounts` lists host paths, one per line, read-only or
+  with a ` rw` suffix read-write; `~/.config/fab/sandbox.env` sets variables for
+  every process in the sandbox (tool settings, never secrets).
 - Secrets: `~/.config/fab/.env` with `CLAUDE_CODE_OAUTH_TOKEN` (from
   `claude setup-token`), optionally `GH_TOKEN`. Missing file: print setup
   instructions, exit 2.
@@ -185,9 +201,14 @@ with the 255 questions in 75 transcripts before.
   git server, included into prompts (T4b).
 - Phone: self-hosted ntfy as an `mx` adapter, or an own app (T4c).
 - Rate limits on the Max plan with two or three parallel runs: measure in T2.
-- Which read-only mounts the pilot needs besides Playwright's browser cache, and
-  whether project-level `mise.toml` resolves tools inside the sandbox (T2). T0
-  showed the whole home directory is hidden, including caches.
+- How browser checks run: macOS browsers abort inside sandcastle's Seatbelt
+  profile, which denies XPC and most Mach services and can't be extended. A
+  Playwright server on the host, reached over localhost, works in all three
+  engines (T2a). Decide before T2.
+- Answered in T2a: the pilot's tools need mise's install directory read-only,
+  pnpm's store, metadata cache and lock directory read-write, and variables that
+  point mise, pnpm and Playwright there; the project's `mise.toml` then resolves
+  without downloads. The paths are in the private notes.
 
 ## Tasks
 
@@ -198,7 +219,7 @@ with the 255 questions in 75 transcripts before.
 | T1a  | **Done** 2026-11-06, AC1 checked in TUIOS and outside only; the other hosts' detection is checked when their panes are next at hand. `mx`: host detection, tuios adapter, logging no-op adapters, state file, macOS notification, README section.                                                      | T0a                   | AC1, AC2, AC3                                                                         | `mx state working -m demo` in a TUIOS pane          |
 | T1b  | **Done** 2026-11-06, AC6 half pending a real agent. `fab`: stow package, `package.json` pinned, `main.mts` sequential loop, worktree via `git wt`, lock, deadline, events, summary, push once, `mx` reporting. `install` and `.gitignore` changes.                                                     | T0, T1a               | AC4, AC5, AC6, AC8, AC9, AC11                                                         | `fab run <made-up project> …` on the throwaway repo |
 | T1c  | **Done** 2026-11-06, verified with a real sandboxed Claude run on a throwaway project. Prompts: `prompts/task.md` from the maintainer's run brief and hand-off checklist, `prompts/summary.md` as the template `lib/summary.mts` fills. Global instructions injected via prompt arguments.             | T1b                   | A throwaway run produces a progress entry, a commit and a valid task report           | The report in `events.jsonl`                        |
-| T2a  | Prepare the pilot. `fab`: `--task <id,…>` to restrict the queue, `--idle <duration>` for sandcastle's idle timeout, read-write mounts (` rw` suffix in `mounts`), `fab tail` for a multiplexer pane, `fab review` stamping review time into `run.json`. Pilot: Tasks table in the five columns with Done markers and dependencies, stale run-brief lines fixed, committed on its `main`. | T1c                   | `fab`'s parser lists only the open rows of the pilot's spec; `fab review --done` shows review minutes in `fab runs`; fake-agent test passes with `--task` | `fab runs` with a review column                     |
+| T2a  | **Done** 2026-11-13. Prepare the pilot. `fab`: `--task <id,…>` to restrict the queue, `--idle <duration>` for sandcastle's idle timeout, read-write mounts (` rw` suffix in `mounts`), `fab tail` for a multiplexer pane, `fab review` stamping review time into `run.json`. Pilot: Tasks table in the five columns with Done markers and dependencies, stale run-brief lines fixed, committed on its `main`. | T1c                   | `fab`'s parser lists only the open rows of the pilot's spec; `fab review --done` shows review minutes in `fab runs`; fake-agent test passes with `--task` | `fab runs` with a review column                     |
 | T2   | Pilot on the private pilot project: one task with the maintainer present (`--task`, `--until 1h`), then a two-hour run of three tasks, then two parallel runs on two branches. Record measurements.                                                                                                     | T2a                   | AC7, MC1, MC2; rate-limit behaviour recorded                                          | The pilot's `summary.md`                            |
 | T2b  | Fan-out: `--fan`, `--jobs`, per-task worktrees branched from the run branch, local merge, conflicts parked.                                                                                                                                                                                            | T2                    | AC10                                                                                  | Two tasks merged in one run                         |
 | T3   | Skills: promote `new-project-spec`, `new-adr`, `session-handoff`, `visual-check` to `dotfiles/claude` and `dotfiles/opencode`; `new-project-spec` emits the Tasks table columns and ends with the `fab run` command.                                                                                   | T2                    | A spec written with the skill runs through `fab` on a second project                  | That project's first run summary                    |

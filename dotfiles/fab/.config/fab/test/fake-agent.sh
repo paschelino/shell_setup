@@ -9,8 +9,8 @@
 #   FAB_FAKE_NO_REPORT=<ids>   emit no report at all, to test the error path
 set -eu
 prompt=$(cat)
-task=$(printf '%s\n' "$prompt" | sed -n 's/^- Task: \(.*\)$/\1/p' | head -1)
-spec=$(printf '%s\n' "$prompt" | sed -n 's/^- Spec: `\([^`]*\)`.*$/\1/p' | head -1)
+task=$(printf '%s\n' "$prompt" | sed -n 's/^ *- Task: \(.*\)$/\1/p' | head -1)
+spec=$(printf '%s\n' "$prompt" | sed -n 's/^ *- Spec: `\([^`]*\)`.*$/\1/p' | head -1)
 [ -n "$task" ] || { echo "fake agent: no task in prompt" >&2; exit 1; }
 echo "fake agent: task $task in $(pwd)"
 [ -z "${FAB_FAKE_SLEEP:-}" ] || sleep "$FAB_FAKE_SLEEP"

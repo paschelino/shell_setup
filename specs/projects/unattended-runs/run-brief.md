@@ -160,17 +160,47 @@ Make reasonable decisions and record them in progress.md instead of asking.
 Finish with the hand-off checklist and a summary naming the next task.
 ```
 
+### T2a: prepare the pilot
+
+```text
+Work on T2a of specs/projects/unattended-runs/spec.md in this repository. Read
+specs/README.md, the spec, specs/projects/unattended-runs/run-brief.md,
+progress.md and ~/.config/zp/fab-notes.md, whose pilot section holds the run
+plan. First extend fab: `--task <id,…>` restricts the queue to those rows (so
+one run takes M5.1 alone and two parallel runs don't pick the same first row);
+`--idle <duration>` sets sandcastle's idle timeout, default 1h, because a
+browser gate inside one tool call is silent for a long time; a ` rw` suffix in
+~/.config/fab/mounts makes a mount read-write; `fab tail [run-id]` streams
+events.jsonl and the agent's text from sandcastle.log in readable lines for a
+multiplexer pane; `fab review [run-id]` prints summary.md and stamps the review
+start, `fab review --done [note]` stamps its end, and `fab runs` shows the
+minutes. Test with the fake agent on /tmp/fab-tests/alpha, recreated from
+fab-notes.md. Then prepare the pilot on its main checkout, as fab-notes.md
+describes: Tasks table in the five fab columns, every finished row marked
+`**Done** <date>.` at the start of its Step cell, dependencies, "Done when"
+and "Demo" for the open rows, the stale lines of its run brief fixed; commit
+there with the project's conventions, and check that fab's parser lists only
+the open rows. Add the pnpm store and cache to ~/.config/fab/mounts as rw.
+Make reasonable decisions and record them in progress.md instead of asking.
+Finish with the hand-off checklist and a summary naming the next task.
+```
+
 ### T2: pilot
 
 ```text
 Work on T2 of specs/projects/unattended-runs/spec.md in this repository. Read
 specs/README.md, the spec, specs/projects/unattended-runs/run-brief.md,
-progress.md and ~/.config/zp/fab-notes.md for the pilot project, its branch
-and spec. Run the pilot as the spec's T2 describes, starting with one task and
---until 1h, and record every measurement in progress.md: stop reason, parked
-questions, review time, rate-limit behaviour with two parallel runs. Private
-details go to ~/.config/zp/fab-notes.md, never to progress.md. Finish with the
-hand-off checklist and a summary naming the next task.
+progress.md and ~/.config/zp/fab-notes.md, whose pilot section holds the run
+plan: project, spec, branch names, which rows each run takes, and the traps.
+Create each run's worktree from the pilot's main with `git wt --nocd <branch>
+main` before `fab run`, always with --no-push. Run the attended task first
+with --task and --until 1h while the maintainer watches `fab tail`; stop and
+let them review with `fab review` and merge. Then the two-hour run, then the
+two parallel runs. Record every measurement in progress.md: stop reasons,
+parked questions, review minutes from `fab review`, every intervention, task
+durations from events.jsonl, and rate-limit behaviour with two parallel runs.
+Private details go to ~/.config/zp/fab-notes.md, never to progress.md. Finish
+with the hand-off checklist and a summary naming the next task.
 ```
 
 For T2b, T3 and the T4x tasks, use the same shape: name the task, list the files

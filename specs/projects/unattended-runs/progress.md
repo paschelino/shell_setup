@@ -5,6 +5,34 @@ open, surprises, next step.
 
 ---
 
+## 2026-11-13: hard limits reworked; T2 planned with the maintainer, T2a added
+
+- **Done:** the run brief's hard limits after four sessions (commit
+  `0db7f8e`), with the global push and deletion rules in `AGENTS.md`
+  (`481a460`). T2 planned with the maintainer: the pilot's design branch is
+  merged, its open work is a milestone of six tasks plus two mock-up tasks,
+  and the private notes hold the run plan (which rows each run takes, branch
+  names, traps). A preparation task T2a is new in the spec: `fab` options the
+  plan needs and the pilot's table conversion.
+- **Decisions:**
+  - `--task <id,…>` instead of a `--tasks <n>` count: two parallel runs on one
+    spec would otherwise both take the same first ready row.
+  - `--idle` defaults to an hour: the pilot's browser gate can be silent inside
+    one tool call for longer than sandcastle's default of ten minutes.
+  - Review time for MC1 is measured by `fab review` stamps, not by hand.
+  - Package caches the agent needs (pnpm store and metadata) are mounted
+    read-write; the mounts file gets a ` rw` suffix for that.
+- **Open, for the maintainer:**
+  - Mock-up tasks (the pilot's M6) can't produce a claude.ai Artifact from the
+    sandbox. Decide before M6: a local HTML mock-up with screenshots as the
+    demo, or interactive mock-ups and only the build through `fab`.
+  - The pilot's two parallel runs will both touch one JavaScript file; a small
+    merge conflict for you is accepted for the rate-limit measurement.
+- **Surprises:** the session scratchpads from 2026-11-06 were gone a week
+  later; `/tmp` is cleaned. `/tmp/fab-tests` is therefore for repositories a
+  session recreates cheaply.
+- **Next step:** T2a.
+
 ## 2026-11-06: T1c, prompts written and verified with a real sandboxed run
 
 - **Done:** T1c. `prompts/task.md` rewritten from the pilot project's run brief

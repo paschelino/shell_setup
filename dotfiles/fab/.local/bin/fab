@@ -104,7 +104,9 @@ _fab_run() {
   (( $#positional == 2 )) || _fab_die "usage: fab run <project> <spec> [options]"
   project=$positional[1] spec=$positional[2]
 
-  local entry=$(_fab_project "$project")
+  # Declared apart from the assignment: `local x=$(...)` would hide a failure.
+  local entry seconds
+  entry=$(_fab_project "$project")
   local name=${entry%%$'\t'*} dir=${${entry#*$'\t'}%$'\t'*} default_agent=${entry##*$'\t'}
   agent=${agent:-$default_agent}
   case $agent in
@@ -116,7 +118,7 @@ _fab_run() {
   _fab_check "$agent"
   git -C "$dir" rev-parse --is-inside-work-tree >/dev/null 2>&1 || _fab_die "$dir is not a git checkout"
 
-  local seconds=$(_fab_seconds "$until")
+  seconds=$(_fab_seconds "$until")
   local spec_id=${spec:t:r}
   [[ $spec_id == spec ]] && spec_id=${spec:h:t}
   branch=${branch:-fab/$spec_id}
@@ -140,9 +142,15 @@ _fab_run() {
     rm -f -- "$lock"
   fi
 
-  local id=$name-$(date +%Y%m%d-%H%M%S)
-  local rundir=$FAB_STATE/runs/$id
-  mkdir -p "$rundir"
+  # Run ids have one-second resolution; mkdir claims one atomically, so two
+  # runs started in the same second don't share a directory.
+  local id rundir
+  while :; do
+    id=$name-$(date +%Y%m%d-%H%M%S)
+    rundir=$FAB_STATE/runs/$id
+    mkdir -- "$rundir" 2>/dev/null && break
+    sleep 1
+  done
   local started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
   local deadline=$(date -u -v+${seconds}S +%Y-%m-%dT%H:%M:%SZ)
   print -r -- "{

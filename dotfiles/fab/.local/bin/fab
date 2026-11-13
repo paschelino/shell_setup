@@ -5,14 +5,18 @@
 # the multiplexer through mx. Spec: specs/projects/unattended-runs.
 #
 #   fab run <project> <spec> [--until 2h] [--agent claude|opencode] [--model <m>]
-#                            [--branch <name>] [--no-push]
+#                            [--branch <name>] [--task <id,...>] [--idle 1h]
+#                            [--no-push]
 #   fab runs                 list runs, newest first
 #   fab status [<run-id>]    show a run's summary (default: the newest)
 #
 # <project> is a name from ~/.config/zp/projects or a path to a git checkout.
-# <spec> is a path relative to the project root. Secrets live in
-# ~/.config/fab/.env (CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`),
-# read-only sandbox mounts one per line in ~/.config/fab/mounts, and runs under
+# <spec> is a path relative to the project root. --task restricts the queue to
+# those rows of the Tasks table; --idle is how long the agent may be silent
+# before its task fails. Secrets live in ~/.config/fab/.env
+# (CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`), sandbox mounts one per
+# line in ~/.config/fab/mounts (read-only, or read-write with a ` rw` suffix),
+# sandbox variables in ~/.config/fab/sandbox.env, and runs under
 # ~/.local/state/fab/runs/.
 
 emulate -L zsh
@@ -86,8 +90,19 @@ _fab_check() {
   fi
 }
 
+# "M5.1, M5.2" -> a JSON array of ids
+_fab_json_ids() {
+  local -a ids=(${(s:,:)1})
+  ids=(${ids//[[:space:]]/})
+  ids=(${ids:#})
+  (( $#ids )) || _fab_die "--task needs task ids, e.g. --task M5.1,M5.2"
+  local id out=
+  for id in $ids; do out+="${out:+, }$(_fab_json "$id")"; done
+  print -r -- "[$out]"
+}
+
 _fab_run() {
-  local project= spec= until=2h agent= model= branch= push=1
+  local project= spec= until=2h idle=1h agent= model= branch= tasks= push=1
   local -a positional=()
   while (( $# )); do
     case $1 in
@@ -95,6 +110,8 @@ _fab_run() {
       --agent) agent=${2:?--agent needs claude or opencode}; shift 2 ;;
       --model) model=${2:?--model needs a model id}; shift 2 ;;
       --branch) branch=${2:?--branch needs a name}; shift 2 ;;
+      --task) tasks=${2:?--task needs task ids}; shift 2 ;;
+      --idle) idle=${2:?--idle needs a duration}; shift 2 ;;
       --no-push) push=0; shift ;;
       -h | --help) _fab_usage; return 0 ;;
       -*) _fab_die "unknown option $1" ;;
@@ -105,7 +122,7 @@ _fab_run() {
   project=$positional[1] spec=$positional[2]
 
   # Declared apart from the assignment: `local x=$(...)` would hide a failure.
-  local entry seconds
+  local entry seconds idle_seconds
   entry=$(_fab_project "$project")
   local name=${entry%%$'\t'*} dir=${${entry#*$'\t'}%$'\t'*} default_agent=${entry##*$'\t'}
   agent=${agent:-$default_agent}
@@ -119,6 +136,10 @@ _fab_run() {
   git -C "$dir" rev-parse --is-inside-work-tree >/dev/null 2>&1 || _fab_die "$dir is not a git checkout"
 
   seconds=$(_fab_seconds "$until")
+  idle_seconds=$(_fab_seconds "$idle")
+  (( idle_seconds > 0 )) || _fab_die "--idle must be longer than 0s"
+  local only=null
+  [[ -z $tasks ]] || only=$(_fab_json_ids "$tasks")
   local spec_id=${spec:t:r}
   [[ $spec_id == spec ]] && spec_id=${spec:h:t}
   branch=${branch:-fab/$spec_id}
@@ -163,6 +184,8 @@ _fab_run() {
   \"agent\": $(_fab_json "$agent"),
   \"model\": $(_fab_json "$model"),
   \"until\": $(_fab_json "$deadline"),
+  \"onlyTasks\": $only,
+  \"idleSeconds\": $idle_seconds,
   \"push\": $([[ $push == 1 ]] && print true || print false),
   \"startedAt\": $(_fab_json "$started"),
   \"pid\": $$
@@ -171,7 +194,7 @@ _fab_run() {
   trap 'rm -f -- "$lock"' EXIT INT TERM
 
   print "fab: run $id"
-  print "fab: $name on $branch in $wt, spec $spec, agent $agent ($model), until $deadline"
+  print "fab: $name on $branch in $wt, spec $spec, agent $agent ($model), until $deadline${tasks:+, tasks $tasks}"
   print "fab: state in $rundir"
   local rc=0
   node --preserve-symlinks --preserve-symlinks-main "$FAB_CONFIG/main.mts" "$rundir" || rc=$?

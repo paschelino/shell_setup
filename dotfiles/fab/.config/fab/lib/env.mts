@@ -1,6 +1,7 @@
-// Small helpers: the .env file, durations, and the global instruction files
-// the sandbox would otherwise hide from the agent.
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+// Small helpers: the .env file, durations, the global instruction files the
+// sandbox would otherwise hide from the agent, and the sandbox's mounts and
+// variables.
+import { existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
 
@@ -58,19 +59,49 @@ export function readGlobalInstructions(): string {
     .join("\n\n");
 }
 
-// Optional read-only mounts for the sandbox: one absolute path per line in
-// ~/.config/fab/mounts, `~` allowed. Caches under the home directory that a
-// project's tools need, such as Playwright's browsers.
-export function readMounts(
-  configDir: string,
-): { hostPath: string; sandboxPath: string; readonly: true }[] {
+const expandHome = (p: string) => p.replace(/^~(?=\/|$)/, homedir());
+
+export interface Mount {
+  hostPath: string;
+  sandboxPath: string;
+  readonly: boolean;
+}
+
+// Optional mounts for the sandbox: one absolute path per line in
+// ~/.config/fab/mounts, `~` allowed, read-only unless the line ends in ` rw`.
+// Caches under the home directory that a project's tools need, such as
+// Playwright's browsers (read-only) or pnpm's store (read-write). A missing
+// read-only path is skipped; a missing read-write one is created as a
+// directory, because some tools keep lock directories in /tmp, which macOS
+// cleans.
+export function readMounts(configDir: string): Mount[] {
   const path = join(configDir, "mounts");
   if (!existsSync(path)) return [];
   return readFileSync(path, "utf8")
     .split("\n")
     .map((l) => l.trim())
     .filter((l) => l && !l.startsWith("#"))
-    .map((l) => l.replace(/^~(?=\/|$)/, homedir()))
-    .filter((p) => existsSync(p))
-    .map((p) => ({ hostPath: p, sandboxPath: p, readonly: true as const }));
+    .map((l) => {
+      const m = l.match(/^(.*?)\s+(rw|ro)$/);
+      const p = expandHome(m ? m[1] : l);
+      return { hostPath: p, sandboxPath: p, readonly: m?.[2] !== "rw" };
+    })
+    .filter((m) => {
+      if (!m.readonly && !existsSync(m.hostPath))
+        mkdirSync(m.hostPath, { recursive: true, mode: 0o700 });
+      return existsSync(m.hostPath);
+    });
+}
+
+// Variables for every process in the sandbox, from ~/.config/fab/sandbox.env:
+// tool settings, never secrets, such as where pnpm finds its store when the
+// sandbox's home is private. KEY=VALUE lines as in .env; a value starting
+// with `~/` is expanded.
+export function readSandboxEnv(configDir: string): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(readDotenv(join(configDir, "sandbox.env"))).map(([k, v]) => [
+      k,
+      expandHome(v),
+    ]),
+  );
 }

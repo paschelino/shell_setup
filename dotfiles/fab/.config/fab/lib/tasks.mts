@@ -62,22 +62,62 @@ export function readTasks(specPath: string): Task[] {
   return parseTasks(readFileSync(specPath, "utf8"));
 }
 
+const isDoneIn = (tasks: Task[], completed: Set<string>) => (id: string) =>
+  completed.has(id) || tasks.some((t) => t.id === id && t.done);
+
 // Open tasks whose dependencies are all done, in table order. `completed` are
 // the ids this run finished successfully, whether or not the agent marked the
 // row; `skip` are ids not to offer again, such as parked or failed ones. A
-// parked task is not done, so what depends on it waits.
+// parked task is not done, so what depends on it waits. `only` restricts the
+// queue to these ids (`fab run --task`); dependencies outside it must be done.
 export function readyTasks(
   tasks: Task[],
   completed: Set<string>,
   skip: Set<string> = completed,
+  only?: Set<string>,
 ): Task[] {
-  const done = (id: string) =>
-    completed.has(id) || tasks.some((t) => t.id === id && t.done);
+  const done = isDoneIn(tasks, completed);
   return tasks.filter(
     (t) =>
       !t.done &&
       !completed.has(t.id) &&
       !skip.has(t.id) &&
+      (!only || only.has(t.id)) &&
       t.dependsOn.every(done),
   );
+}
+
+// Why open tasks remain that readyTasks doesn't offer: "M5.3 waits for M5.2"
+// for each one blocked by a dependency that isn't done.
+export function blockedTasks(
+  tasks: Task[],
+  completed: Set<string>,
+  skip: Set<string>,
+  only?: Set<string>,
+): string[] {
+  const done = isDoneIn(tasks, completed);
+  return tasks
+    .filter(
+      (t) =>
+        !t.done &&
+        !completed.has(t.id) &&
+        !skip.has(t.id) &&
+        (!only || only.has(t.id)),
+    )
+    .map((t) => [t.id, t.dependsOn.filter((d) => !done(d))] as const)
+    .filter(([, waiting]) => waiting.length)
+    .map(([id, waiting]) => `${id} waits for ${waiting.join(", ")}`);
+}
+
+// Checks `fab run --task` ids against the table: ids that aren't rows, and
+// rows already done.
+export function checkSelection(
+  tasks: Task[],
+  only: string[],
+): { unknown: string[]; done: string[] } {
+  const byId = new Map(tasks.map((t) => [t.id, t]));
+  return {
+    unknown: only.filter((id) => !byId.has(id)),
+    done: only.filter((id) => byId.get(id)?.done),
+  };
 }

@@ -15,11 +15,24 @@ import {
   type AgentProvider,
 } from "@ai-hero/sandcastle";
 import { seatbelt } from "@ai-hero/sandcastle/sandboxes/seatbelt";
-import { readTasks, readyTasks, type Task } from "./lib/tasks.mts";
+import {
+  readTasks,
+  readyTasks,
+  blockedTasks,
+  checkSelection,
+  type Task,
+} from "./lib/tasks.mts";
 import { Reporter } from "./lib/status.mts";
 import { taskReport, REPORT_TAG, type TaskReport } from "./lib/report.mts";
 import { renderSummary, type TaskOutcome } from "./lib/summary.mts";
-import { readDotenv, readGlobalInstructions, readMounts } from "./lib/env.mts";
+import {
+  readDotenv,
+  readGlobalInstructions,
+  readMounts,
+  readSandboxEnv,
+  type Mount,
+} from "./lib/env.mts";
+import { updateRun } from "./lib/runs.mts";
 
 interface RunConfig {
   id: string;
@@ -31,6 +44,8 @@ interface RunConfig {
   agent: "claude" | "opencode" | "fake";
   model: string;
   until: string; // ISO
+  onlyTasks?: string[]; // --task: the queue is restricted to these rows
+  idleSeconds?: number; // --idle: sandcastle fails a task silent this long
   push: boolean;
   startedAt: string;
   pid: number;
@@ -40,7 +55,8 @@ interface RunConfig {
 // stow link into the repository, which is where node_modules and .env live.
 const CONFIG_DIR = dirname(fileURLToPath(import.meta.url));
 const MAX_CONSECUTIVE_FAILURES = 2;
-const IDLE_TIMEOUT_SECONDS = 900;
+// A browser gate inside one tool call can be silent for most of an hour.
+const DEFAULT_IDLE_SECONDS = 3600;
 
 const runDir = process.argv[2];
 if (!runDir || !existsSync(join(runDir, "run.json"))) {
@@ -163,7 +179,8 @@ function pushIfAllowed(outcomes: TaskOutcome[]): PushResult {
 async function runTask(
   task: Task,
   agent: AgentProvider,
-  mounts: ReturnType<typeof readMounts>,
+  mounts: Mount[],
+  sandboxEnv: Record<string, string>,
 ): Promise<TaskOutcome> {
   const startedAt = new Date().toISOString();
   reporter.event("task.start", { task: task.id, step: task.step });
@@ -175,13 +192,13 @@ async function runTask(
   try {
     const result = await run({
       agent,
-      sandbox: seatbelt({ mounts }),
+      sandbox: seatbelt({ mounts, env: sandboxEnv }),
       cwd: cfg.worktree,
       branchStrategy: { type: "head" },
       promptFile: join(CONFIG_DIR, "prompts", "task.md"),
       promptArgs: promptArgs(task),
       maxIterations: 1,
-      idleTimeoutSeconds: IDLE_TIMEOUT_SECONDS,
+      idleTimeoutSeconds: cfg.idleSeconds ?? DEFAULT_IDLE_SECONDS,
       name: `${cfg.project} ${task.id}`,
       logging: { type: "file", path: join(runDir, "sandcastle.log") },
       output: Output.object({
@@ -214,6 +231,25 @@ async function runTask(
 async function main() {
   const agent = agentProvider();
   const mounts = readMounts(CONFIG_DIR);
+  const sandboxEnv = readSandboxEnv(CONFIG_DIR);
+  const only = cfg.onlyTasks?.length ? new Set(cfg.onlyTasks) : undefined;
+  if (only) {
+    const { unknown, done } = checkSelection(readTasks(specPath), [...only]);
+    if (unknown.length) {
+      const msg = `--task names no row of ${cfg.spec}: ${unknown.join(", ")}`;
+      reporter.event("run.refused", { error: msg });
+      updateRun(runDir, {
+        endedAt: new Date().toISOString(),
+        stopReason: `refused: ${msg}`,
+        tasks: 0,
+      });
+      console.error(`fab: ${msg}`);
+      process.exitCode = 2;
+      return;
+    }
+    if (done.length)
+      console.log(`[${label}] already done, skipped: ${done.join(", ")}`);
+  }
   const deadline = new Date(cfg.until).getTime();
   const completed = new Set<string>(); // done in this run: satisfies dependencies
   const attempted = new Set<string>(); // done, parked or failed: not offered again
@@ -223,7 +259,8 @@ async function main() {
 
   reporter.event("run.start", {
     ...cfg,
-    mounts: mounts.map((m) => m.hostPath),
+    mounts: mounts.map((m) => `${m.hostPath}${m.readonly ? "" : " rw"}`),
+    sandboxEnv: Object.keys(sandboxEnv),
   });
   reporter.state("working", `starting on ${cfg.branch}`);
 
@@ -236,10 +273,15 @@ async function main() {
       stopReason = `${MAX_CONSECUTIVE_FAILURES} tasks in a row failed`;
       break;
     }
-    const ready = readyTasks(readTasks(specPath), completed, attempted);
-    if (ready.length === 0) break;
+    const tasks = readTasks(specPath);
+    const ready = readyTasks(tasks, completed, attempted, only);
+    if (ready.length === 0) {
+      const blocked = blockedTasks(tasks, completed, attempted, only);
+      if (blocked.length) stopReason = `queue empty; ${blocked.join("; ")}`;
+      break;
+    }
     const task = ready[0];
-    const outcome = await runTask(task, agent, mounts);
+    const outcome = await runTask(task, agent, mounts, sandboxEnv);
     outcomes.push(outcome);
     // A task is not retried in the same run, whatever happened to it.
     attempted.add(task.id);
@@ -251,7 +293,8 @@ async function main() {
 
   const pushed = pushIfAllowed(outcomes);
   const endedAt = new Date().toISOString();
-  // For the maintainer, a parked or failed task is still the next thing to look at.
+  // For the maintainer, a parked or failed task is still the next thing to
+  // look at, and the next task is the whole table's, not just --task's.
   const nextTask = readyTasks(readTasks(specPath), completed)[0]?.id ?? null;
   const summary = renderSummary(
     {
@@ -269,14 +312,19 @@ async function main() {
     join(CONFIG_DIR, "prompts", "summary.md"),
   );
   writeFileSync(join(runDir, "summary.md"), summary);
-  writeFileSync(
-    join(runDir, "run.json"),
-    JSON.stringify(
-      { ...cfg, endedAt, stopReason, pushed, tasks: outcomes.length },
-      null,
-      2,
-    ) + "\n",
-  );
+  const done = outcomes.filter((o) => o.report?.status === "done").length;
+  const parked = outcomes.filter((o) => o.report?.status === "parked").length;
+  const failed = outcomes.length - done - parked;
+  updateRun(runDir, {
+    endedAt,
+    stopReason,
+    pushed,
+    tasks: outcomes.length,
+    done,
+    parked,
+    failed,
+    nextTask,
+  });
   reporter.event("run.end", {
     stopReason,
     pushed,
@@ -284,9 +332,6 @@ async function main() {
     nextTask,
   });
 
-  const done = outcomes.filter((o) => o.report?.status === "done").length;
-  const parked = outcomes.filter((o) => o.report?.status === "parked").length;
-  const failed = outcomes.length - done - parked;
   const headline = `${done} done, ${parked} parked, ${failed} failed; stopped: ${stopReason}`;
   reporter.notify(label, `${headline}. Summary: ${join(runDir, "summary.md")}`);
   reporter.state(failed && !done ? "error" : "done", headline);

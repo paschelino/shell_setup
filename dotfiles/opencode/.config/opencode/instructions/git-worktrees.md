@@ -23,8 +23,3 @@ over to your shell, so call the `git wt` binary instead. Prefer it over plain
   keeps an unmerged branch, so read its message. Never use `-D` without asking.
 - When you hand a worktree back to me, name the branch so I can open it with
   `wt <branch>`.
-
-## Files
-
-- Delete files one by one, each `rm` with its full path written out. Never use
-  loops, globs or `find -delete` for cleanup.

@@ -6,7 +6,7 @@
 #
 #   fab run <project> <spec> [--until 2h] [--agent claude|opencode] [--model <m>]
 #                            [--branch <name>] [--task <id,...>] [--idle 1h]
-#                            [--no-push]
+#                            [--no-push] [--sandbox seatbelt|podman]
 #   fab runs                 list runs, newest first, with review minutes
 #   fab status [<run-id>]    show a run's summary (default: the newest)
 #   fab tail [<run-id>] [-n <lines>] [--no-follow]
@@ -17,7 +17,9 @@
 # <project> is a name from ~/.config/zp/projects or a path to a git checkout.
 # <spec> is a path relative to the project root. --task restricts the queue to
 # those rows of the Tasks table; --idle is how long the agent may be silent
-# before its task fails. Secrets live in ~/.config/fab/.env
+# before its task fails. --sandbox podman runs the agent in a Linux container
+# built from ~/.config/fab/Containerfile, with Playwright's browsers, instead
+# of macOS's own sandbox with the host's tools. Secrets live in ~/.config/fab/.env
 # (CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`), sandbox mounts one per
 # line in ~/.config/fab/mounts (read-only, or read-write with a ` rw` suffix),
 # sandbox variables in ~/.config/fab/sandbox.env, and runs under
@@ -79,11 +81,14 @@ _fab_seconds() {
 
 # What a run needs on this machine; exit 2 with instructions when missing.
 _fab_check() {
-  local agent=$1
+  local agent=$1 sandbox=$2
   (( $+commands[node] )) || _fab_die "node is not installed; fab needs Node 22 or later (mise provides it)" 2
   (( $+commands[git] )) || _fab_die "git is not installed" 2
   if [[ ! -d $FAB_CONFIG/node_modules/@ai-hero/sandcastle ]]; then
     _fab_die "sandcastle is not installed. Run: npm ci --prefix $FAB_CONFIG" 2
+  fi
+  if [[ $sandbox == podman ]]; then
+    (( $+commands[podman] )) || _fab_die "podman is not installed; --sandbox podman needs it (brew install podman)" 2
   fi
   if [[ $agent != fake && ! -r $FAB_CONFIG/.env ]]; then
     print -u2 "fab: no $FAB_CONFIG/.env. Set it up once:"
@@ -106,7 +111,7 @@ _fab_json_ids() {
 }
 
 _fab_run() {
-  local project= spec= until=2h idle=1h agent= model= branch= tasks= push=1
+  local project= spec= until=2h idle=1h agent= model= branch= tasks= push=1 sandbox=seatbelt
   local -a positional=()
   while (( $# )); do
     case $1 in
@@ -117,6 +122,7 @@ _fab_run() {
       --task) tasks=${2:?--task needs task ids}; shift 2 ;;
       --idle) idle=${2:?--idle needs a duration}; shift 2 ;;
       --no-push) push=0; shift ;;
+      --sandbox) sandbox=${2:?--sandbox needs seatbelt or podman}; shift 2 ;;
       -h | --help) _fab_usage; return 0 ;;
       -*) _fab_die "unknown option $1" ;;
       *) positional+=("$1"); shift ;;
@@ -136,7 +142,8 @@ _fab_run() {
     fake) model=${model:-fake}; [[ -n ${FAB_FAKE_AGENT:-} ]] || _fab_die "agent fake needs FAB_FAKE_AGENT=<script>" ;;
     *) _fab_die "agent must be claude or opencode" ;;
   esac
-  _fab_check "$agent"
+  [[ $sandbox == (seatbelt|podman) ]] || _fab_die "sandbox must be seatbelt or podman"
+  _fab_check "$agent" "$sandbox"
   git -C "$dir" rev-parse --is-inside-work-tree >/dev/null 2>&1 || _fab_die "$dir is not a git checkout"
 
   seconds=$(_fab_seconds "$until")
@@ -187,6 +194,7 @@ _fab_run() {
   \"spec\": $(_fab_json "$spec"),
   \"agent\": $(_fab_json "$agent"),
   \"model\": $(_fab_json "$model"),
+  \"sandbox\": $(_fab_json "$sandbox"),
   \"until\": $(_fab_json "$deadline"),
   \"onlyTasks\": $only,
   \"idleSeconds\": $idle_seconds,

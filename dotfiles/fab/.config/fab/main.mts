@@ -14,7 +14,6 @@ import {
   StructuredOutputError,
   type AgentProvider,
 } from "@ai-hero/sandcastle";
-import { seatbelt } from "@ai-hero/sandcastle/sandboxes/seatbelt";
 import {
   readTasks,
   readyTasks,
@@ -25,13 +24,12 @@ import {
 import { Reporter } from "./lib/status.mts";
 import { taskReport, REPORT_TAG, type TaskReport } from "./lib/report.mts";
 import { renderSummary, type TaskOutcome } from "./lib/summary.mts";
+import { readDotenv, readGlobalInstructions } from "./lib/env.mts";
 import {
-  readDotenv,
-  readGlobalInstructions,
-  readMounts,
-  readSandboxEnv,
-  type Mount,
-} from "./lib/env.mts";
+  makeSandbox,
+  type SandboxKind,
+  type SandboxSetup,
+} from "./lib/sandbox.mts";
 import { updateRun } from "./lib/runs.mts";
 
 interface RunConfig {
@@ -43,6 +41,7 @@ interface RunConfig {
   spec: string; // relative to the worktree
   agent: "claude" | "opencode" | "fake";
   model: string;
+  sandbox: SandboxKind; // --sandbox: seatbelt (default) or podman (ADR-0004)
   until: string; // ISO
   onlyTasks?: string[]; // --task: the queue is restricted to these rows
   idleSeconds?: number; // --idle: sandcastle fails a task silent this long
@@ -179,8 +178,7 @@ function pushIfAllowed(outcomes: TaskOutcome[]): PushResult {
 async function runTask(
   task: Task,
   agent: AgentProvider,
-  mounts: Mount[],
-  sandboxEnv: Record<string, string>,
+  sandbox: SandboxSetup,
 ): Promise<TaskOutcome> {
   const startedAt = new Date().toISOString();
   reporter.event("task.start", { task: task.id, step: task.step });
@@ -192,7 +190,8 @@ async function runTask(
   try {
     const result = await run({
       agent,
-      sandbox: seatbelt({ mounts, env: sandboxEnv }),
+      sandbox: sandbox.provider,
+      hooks: sandbox.hooks,
       cwd: cfg.worktree,
       branchStrategy: { type: "head" },
       promptFile: join(CONFIG_DIR, "prompts", "task.md"),
@@ -230,8 +229,12 @@ async function runTask(
 
 async function main() {
   const agent = agentProvider();
-  const mounts = readMounts(CONFIG_DIR);
-  const sandboxEnv = readSandboxEnv(CONFIG_DIR);
+  // Starting the podman machine or building the image happens here, before
+  // the first task, so its time doesn't count against a task.
+  const sandbox = makeSandbox(cfg.sandbox ?? "seatbelt", CONFIG_DIR, (line) => {
+    reporter.event("sandbox.setup", { message: line });
+    console.log(`[${label}] ${line}`);
+  });
   const only = cfg.onlyTasks?.length ? new Set(cfg.onlyTasks) : undefined;
   if (only) {
     const { unknown, done } = checkSelection(readTasks(specPath), [...only]);
@@ -257,11 +260,7 @@ async function main() {
   let consecutiveFailures = 0;
   let stopReason = "queue empty";
 
-  reporter.event("run.start", {
-    ...cfg,
-    mounts: mounts.map((m) => `${m.hostPath}${m.readonly ? "" : " rw"}`),
-    sandboxEnv: Object.keys(sandboxEnv),
-  });
+  reporter.event("run.start", { ...cfg, ...sandbox.info });
   reporter.state("working", `starting on ${cfg.branch}`);
 
   for (;;) {
@@ -281,7 +280,7 @@ async function main() {
       break;
     }
     const task = ready[0];
-    const outcome = await runTask(task, agent, mounts, sandboxEnv);
+    const outcome = await runTask(task, agent, sandbox);
     outcomes.push(outcome);
     // A task is not retried in the same run, whatever happened to it.
     attempted.add(task.id);

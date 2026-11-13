@@ -1,0 +1,51 @@
+# fab's container image for `fab run --sandbox podman`: the sandbox for
+# projects with browser work (ADR-0004). Playwright's own Linux image pins the
+# three browser engines and their OS libraries to one Playwright version; fab
+# adds the agent, pnpm and mise, which installs each project's pinned tools
+# from its mise.toml into a directory fab mounts, so they persist across tasks.
+#
+# fab builds this itself: `podman build -f ~/.config/fab/Containerfile -t
+# fab:<hash of this file>` with an empty build context, and rebuilds when the
+# file changes. Nothing of it lands in a project. The image is the same object
+# on this machine and on a Linux node.
+#
+# Bump PLAYWRIGHT_VERSION with the projects' pinned playwright package: a
+# project whose version differs downloads its own browsers on first use.
+ARG PLAYWRIGHT_VERSION=1.65.0
+FROM mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble
+
+ARG CLAUDE_CODE_VERSION=2.1.311
+ARG PNPM_VERSION=12.16.1
+ARG MISE_VERSION=v2026.11.8
+
+# sandcastle runs the agent as uid 1000 with HOME=/home/agent. The base image
+# has pwuser at that uid; rename it rather than add a second user.
+RUN set -eu; \
+    if id -u 1000 >/dev/null 2>&1; then \
+      old=$(id -un 1000); \
+      usermod -l agent -d /home/agent -m "$old"; \
+      groupmod -n agent "$(id -gn 1000)"; \
+    else \
+      groupadd -g 1000 agent && useradd -u 1000 -g 1000 -m -s /bin/bash agent; \
+    fi
+
+# fab mounts its tool caches under ~/.local/share; the parents must exist and
+# be the agent's, or podman creates them as root and mise can't write
+# ~/.local/state next to them.
+RUN install -d -o agent -g agent /home/agent/.local/share /home/agent/.local/state /home/agent/.cache
+
+RUN npm install -g "pnpm@${PNPM_VERSION}" "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" \
+    && npm cache clean --force
+
+RUN curl -fsSL https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise MISE_VERSION=${MISE_VERSION} sh
+
+# The project's mise.toml is trusted without a prompt: the worktree is the
+# only project directory a sandbox sees. Shims make its pinned tools resolve;
+# fab mounts the data directory read-write so installs survive the container.
+ENV MISE_TRUSTED_CONFIG_PATHS=/home/agent/workspace \
+    MISE_DATA_DIR=/home/agent/.local/share/mise \
+    MISE_YES=1 \
+    PATH=/home/agent/.local/share/mise/shims:$PATH
+
+USER agent
+WORKDIR /home/agent/workspace

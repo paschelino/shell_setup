@@ -389,7 +389,13 @@ into `~/.config/fab/mounts` and are mounted read-only, or read-write with a
 ` rw` suffix (a package manager's store). The sandbox's home directory is
 private, so tools that look for such paths under it need telling:
 `~/.config/fab/sandbox.env` holds `KEY=VALUE` lines for every process in the
-sandbox, such as `pnpm_config_store_dir=~/Library/pnpm/store`. `./install` runs
+sandbox, such as `pnpm_config_store_dir=~/Library/pnpm/store`. That is the
+default sandbox, macOS's own, with the host's tools; browsers don't launch in
+it. For projects with browser work, `fab run --sandbox podman` runs the agent
+in a Linux container built from `~/.config/fab/Containerfile` on Playwright's
+image, with the project's pinned tools installed from its `mise.toml` into a
+cache under `~/.local/share/fab/podman/` (needs `brew install podman` and a
+`podman machine init` once; ADR-0004). `./install` runs
 `npm ci --prefix ~/.config/fab`; the package is stowed with `--no-folding`,
 so `node_modules` and `.env` stay out of this repository.
 

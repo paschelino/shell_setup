@@ -12,24 +12,44 @@ session with the hand-off checklist at the bottom.
   project names. Private details go to `~/.config/zp/fab-notes.md`. Before every
   commit, grep the staged diff for `/Users/`, `~/` and each name in
   `~/.config/zp/projects`; read the hits, don't just count them.
-- **Don't push** without asking the maintainer. Commit on `main` is fine for
-  this repository, as the stow links point at the main checkout.
+- **Pushing** follows the global rule in `~/.config/opencode/AGENTS.md`: only
+  when the push has a consumer, once per occasion. A `fab` run pushes at most
+  once, at its end (ADR-0003). Commit on `main` is fine for this repository,
+  as the stow links point at the main checkout.
 - **Atomic conventional commits** with explicit paths: `git commit -- <paths>`.
   Never commit `dotfiles/mise/.config/mise/mise.lock` as part of this work.
-- **Delete files one by one**, each `rm` with its full path. No loops, globs or
-  `find -delete`, also in scratch directories.
+- **Deleting** follows the global Files rule: scratch directories go whole,
+  tracked files through `git rm`, everything else onto the hand-off's
+  **Delete** list for a Go. Throwaway repositories under `/tmp/fab-tests` count
+  as scratch.
 - **Never run two sandcastle runs on one worktree.** Never start a run on a
   project's `main`.
 - **Don't edit the maintainer's live settings** (`~/.claude/settings.json`,
   tuios, herdr and workmux integrations) in this project. T4f does that later,
   with the maintainer.
-- **Don't install anything into project repositories.** No `.sandcastle/`, no
-  `package.json`, no skills. Project-local files belong to the projects.
-- **Throwaway tests** run in the session's scratchpad or a fresh directory under
-  `/tmp`, never in a real project. Real agents started from tests need the
-  maintainer's normal `HOME`; redirect `XDG_CONFIG_HOME` and `XDG_STATE_HOME`
-  instead, and unset `CLAUDE_CODE_CHILD_SESSION` when starting Claude Code from
-  inside Claude Code.
+- **Projects stay the projects'.** `fab` and `mx` leave no trace in a project
+  repository: no `.sandcastle/`, configuration, skills, hooks or dependencies
+  of their own. What a project needs for its own work is project content and
+  is edited there, committed there, by a session or agent working on that
+  project's task: its spec and progress files, a Tasks table in `fab`'s shape,
+  dependencies a task requires. On the work machine nothing of this setup runs
+  unless invoked.
+- **Throwaway tests** run on repositories under `/tmp/fab-tests/<name>`, with
+  the made-up names `alpha` and `beta`, never in a real project. The directory
+  outlives the session, so later sessions reuse or remove it; one-off probes
+  may use the session scratchpad instead. Test runs may write into the real
+  `~/.local/state/fab/runs/`: the throwaway name makes them recognisable, and
+  they go on the hand-off's **Delete** list once the test is done. An agent
+  started from a test runs in the sandbox with its own home; starting Claude
+  Code from inside Claude Code needs `CLAUDE_CODE_CHILD_SESSION` unset.
+- **Spend real agent sessions sparingly.** They draw on the subscription's
+  rate limit, which the actual runs need. Probe mechanics (prompt
+  substitution, sandbox permissions, file layout) with the fake agent or a
+  shell script. Check wording with a small model, `--model claude-haiku-5-5`.
+  Run the default model once, for the verification a task's "Done when" asks
+  for. State in the progress entry how many real sessions the task spent;
+  more than three means stop and record under **Open** whether the approach
+  is right.
 - **Don't weaken ADRs.** If one looks wrong, write a new one with status
   `proposed`.
 
@@ -172,6 +192,8 @@ Do these in order before ending a session.
    **Next step** (one task id).
 4. **Privacy grep** of the staged diff, then **commit** atomically with explicit
    paths and the attribution line the session gives you. `git status` must be
-   clean afterwards, apart from `mise.lock`. Don't push.
+   clean afterwards, apart from `mise.lock`. Push only if the global rule's
+   consumer exists.
 5. **Tell the maintainer**: what's done and verified, what isn't, the decisions
-   they need to make, and the next task id.
+   they need to make, the **Delete** list (path, reason, command) awaiting
+   their Go, and the next task id.

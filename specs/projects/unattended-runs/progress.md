@@ -5,6 +5,77 @@ open, surprises, next step.
 
 ---
 
+## 2026-11-14: T2 in progress; the attended run and the two-hour run are done
+
+- **Done:** two of T2's three steps, both `--sandbox podman`, `--no-push`, the
+  pilot's spec and run brief unchanged by `fab`. Each run's worktree came from
+  the pilot's `main` with `git wt --nocd <branch> main`.
+  - **Attended run** (one task, `--task`, `--until 1h`, the maintainer on
+    `fab tail`): the task finished in 12.5 minutes with 53 tool calls and three
+    conventional commits; stop reason "queue empty"; no parked question, no
+    intervention. The container started in 0.8 s (mise cache warm). The agent
+    marked the row `**Done**`, ticked its AC and left a progress entry with
+    measurements, decisions, open points and surprises. Review by `fab review`
+    stamps: 6 minutes, note "Works as expected"; merged into the pilot's `main`
+    as its first merge commit. **MC1 holds.**
+  - **Two-hour run** (three tasks, `--until 2h`, MC2): ended after 87 minutes
+    with the queue empty, two tasks done and one parked, 15 commits, 233 tool
+    calls, no question to the maintainer and no intervention. Task durations
+    from `events.jsonl`: 49.9, 25.1 and 12.2 minutes. The parked task is a real
+    fork: the spec's AC asks for five prepared leaf sets, the run brief caps
+    them at two for phone memory; the agent built the half that needs no
+    decision, recorded question and assumption in the pilot's `progress.md` and
+    the run's `summary.md`, left the AC unticked and the row unmarked, and the
+    run went on to the next task. **AC7 observed on the pilot; MC2 holds** (a
+    two-hour budget, finished early). No rate-limit sign in either log.
+- **Measured:**
+  - The agent runs the pilot's browser checks per check and per engine, as
+    background `nohup` chains polled every five seconds, so no tool call hits
+    the ten-minute limit. The full three-engine gate didn't fit either run; the
+    agent says so under Open and leaves it to the maintainer's merge gate.
+  - What the sandbox can't run, by design: the four export-based checks of the
+    pilot's `pnpm check` (their data directory is not in the worktree) and the
+    leaf-frame comparison (the saved mock-up is not there). The agent reported
+    both instead of weakening a check.
+  - Chromium's mock-up comparison shows 62 text-width lines off by 0.6 to 2.4 px
+    in the container, the same before and after the task: Linux text metrics
+    against values measured on the Mac (ADR-0004's consequence).
+  - Hand-off cost: the maintainer's review of run 1 took 6 minutes; run 2's
+    review is pending at the time of writing.
+- **Decisions:**
+  - Hand the review over with a tuios message that names the commands, and read
+    the merge into `main` (or the review stamp) as the answer. A blocking
+    `ask-human` question for "merged?" was the wrong shape: it outlived the
+    merge and had to be hidden before `fab review` could start.
+  - The two parallel runs wait for the two-hour run's merge, as the run plan
+    says, so their branches start from the merged `main`.
+- **Open, for the maintainer:**
+  - **Review and merge of the two-hour run's branch**, with the parked AC19
+    question: five prepared sets as the spec asks, or three as the agent
+    assumed, or the run brief's two. Recommendation: three, the run brief's
+    sentence changed to say so, as the agent assumed.
+  - **The hand-off protocol** between fab and you, after T2's measurements and
+    before the feedback items are built: no blocking question during review;
+    `fab review` optionally starting the project's demo (for the pilot
+    `hugo server` in the run's worktree), configurable per project; the human
+    pace of review, verify and answer. Recommendation: a short joint session
+    ending in a proposed ADR, which also informs T4c and T4d, then a task row.
+  - The agent's `nextTask` in `summary.md` names the parked row again, since it
+    is the first row not done. Fine for a queue; say "parked" there?
+    Recommendation: leave it until the summary format is revisited with MC1.
+  - The merge commits in the pilot are git's default "Merge branch" messages,
+    not conventional. Recommendation: your call per merge; nothing is pushed.
+- **Surprises:**
+  - The agent, in the container, found prettier and markdownlint missing from
+    `PATH` and used `npx --yes` with a cache in `$TMPDIR`; the pilot's `pnpm`
+    scripts assume them.
+  - A `cut` stage in a log-watching pipeline block-buffers and swallowed the
+    task events for an hour; `grep -o` instead.
+  - tuios `ask-human --timeout` takes a bare integer; `50s` is an error that
+    returns at once, so a wait loop built on it spun through its iterations in
+    seconds.
+- **Next step:** T2, the two parallel runs on M5.5 and M5.6 once the two-hour
+  run's branch is merged; then the T2 entry with the rate-limit measurement.
 ## 2026-11-13: T2s, podman is the sandbox for browser work; ADR-0004; fab --sandbox
 
 - **Done:** T2s. ADR-0004 accepted: projects with browser work run in a podman

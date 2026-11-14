@@ -187,11 +187,13 @@ how to try it, next task, run statistics (tasks, duration, stops and why).
 
 Manual checks:
 
-- [ ] MC1: After a pilot run, reviewing `summary.md` and the demo takes the
-      maintainer under 15 minutes. How: time it.
-- [ ] MC2: A two-hour run on the pilot project completes with no human input,
-      while the maintainer works elsewhere. How: start it, note every time it
-      asked for or needed attention.
+- [x] MC1 (6 minutes on 2026-11-13, by `fab review` stamps): After a pilot run,
+      reviewing `summary.md` and the demo takes the maintainer under 15 minutes.
+      How: time it.
+- [x] MC2 (2026-11-13: 87 minutes, three tasks, no input): A two-hour run on the
+      pilot project completes with no human input, while the maintainer works
+      elsewhere. How: start it, note every time it asked for or needed
+      attention.
 
 ## Metrics
 

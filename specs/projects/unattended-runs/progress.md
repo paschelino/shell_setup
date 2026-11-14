@@ -5,6 +5,80 @@ open, surprises, next step.
 
 ---
 
+## 2026-11-14: T2 done, the pilot's three steps; two parallel runs show no throttling
+
+- **Done:** T2. The third step, two parallel runs on two branches from the
+  merged `main`, started one second apart, each
+  `--task <id> --until 1h --no-push --sandbox podman` in the shared podman VM (4
+  CPUs, 6 GB):
+  - Run A: its task done in 20.5 minutes, 49 tool calls, three commits.
+  - Run B: its task done in 24.5 minutes, 60 tool calls, three commits.
+  - Both containers started within a second (1.0 s and 0.8 s). No parked
+    question, no intervention. **Rate limits:** neither log holds a rate-limit,
+    overload or API-error line, and the durations sit in the range of the single
+    runs (12 to 50 minutes per task), so two parallel runs on the Max plan
+    showed no throttling at this size, and the shared VM no slowdown.
+  - The predicted conflict is there: both agents extended the viewer and the
+    layout check, so the second branch conflicts in those two files on top of
+    the first, and after the first merge in the spec, progress log and viewer
+    test too. Reviews: 7 and 7 minutes. Both merged by the session on the
+    maintainer's answers: the first at once, the second after the session
+    resolved the conflict in the branch's worktree (both functions kept, main's
+    test signature), 182 unit tests and both new browser checks passing in
+    Chromium on the host. The second review found a fix for a new row, added to
+    the pilot's spec with its AC rather than done before the merge.
+  - Totals over the pilot (four runs, six tasks): five done, one parked, none
+    failed; 24 commits; stop reason always "queue empty"; zero questions to the
+    maintainer during a run; reviews 6, 34, 7 and 7 minutes, 54 in all.
+- **Measured:**
+  - The second review, three tasks, took 34 minutes against 6 for one task.
+    MC1's 15 minutes hold per task, not per run of three.
+  - A run's hand-off costs more than its review: the maintainer's pace to
+    review, verify and answer is hours, not minutes, between runs. The pilot's
+    wall time from first start to last merge was about twelve hours, of which
+    the agents worked 2 h 26 min; the rest was the night and the reviews.
+- **Decisions:**
+  - Merging and worktree cleanup were done by the session on the maintainer's
+    answer to a four-option question (merge, keep or drop worktrees, message
+    style), since `fab` has no verb for it yet.
+  - A merge commit another branch already builds on is not amended: the first
+    merge keeps git's default message after an amend doubled it in history and
+    was undone.
+  - `git wt -d` on a merged branch removes the branch too; accepted, every
+    commit is in `main`.
+- **Open, for the maintainer:**
+  - **fab's hand-off verbs**, after the protocol session: `fab review --done`
+    offering the merge into `main` and the worktree's removal, and `fab review`
+    starting the project's demo (configurable per project). Both came up at the
+    exact moment they were missing. Recommendation: one task row for both, after
+    the protocol ADR.
+  - **Run ids aren't human-readable** (`<project>-<date>-<time>`), and with two
+    runs to review it wasn't clear which to take first. Feedback from the
+    maintainer, 2026-11-14. Recommendation: keep the id and add a readable label
+    on top (branch, task ids), shown by `fab runs`, `fab review` and the
+    hand-off message, which also says the review order (the clean merge first)
+    and why. Part of the hand-off task row above.
+  - **`fab review` prints the summary with `cat`**; a review wants to scroll
+    both ways and read Markdown rendered, so a pager (`$PAGER`, `less`) or a
+    Markdown-aware viewer such as `bat` or `glow` when installed. Feedback from
+    the maintainer, 2026-11-14. Recommendation: pipe through `$PAGER` by
+    default, `bat` when present, `--no-pager` for scripts; same task row.
+  - **The parked M5.3 question** (five prepared sets, three or two) is still the
+    pilot's; its next `fab run` offers M5.3 again, with the assumption already
+    built. The pilot's queue now reads two ready rows, M5.3 and the new M5.7,
+    then the two M6 rows.
+  - **The pilot's M6 tasks** stop for a mock-up approval and the sandbox has no
+    Artifact tool: decide the mock-up route before M6 (private notes).
+  - **Delete list** below: the four pilot runs under `~/.local/state/fab/runs/`
+    are the measurements; keep them until T3's first run, then they can go.
+- **Surprises:**
+  - Starting two containers in the same second cost nothing visible; the T2s
+    worry about VM contention didn't show at one browser gate per run.
+  - `git merge-tree --write-tree` with `--name-only` is the cheap way to see a
+    conflict before merging; it named the two files at once.
+- **Next step:** T3 (skills), or T2b if fan-out matters sooner. Recommendation:
+  T3, since a second project is the next real test and the pilot's remaining
+  rows wait on the maintainer's decisions.
 ## 2026-11-14: T2 in progress; the attended run and the two-hour run are done
 
 - **Done:** two of T2's three steps, both `--sandbox podman`, `--no-push`, the

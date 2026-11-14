@@ -76,9 +76,10 @@ open, surprises, next step.
     worry about VM contention didn't show at one browser gate per run.
   - `git merge-tree --write-tree` with `--name-only` is the cheap way to see a
     conflict before merging; it named the two files at once.
-- **Next step:** T3 (skills), or T2b if fan-out matters sooner. Recommendation:
-  T3, since a second project is the next real test and the pilot's remaining
-  rows wait on the maintainer's decisions.
+- **Next step:** T2p, the hand-off protocol with the maintainer present (row
+  and kickoff prompt added after the T2 entry); then T3, since a second
+  project is the next real test, with T2b if fan-out matters sooner.
+
 ## 2026-11-14: T2 in progress; the attended run and the two-hour run are done
 
 - **Done:** two of T2's three steps, both `--sandbox podman`, `--no-push`, the

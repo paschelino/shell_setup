@@ -224,6 +224,25 @@ Private details go to ~/.config/zp/fab-notes.md, never to progress.md. Finish
 with the hand-off checklist and a summary naming the next task.
 ```
 
+### T2p: the hand-off protocol
+
+```text
+Work on T2p of specs/projects/unattended-runs/spec.md in this repository. Read
+specs/README.md, the spec, specs/projects/unattended-runs/run-brief.md, the two
+2026-11-14 entries of progress.md (the maintainer's feedback on the pilot's
+hand-offs is in their Decisions and Open lists), ADR-0002 and
+~/.config/zp/fab-notes.md. The maintainer is present for this one: interview
+them, in rounds, about how a finished run should reach them and come back
+merged: what fab says when a run ends and in which channel, the review's order
+with several runs, what `fab review` shows and starts, whether `fab review
+--done` merges and removes the worktree and what it asks first, how a parked
+question is answered, and what they never want asked. Then write ADR-0005 with
+status proposed, the protocol as numbered steps naming who waits for whom, and
+the fab verbs it changes. Add the implementation row to the Tasks table. Don't
+change fab in this session. Finish with the hand-off checklist and a summary
+naming the next task.
+```
+
 For T2b, T3 and the T4x tasks, use the same shape: name the task, list the files
 to read, point at the private notes, ask for decisions to be recorded, and end
 with the hand-off checklist.

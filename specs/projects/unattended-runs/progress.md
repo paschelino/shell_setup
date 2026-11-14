@@ -5,6 +5,58 @@ open, surprises, next step.
 
 ---
 
+## 2026-11-14: T2p, the hand-off protocol interviewed and proposed as ADR-0005
+
+- **Done:** the interview with the maintainer, five rounds of three to four
+  questions, and ADR-0005 (status proposed) with the protocol as seven
+  numbered steps, the actors, the never-ask list and the verbs it changes.
+  The T2h implementation row and its kickoff prompt are added. `fab` itself is
+  unchanged, as the kickoff asked. No agent session spent.
+- **What the interview settled**, beyond the ADR's text:
+  - Three actors: `fab`, which never asks; an orchestrator, the interactive
+    agent session in the project that runs the verbs on the maintainer's word
+    and records findings in the project; the maintainer, who waits for nobody.
+  - The end notice names the review order and the `fab review <id>` command.
+    Labels are `<project> <branch> <task ids>`; the id stays the key and
+    `fab review --done` requires it, so two open reviews can't be confused.
+  - `fab run` refuses a project with a live finished run (`--force` overrides).
+    The maintainer chose the refusal over a warning.
+  - `fab review` opens the summary pager and the demo as two panes in the
+    current multiplexer session (new `mx open` verb), demo in the foreground so
+    its output is visible, and prints a short brief for the orchestrator.
+  - The demo is the project's own `scripts/demo`, zero arguments, worktree as
+    cwd, `FAB_*` variables; a private override in `~/.config/fab/projects/<name>`
+    for repositories the maintainer can't change. The maintainer first asked
+    for a `<project>/.fab/` indirection on top, then agreed it adds a layer
+    and breaks the run brief's rule.
+  - `--done` asks nothing: stop demo, merge check, `--no-ff` merge, `git wt
+    -d`, one push, stamp, archive. Review feedback and parked answers are the
+    orchestrator's to record, after the merge. A conflict is exit 3, worktree
+    kept, resolved by the orchestrator in the worktree, then `--done` again.
+  - Reviewed runs move to `~/.local/state/fab/archive/`; `fab runs --all`.
+  - Push after the merge: the global rule lists "a worktree being merged back"
+    as a consumer, so `--done` pushes once; `--no-push` skips it. The pilot
+    sessions not pushing `main` after their merges was more cautious than the
+    rule asks.
+- **Open, for the maintainer:**
+  - **Accept ADR-0005** (edit its status to `accepted`), then mark T2p done.
+    T2h's kickoff stops if the ADR is still proposed.
+  - **The pilot's `main` is unpushed** since the four merges. Recommendation:
+    push it once now, as the rule's "worktree being merged back" case.
+  - **T4d's shape** changes with the never-ask list (a consequence in the ADR):
+    a `--continue` policy at `fab run`, or a decision in the review.
+    Recommendation: decide when T4d is next, not now.
+  - **A `scripts/demo` for the pilot** is a pilot commit (private notes), to be
+    made before T2h's first real review with the verbs.
+- **Surprises:**
+  - The maintainer's first instinct was interactivity at `--done` (per parked
+    question); thinking about where the feedback is written moved it to the
+    orchestrator session and left `--done` with no question at all.
+  - The global push rule already answers the merge-push question; nobody had
+    read it against `fab`'s merges before.
+- **Next step:** T2h once ADR-0005 is accepted; in parallel T3 is unblocked
+  (depends on T2 only).
+
 ## 2026-11-14: T2 done, the pilot's three steps; two parallel runs show no throttling
 
 - **Done:** T2. The third step, two parallel runs on two branches from the

@@ -243,6 +243,31 @@ change fab in this session. Finish with the hand-off checklist and a summary
 naming the next task.
 ```
 
+### T2h: the hand-off verbs
+
+```text
+Work on T2h of specs/projects/unattended-runs/spec.md in this repository. Read
+specs/README.md, the spec, specs/projects/unattended-runs/run-brief.md, the
+2026-11-14 entries of progress.md, ADR-0002, ADR-0003 and ADR-0005 (the
+protocol; it must be accepted before you start, else stop and say so), and
+~/.config/zp/fab-notes.md. Build what ADR-0005's "Verbs and conventions"
+section lists: the run label in run.json and everywhere the id is shown; the
+end notice with the review order and the `fab review <id>` command; `fab run`
+refusing a project with a live finished run unless --force; `fab runs` live
+only with --all for the archive; the new `mx open <title> -- <command>` verb
+with a tuios adapter, the others as no-ops that print the command; `fab review
+[id] [--no-demo] [--no-pager]` opening the summary pager and the project's
+scripts/demo (or the `demo` line in ~/.config/fab/projects/<name>) in panes
+and printing the short brief; `fab review --done <id> [note] [--no-push]` with
+the ADR's step 5 sequence and exit 3 on a conflict, keeping the worktree.
+Update the spec's contracts, fab's README section and the mx header. Test with
+the fake agent on /tmp/fab-tests/alpha, recreated from fab-notes.md if gone: a
+clean run through notice, review, --done, archive; a forced conflict. Don't
+touch the pilot. Make reasonable decisions and record them in progress.md
+instead of asking. Finish with the hand-off checklist and a summary naming the
+next task.
+```
+
 For T2b, T3 and the T4x tasks, use the same shape: name the task, list the files
 to read, point at the private notes, ask for decisions to be recorded, and end
 with the hand-off checklist.
